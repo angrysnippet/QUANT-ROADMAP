@@ -1,0 +1,23 @@
+# Normalize line endings: store everything as LF in the repo,
+# check out with the platform's native endings.
+* text=auto
+
+# Text files that should always be LF in the working tree too.
+*.rs    text eol=lf
+*.toml  text eol=lf
+*.css   text eol=lf
+*.html  text eol=lf
+*.md    text eol=lf
+*.json  text eol=lf
+*.svg   text eol=lf
+*.lock  text eol=lf
+
+# Binary files: never normalize.
+*.ico   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
