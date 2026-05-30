@@ -1,0 +1,2702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quant Roadmap Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f12;--surface:#13161b;--surface2:#1a1e25;--surface3:#20242d;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --text:#e8eaf0;--text2:#8b90a0;--text3:#454a5a;
+  --accent:#7c6fff;--accent2:#4ecdc4;--accent3:#ff6b6b;--accent4:#ffd166;--accent5:#06d6a0;
+  --orange:#ff9f43;
+  --mono:'DM Mono',monospace;--sans:'Sora',sans-serif;
+  --radius:10px;--radius-sm:7px;--radius-lg:14px;
+  --sidebar:220px;--header:56px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+
+.topbar{
+  height:var(--header);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem 0 1rem;
+  border-bottom:1px solid var(--border);
+  background:var(--bg);
+  position:relative;z-index:50;
+}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{font-size:15px;font-weight:600;letter-spacing:-.3px;white-space:nowrap}
+.topbar-logo span{color:var(--accent)}
+.topbar-date{font-family:var(--mono);font-size:11px;color:var(--text3);padding:3px 10px;background:var(--surface);border:1px solid var(--border);border-radius:20px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.autosave-label{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.autosave-label span{color:var(--text2)}
+.save-btn{font-family:var(--mono);font-size:11px;color:var(--accent5);background:rgba(6,214,160,0.08);padding:5px 14px;border-radius:20px;border:1px solid rgba(6,214,160,0.2);cursor:pointer;transition:all .2s;white-space:nowrap}
+.save-btn:hover{background:rgba(6,214,160,0.15)}
+.save-btn.saving{color:var(--accent4);background:rgba(255,209,102,0.08);border-color:rgba(255,209,102,0.2)}
+
+.shell{display:flex;flex:1;overflow:hidden}
+
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  border-right:1px solid var(--border);
+  background:var(--surface);
+  display:flex;flex-direction:column;
+  padding:1.25rem 0;
+  overflow-y:auto;
+}
+.sidebar-section-label{
+  font-family:var(--mono);font-size:10px;color:var(--text3);
+  text-transform:uppercase;letter-spacing:1px;
+  padding:0 1rem .5rem;margin-top:.5rem;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:.6rem 1rem;margin:1px .5rem;
+  border-radius:var(--radius-sm);
+  cursor:pointer;font-size:13px;font-weight:500;
+  color:var(--text2);border:none;background:transparent;
+  transition:all .15s;width:calc(100% - 1rem);text-align:left;
+  font-family:var(--sans);
+}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(124,111,255,0.12);color:var(--accent);border:1px solid rgba(124,111,255,0.15)}
+.nav-item-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-divider{height:1px;background:var(--border);margin:.75rem .75rem}
+.sidebar-bottom{margin-top:auto;padding:.75rem .5rem 0}
+.phase-chip{
+  font-family:var(--mono);font-size:10px;padding:4px 10px;
+  border-radius:20px;margin:2px .5rem;display:block;
+  border:1px solid transparent;cursor:default;
+}
+.pc1{background:rgba(124,111,255,0.08);color:var(--accent);border-color:rgba(124,111,255,0.15)}
+.pc2{background:rgba(78,205,196,0.08);color:var(--accent2);border-color:rgba(78,205,196,0.15)}
+.pc3{background:rgba(255,209,102,0.08);color:var(--accent4);border-color:rgba(255,209,102,0.15)}
+.pc4{background:rgba(255,107,107,0.08);color:var(--accent3);border-color:rgba(255,107,107,0.15)}
+
+.content{flex:1;overflow-y:auto;background:var(--bg)}
+.view{display:none;padding:2rem 2.5rem;max-width:1200px}
+.view.active{display:block}
+.view-title{font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:.25rem}
+.view-sub{font-size:13px;color:var(--text3);margin-bottom:1.75rem;font-family:var(--mono)}
+
+.cols-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem}
+.cols-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.card-pad{padding:1.25rem 1.5rem}
+.card-title{font-size:13px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.card-title-dot{width:7px;height:7px;border-radius:50%}
+
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.sc1::after{background:var(--accent)}.sc2::after{background:var(--accent2)}.sc3::after{background:var(--accent4)}.sc4::after{background:var(--accent5)}
+.stat-label{font-size:11px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem}
+.stat-val{font-size:32px;font-weight:600;letter-spacing:-1.5px;line-height:1}
+.sc1 .stat-val{color:var(--accent)}.sc2 .stat-val{color:var(--accent2)}.sc3 .stat-val{color:var(--accent4)}.sc4 .stat-val{color:var(--accent5)}
+.stat-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:.4rem}
+
+.journey-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem 2rem;margin-bottom:1.5rem}
+.journey-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem}
+.journey-stage{font-size:20px;font-weight:600;letter-spacing:-.3px}
+.journey-pct-badge{font-family:var(--mono);font-size:13px;color:var(--text3);background:var(--surface2);padding:4px 12px;border-radius:20px;border:1px solid var(--border)}
+.journey-track-wrap{position:relative;margin-bottom:1rem}
+.journey-track{position:relative;height:8px;background:var(--surface2);border-radius:4px;overflow:visible}
+.journey-fill{position:absolute;left:0;top:0;height:100%;border-radius:4px;background:linear-gradient(90deg,#7c6fff,#4ecdc4,#ffd166,#ff9f43,#06d6a0);transition:width .7s cubic-bezier(.4,0,.2,1)}
+.journey-avatar{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:26px;transition:left .7s cubic-bezier(.4,0,.2,1);z-index:2;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.journey-milestone{position:absolute;top:50%;transform:translate(-50%,-50%);z-index:1}
+.milestone-dot{width:14px;height:14px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);transition:all .4s}
+.milestone-dot.active{background:var(--accent5);border-color:var(--accent5);box-shadow:0 0 10px rgba(6,214,160,.4)}
+.journey-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);font-family:var(--mono);text-align:center;line-height:1.5;padding-top:.375rem}
+.journey-labels span{width:20%}
+.reward-banner{background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.2);border-radius:var(--radius-sm);padding:.625rem 1rem;font-size:13px;font-weight:500;color:var(--accent4);margin-top:1rem;text-align:center;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.worlds-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.world-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.125rem 1.25rem;position:relative;overflow:hidden;transition:border-color .3s}
+.world-card.unlocked{border-color:rgba(255,255,255,0.1)}
+.world-card.locked{opacity:.4}
+.world-emoji{font-size:26px;margin-bottom:.5rem;display:block}
+.world-name{font-size:12px;font-weight:600;margin-bottom:2px}
+.world-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:.75rem}
+.world-bar-track{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.world-bar-fill{height:100%;border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.world-pct{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:5px}
+.world-lock{position:absolute;top:.75rem;right:.75rem;font-size:11px;color:var(--text3)}
+
+.track-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:.75rem;overflow:hidden}
+.track-header{padding:.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.track-header:hover{background:var(--surface2)}
+.track-left{display:flex;align-items:center;gap:12px}
+.track-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;font-family:var(--mono);flex-shrink:0}
+.track-name{font-size:13px;font-weight:600}
+.track-meta{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:1px}
+.track-right{display:flex;align-items:center;gap:12px}
+.track-ring{width:40px;height:40px}
+.chevron-icon{font-size:14px;color:var(--text3);transition:transform .2s}
+.chevron-icon.open{transform:rotate(180deg)}
+.track-body{display:none;border-top:1px solid var(--border)}
+.track-body.open{display:block}
+.topics-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.topic-row{padding:.75rem 1.25rem;border-bottom:1px solid var(--border);border-right:1px solid var(--border);display:flex;flex-direction:column;gap:.5rem}
+.topic-row:nth-child(even){border-right:none}
+.topic-row:last-child,.topic-row:nth-last-child(2):nth-child(odd){border-bottom:none}
+.topic-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.topic-name{font-size:12px;color:var(--text);flex:1}
+.phase-pill{font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:20px;flex-shrink:0;font-weight:500}
+.p1{background:rgba(124,111,255,0.12);color:var(--accent)}.p2{background:rgba(78,205,196,0.12);color:var(--accent2)}.p3{background:rgba(255,209,102,0.12);color:var(--accent4)}.p4{background:rgba(255,107,107,0.12);color:var(--accent3)}
+.topic-bottom{display:flex;align-items:center;gap:10px}
+.topic-slider{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;background:var(--surface2);outline:none;cursor:pointer}
+.topic-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--text);cursor:pointer;border:2px solid var(--bg);transition:transform .1s}
+.topic-slider::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.topic-pct{font-family:var(--mono);font-size:11px;color:var(--text2);min-width:30px;text-align:right}
+
+/* auto-linked indicator */
+.topic-auto-badge{
+  font-family:var(--mono);font-size:9px;color:var(--accent5);
+  background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.2);
+  border-radius:10px;padding:1px 6px;flex-shrink:0;
+  opacity:0;transition:opacity .3s;
+}
+.topic-auto-badge.visible{opacity:1}
+
+/* ring flash animation */
+@keyframes ringPulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.ring-flash{animation:ringPulse .5s ease 2}
+
+.today-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.daily-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.daily-block-header{padding:.875rem 1.25rem;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.block-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.daily-items{padding:.25rem 0}
+.daily-item{display:flex;align-items:flex-start;gap:10px;padding:.6rem 1.25rem;cursor:pointer;transition:background .1s}
+.daily-item:hover{background:var(--surface2)}
+.check-box{width:16px;height:16px;border:1.5px solid var(--border2);border-radius:4px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.check-box.checked{background:var(--accent);border-color:var(--accent)}
+.check-box.checked::after{content:'✓';font-size:10px;color:white;font-weight:600}
+.daily-label{font-size:12px;color:var(--text2);line-height:1.5;transition:all .15s}
+.daily-label.checked{text-decoration:line-through;color:var(--text3)}
+.daily-count{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text3)}
+
+/* block progress bar under header */
+.block-progress-bar{height:2px;background:var(--surface2)}
+.block-progress-fill{height:100%;transition:width .3s cubic-bezier(.4,0,.2,1)}
+
+/* block completion badge */
+.block-complete-badge{
+  font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:10px;
+  background:rgba(6,214,160,0.1);color:var(--accent5);border:1px solid rgba(6,214,160,0.2);
+  opacity:0;transition:opacity .4s;
+}
+.block-complete-badge.visible{opacity:1}
+
+/* auto-link toast */
+.auto-link-toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;
+  background:var(--surface2);border:1px solid rgba(6,214,160,0.3);
+  border-radius:var(--radius-sm);padding:.75rem 1.25rem;
+  font-size:12px;color:var(--text);font-family:var(--mono);
+  z-index:999;pointer-events:none;
+  opacity:0;transform:translateY(8px);
+  transition:opacity .3s,transform .3s;
+  max-width:320px;line-height:1.5;
+}
+.auto-link-toast.show{opacity:1;transform:translateY(0)}
+.auto-link-toast-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent5);margin-right:6px;vertical-align:middle}
+
+.strategy-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem}
+.strat-search{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--sans);font-size:13px;padding:.625rem 1rem;outline:none;transition:border-color .2s;max-width:360px}
+.strat-search:focus{border-color:var(--accent)}
+.strat-search::placeholder{color:var(--text3)}
+.strat-phase-tabs{display:flex;gap:5px}
+.strat-ptab{font-size:11px;padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-family:var(--mono);transition:all .15s}
+.strat-ptab:hover{border-color:var(--border2);color:var(--text2)}
+.strat-ptab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.day-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:.75rem;overflow:hidden}
+.day-card-header{padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .15s}
+.day-card-header:hover{background:var(--surface2)}
+.day-header-left{display:flex;align-items:center;gap:12px}
+.day-number{font-family:var(--mono);font-size:11px;color:var(--text3);background:var(--surface2);padding:3px 10px;border-radius:20px;border:1px solid var(--border)}
+.day-title{font-size:13px;font-weight:600}
+.day-phase-tag{font-size:10px;font-family:var(--mono);padding:3px 10px;border-radius:20px}
+.day-body{display:none;border-top:1px solid var(--border);padding:1.25rem 1.5rem}
+.day-body.open{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.block-item{background:var(--surface2);border-radius:var(--radius-sm);padding:1rem}
+.block-item-header{display:flex;align-items:center;gap:8px;margin-bottom:.75rem}
+.block-color-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.block-item-title{font-size:12px;font-weight:600;color:var(--text)}
+.block-item-time{font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:auto}
+.block-content{font-size:12px;color:var(--text2);line-height:1.75}
+.block-content ul{padding-left:1rem;margin:.375rem 0}
+.block-content li{margin-bottom:.25rem}
+.block-content a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(124,111,255,0.25);transition:border-color .15s}
+.block-content a:hover{border-bottom-color:var(--accent)}
+.block-content code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;color:var(--accent4)}
+.block-tag{display:inline-block;font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:10px;margin:.2rem .2rem .2rem 0}
+.tag-task{background:rgba(124,111,255,0.1);color:var(--accent)}
+.tag-resource{background:rgba(78,205,196,0.1);color:var(--accent2)}
+.tag-practice{background:rgba(255,209,102,0.1);color:var(--accent4)}
+.tag-think{background:rgba(255,159,67,0.1);color:var(--orange)}
+
+/* ── STRATEGY DRILL-DOWN ── */
+.strat-block-count{font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--surface2);padding:3px 9px;border-radius:20px;border:1px solid var(--border)}
+
+/* breadcrumb */
+.strat-crumb{display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;font-size:12px;font-family:var(--mono);flex-wrap:wrap}
+.strat-crumb-link{color:var(--accent2);cursor:pointer;transition:color .15s}
+.strat-crumb-link:hover{color:var(--text)}
+.strat-crumb-sep{color:var(--text3)}
+.strat-crumb-current{color:var(--text);font-weight:500;font-family:var(--sans)}
+
+/* block tiles (level 2) */
+.strat-block-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.875rem}
+.strat-block-tile{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:1.125rem 1.25rem;cursor:pointer;transition:all .18s;
+  display:flex;flex-direction:column;gap:.5rem;min-height:108px;
+}
+.strat-block-tile:hover{border-color:var(--border2);background:var(--surface2);transform:translateY(-2px)}
+.strat-tile-top{display:flex;align-items:center;justify-content:space-between}
+.strat-tile-time{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.strat-tile-title{font-size:14px;font-weight:600;color:var(--text);flex:1;line-height:1.4}
+.strat-tile-open{font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:auto}
+
+/* block detail (level 3) */
+.strat-detail-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:1rem}
+.strat-detail-header{padding:1.125rem 1.5rem;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.strat-detail-title{font-size:15px;font-weight:600;color:var(--text)}
+.strat-detail-time{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:auto}
+.strat-detail-body{padding:1.5rem}
+.strat-detail-body .block-content{font-size:13px;line-height:1.85}
+
+/* prev/next nav */
+.strat-block-nav{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.strat-nav-btn{
+  font-family:var(--mono);font-size:11px;color:var(--text2);
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:.625rem 1rem;cursor:pointer;transition:all .15s;max-width:48%;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.strat-nav-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── CALENDAR ── */
+.cal-schedule-bar{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.875rem 1.25rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.cal-sched-label{font-size:12px;font-weight:600;color:var(--text)}
+.cal-date-input{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--mono);font-size:12px;padding:.4rem .75rem;outline:none;cursor:pointer;color-scheme:dark}
+.cal-date-input:focus{border-color:var(--accent)}
+.cal-sched-hint{font-family:var(--mono);font-size:11px;color:var(--text3)}
+
+.cal-layout{display:grid;grid-template-columns:1fr 320px;gap:1.25rem;align-items:start}
+.cal-main{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem}
+.cal-header{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem}
+.cal-nav-btn{width:30px;height:30px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:16px;cursor:pointer;transition:all .15s;line-height:1}
+.cal-nav-btn:hover{border-color:var(--border2);color:var(--text)}
+.cal-month-label{font-size:15px;font-weight:600;min-width:150px;text-align:center}
+.cal-today-btn{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accent);background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.2);border-radius:20px;padding:5px 14px;cursor:pointer;transition:all .15s}
+.cal-today-btn:hover{background:rgba(124,111,255,0.15)}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:5px}
+.cal-weekday{text-align:center;font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:4px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-cell{aspect-ratio:1;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .15s;overflow:hidden}
+.cal-cell:hover{border-color:var(--border2);transform:scale(1.04)}
+.cal-cell.empty{background:transparent;border:none;cursor:default}
+.cal-cell.empty:hover{transform:none}
+.cal-cell.today{border:1.5px solid var(--accent)}
+.cal-cell.selected{border:1.5px solid var(--accent5);box-shadow:0 0 0 2px rgba(6,214,160,0.2)}
+.cal-cell-num{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text);position:relative;z-index:2;mix-blend-mode:normal}
+.cal-cell-num.dim{color:var(--text3)}
+.cal-cell-num.on-fill{color:#0d0f12;font-weight:600}
+.cal-sched-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);position:absolute;top:5px;right:5px;z-index:2}
+.cal-jrnl-dot{width:5px;height:5px;border-radius:50%;background:var(--accent4);position:absolute;bottom:5px;right:5px;z-index:2}
+
+/* detail panel */
+.cal-detail{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;min-height:200px}
+.cal-detail-empty{color:var(--text3);font-size:12px;font-family:var(--mono);text-align:center;padding:3rem 1rem;line-height:1.7}
+.cal-detail-date{font-size:15px;font-weight:600;margin-bottom:.25rem}
+.cal-detail-sub{font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:1.25rem}
+.cal-detail-section-label{font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin:1.25rem 0 .625rem;display:flex;align-items:center;gap:8px}
+.cal-detail-section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.cal-sched-card{background:rgba(124,111,255,0.06);border:1px solid rgba(124,111,255,0.18);border-radius:var(--radius-sm);padding:.75rem 1rem;margin-bottom:.5rem}
+.cal-sched-card-title{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:2px}
+.cal-sched-card-meta{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:.625rem}
+.cal-sched-open-btn{font-family:var(--mono);font-size:11px;color:var(--accent);background:transparent;border:1px solid rgba(124,111,255,0.3);border-radius:20px;padding:4px 12px;cursor:pointer;transition:all .15s}
+.cal-sched-open-btn:hover{background:rgba(124,111,255,0.12)}
+.cal-completion-ring{display:flex;align-items:center;gap:12px;margin-bottom:.5rem}
+.cal-completion-text{font-size:13px}
+.cal-completion-text strong{color:var(--accent5);font-size:18px;font-family:var(--mono)}
+.cal-mini-block{display:flex;align-items:center;gap:8px;padding:.4rem 0;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)}
+.cal-mini-block:last-child{border-bottom:none}
+.cal-mini-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.cal-mini-name{flex:1}
+.cal-mini-count{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.cal-mini-count.full{color:var(--accent5)}
+.cal-jrnl-preview{font-size:12px;color:var(--text2);line-height:1.6;background:var(--surface2);border-radius:var(--radius-sm);padding:.625rem .875rem;margin-bottom:.5rem}
+.cal-jrnl-preview .jq{color:var(--accent4);font-family:var(--mono);font-size:10px;display:block;margin-bottom:3px}
+.cal-jrnl-empty{font-family:var(--mono);font-size:11px;color:var(--text3);font-style:italic}
+.cal-open-today-btn{width:100%;font-family:var(--mono);font-size:12px;color:var(--accent5);background:rgba(6,214,160,0.08);border:1px solid rgba(6,214,160,0.2);border-radius:var(--radius-sm);padding:.625rem;cursor:pointer;transition:all .15s;margin-top:1rem}
+.cal-open-today-btn:hover{background:rgba(6,214,160,0.15)}
+
+.cal-legend{display:flex;align-items:center;gap:6px;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border)}
+.cal-legend-label{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.cal-legend-cell{width:14px;height:14px;border-radius:3px;border:1px solid var(--border)}
+.cal-legend .cal-sched-dot{position:static;width:6px;height:6px}
+
+@media(max-width:900px){.cal-layout{grid-template-columns:1fr}}
+
+/* ── PRACTICE ── */
+.prac-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap}
+.prac-filter-tabs{display:flex;gap:5px}
+.prac-ftab{font-size:11px;padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-family:var(--mono);transition:all .15s}
+.prac-ftab:hover{border-color:var(--border2);color:var(--text2)}
+.prac-ftab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.prac-solved-count{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accent5)}
+
+.prac-layout{display:grid;grid-template-columns:300px 1fr;gap:1.25rem;align-items:start}
+
+/* question list */
+.prac-qlist{display:flex;flex-direction:column;gap:.5rem;max-height:640px;overflow-y:auto;padding-right:4px}
+.prac-q-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.75rem .875rem;cursor:pointer;transition:all .15s}
+.prac-q-item:hover{border-color:var(--border2);background:var(--surface2)}
+.prac-q-item.active{border-color:var(--accent);background:rgba(124,111,255,0.06)}
+.prac-q-item-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.prac-q-check{width:15px;height:15px;border:1.5px solid var(--border2);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px}
+.prac-q-check.solved{background:var(--accent5);border-color:var(--accent5);color:#0d0f12}
+.prac-q-check.solved::after{content:'✓';font-weight:700}
+.prac-q-title{font-size:12px;font-weight:600;color:var(--text);flex:1;line-height:1.3}
+.prac-q-meta{display:flex;align-items:center;gap:6px;padding-left:23px}
+.prac-diff{font-family:var(--mono);font-size:9px;padding:1px 7px;border-radius:10px}
+.diff-Easy{background:rgba(6,214,160,0.12);color:var(--accent5)}
+.diff-Medium{background:rgba(255,209,102,0.12);color:var(--accent4)}
+.diff-Hard{background:rgba(255,107,107,0.12);color:var(--accent3)}
+.prac-q-topic{font-family:var(--mono);font-size:9px;color:var(--text3)}
+
+/* workspace */
+.prac-workspace{min-width:0}
+.prac-empty{color:var(--text3);font-size:13px;font-family:var(--mono);text-align:center;padding:4rem 1rem}
+.prac-q-detail{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.prac-detail-head{padding:1.125rem 1.5rem;border-bottom:1px solid var(--border)}
+.prac-detail-title-row{display:flex;align-items:center;gap:10px;margin-bottom:.625rem}
+.prac-detail-title{font-size:15px;font-weight:600}
+.prac-detail-prompt{font-size:13px;color:var(--text2);line-height:1.65}
+.prac-sample{background:var(--surface2);border-radius:var(--radius-sm);padding:.625rem .875rem;margin-top:.75rem;font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.6}
+.prac-sample b{color:var(--accent2);font-weight:500}
+.prac-sample pre{margin:2px 0 0;white-space:pre-wrap;color:var(--text)}
+
+/* editor area */
+.prac-editor-bar{display:flex;align-items:center;gap:8px;padding:.75rem 1rem;border-bottom:1px solid var(--border);background:var(--surface2)}
+.prac-lang-toggle{display:flex;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:2px}
+.prac-lang-btn{font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:20px;border:none;background:transparent;color:var(--text3);cursor:pointer;transition:all .15s}
+.prac-lang-btn.active{background:var(--accent);color:#fff}
+.prac-run-btn{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--accent5);background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.25);border-radius:20px;padding:5px 16px;cursor:pointer;transition:all .15s}
+.prac-run-btn:hover{background:rgba(6,214,160,0.2)}
+.prac-run-btn:disabled{opacity:.5;cursor:wait}
+.prac-reset-btn{font-family:var(--mono);font-size:11px;color:var(--text3);background:transparent;border:1px solid var(--border);border-radius:20px;padding:5px 12px;cursor:pointer;transition:all .15s}
+.prac-reset-btn:hover{border-color:var(--border2);color:var(--text2)}
+.prac-solve-btn{font-family:var(--mono);font-size:11px;color:var(--accent);background:rgba(124,111,255,0.1);border:1px solid rgba(124,111,255,0.25);border-radius:20px;padding:5px 14px;cursor:pointer;transition:all .15s}
+.prac-solve-btn:hover{background:rgba(124,111,255,0.2)}
+.prac-solve-btn.solved{color:var(--accent5);background:rgba(6,214,160,0.1);border-color:rgba(6,214,160,0.25)}
+
+.prac-code{width:100%;min-height:260px;background:#0a0c0f;border:none;color:#e8eaf0;font-family:var(--mono);font-size:13px;line-height:1.6;padding:1rem 1.25rem;resize:vertical;outline:none;tab-size:2;white-space:pre;overflow-wrap:normal;overflow-x:auto}
+.prac-io-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.prac-io-col{background:var(--surface)}
+.prac-io-label{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:.5rem 1rem .25rem}
+.prac-stdin{width:100%;min-height:70px;background:var(--surface);border:none;color:var(--text2);font-family:var(--mono);font-size:12px;line-height:1.5;padding:.25rem 1rem .75rem;resize:vertical;outline:none}
+.prac-output{min-height:70px;max-height:200px;overflow-y:auto;padding:.25rem 1rem .75rem;font-family:var(--mono);font-size:12px;line-height:1.55;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.prac-output .err{color:var(--accent3)}
+.prac-output .ok{color:var(--accent5)}
+.prac-output .muted{color:var(--text3)}
+
+/* reveal solution */
+.prac-sol-bar{padding:.75rem 1rem;border-top:1px solid var(--border);background:var(--surface2)}
+.prac-revealsol-btn{font-family:var(--mono);font-size:11px;color:var(--text3);background:transparent;border:1px solid var(--border);border-radius:20px;padding:5px 14px;cursor:pointer;transition:all .15s}
+.prac-revealsol-btn:hover{border-color:var(--border2);color:var(--text2)}
+.prac-solution-panel{padding:1rem 1.25rem;border-top:1px solid var(--border);background:var(--surface)}
+.prac-sol-label{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.625rem}
+.prac-sol-warn{color:var(--accent4);text-transform:none;letter-spacing:0;font-style:italic}
+.prac-sol-code{font-family:var(--mono);font-size:12px;line-height:1.55;color:#e8eaf0;background:#0a0c0f;border-radius:var(--radius-sm);padding:.875rem 1rem;white-space:pre;overflow-x:auto;margin:0 0 .75rem}
+.prac-load-sol-btn{font-family:var(--mono);font-size:11px;color:var(--accent);background:rgba(124,111,255,0.1);border:1px solid rgba(124,111,255,0.25);border-radius:20px;padding:5px 14px;cursor:pointer;transition:all .15s}
+.prac-load-sol-btn:hover{background:rgba(124,111,255,0.2)}
+
+/* mode bar */
+.prac-mode-bar{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap}
+.prac-mode-btn{font-family:var(--sans);font-size:13px;font-weight:500;padding:.55rem 1.1rem;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .15s}
+.prac-mode-btn:hover{border-color:var(--border2);color:var(--text)}
+.prac-mode-btn.active{background:rgba(124,111,255,0.12);border-color:rgba(124,111,255,0.3);color:var(--accent)}
+
+/* day filter bar */
+.prac-day-bar{display:flex;align-items:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.prac-day-label{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-right:4px}
+.prac-day-btn{font-family:var(--mono);font-size:11px;padding:4px 13px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;transition:all .15s}
+.prac-day-btn:hover{border-color:var(--border2);color:var(--text2)}
+.prac-day-btn.active{background:var(--accent5);border-color:var(--accent5);color:#0d0f12;font-weight:500}
+
+/* strategy success-criteria panel */
+.strat-success{background:rgba(6,214,160,0.05);border:1px solid rgba(6,214,160,0.18);border-radius:var(--radius-lg);padding:1.125rem 1.5rem;margin-top:1.25rem}
+.strat-success-title{font-size:13px;font-weight:600;color:var(--accent5);margin-bottom:.875rem;display:flex;align-items:center;gap:8px}
+.strat-success-item{display:flex;align-items:flex-start;gap:10px;padding:.4rem 0;font-size:13px;color:var(--text2);line-height:1.5}
+.strat-success-tick{color:var(--accent5);flex-shrink:0;font-weight:700}
+.strat-practice-btn{margin-top:1rem;font-family:var(--mono);font-size:12px;color:var(--accent);background:rgba(124,111,255,0.1);border:1px solid rgba(124,111,255,0.25);border-radius:20px;padding:.5rem 1.25rem;cursor:pointer;transition:all .15s}
+.strat-practice-btn:hover{background:rgba(124,111,255,0.2)}
+
+/* concept card (reveal-only) */
+.quiz-concept-actions{display:flex;align-items:center;gap:8px}
+
+/* quiz cards */
+.quiz-list{display:flex;flex-direction:column;gap:.875rem}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.125rem 1.5rem;transition:border-color .15s}
+.quiz-card.solved{border-color:rgba(6,214,160,0.25)}
+.quiz-card-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:.875rem}
+.quiz-check{width:18px;height:18px;border:1.5px solid var(--border2);border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px}
+.quiz-check.solved{background:var(--accent5);border-color:var(--accent5);color:#0d0f12}
+.quiz-check.solved::after{content:'✓';font-weight:700}
+.quiz-prompt{flex:1;font-size:13px;color:var(--text);line-height:1.6}
+.quiz-tags{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.quiz-topic{font-family:var(--mono);font-size:9px;color:var(--text3)}
+.quiz-answer-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.quiz-input{flex:1;min-width:160px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--mono);font-size:13px;padding:.55rem .875rem;outline:none;transition:border-color .15s}
+.quiz-input:focus{border-color:var(--accent)}
+.quiz-input.correct{border-color:var(--accent5)}
+.quiz-input.wrong{border-color:var(--accent3)}
+.quiz-prefix{font-family:var(--mono);font-size:12px;color:var(--text3)}
+.quiz-check-btn{font-family:var(--mono);font-size:11px;color:var(--accent5);background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.25);border-radius:20px;padding:.5rem 1rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+.quiz-check-btn:hover{background:rgba(6,214,160,0.2)}
+.quiz-reveal-btn{font-family:var(--mono);font-size:11px;color:var(--text3);background:transparent;border:1px solid var(--border);border-radius:20px;padding:.5rem .875rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+.quiz-reveal-btn:hover{border-color:var(--border2);color:var(--text2)}
+.quiz-feedback{font-family:var(--mono);font-size:11px;margin-top:.625rem;min-height:14px}
+.quiz-feedback.correct{color:var(--accent5)}
+.quiz-feedback.wrong{color:var(--accent3)}
+.quiz-solution{background:var(--surface2);border-left:2px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.75rem 1rem;margin-top:.75rem;font-size:12px;color:var(--text2);line-height:1.7;display:none}
+.quiz-solution.show{display:block}
+.quiz-solution .sol-label{font-family:var(--mono);font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px}
+.quiz-solution code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;color:var(--accent4)}
+.quiz-hint{font-family:var(--mono);font-size:11px;color:var(--text3);font-style:italic;margin-top:.5rem}
+
+.prac-mode-btn:active{transform:scale(0.98)}
+
+.journal-layout{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.journal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem}
+.journal-q{font-size:11px;color:var(--accent);font-family:var(--mono);margin-bottom:.625rem;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.journal-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--sans);font-size:13px;padding:.75rem;resize:vertical;min-height:100px;line-height:1.6;outline:none;transition:border-color .2s}
+.journal-textarea:focus{border-color:var(--accent)}
+.journal-textarea::placeholder{color:var(--text3)}
+
+.info-box{background:rgba(124,111,255,0.06);border:1px solid rgba(124,111,255,0.15);border-radius:var(--radius-sm);padding:.75rem 1rem;margin-bottom:1.5rem;font-size:12px;color:var(--text2);line-height:1.6}
+.info-box strong{color:var(--accent)}
+
+/* auto-link info banner */
+.autolink-info{
+  background:rgba(6,214,160,0.05);border:1px solid rgba(6,214,160,0.15);
+  border-radius:var(--radius-sm);padding:.75rem 1.25rem;
+  margin-bottom:1.25rem;font-size:12px;color:var(--text2);line-height:1.6;
+  display:flex;align-items:flex-start;gap:10px;
+}
+.autolink-info-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.autolink-info strong{color:var(--accent5)}
+
+.ring-svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:#1a1e25;stroke-width:3}
+.ring-fg{fill:none;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .5s cubic-bezier(.4,0,.2,1)}
+.ring-text{font-family:var(--mono);font-size:7px;font-weight:500;fill:var(--text2);text-anchor:middle;dominant-baseline:middle}
+
+.section-label{font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">Quant <span>roadmap</span></div>
+    <div class="topbar-date" id="topbarDate"></div>
+  </div>
+  <div class="topbar-right">
+    <span class="autosave-label">autosave in <span id="autoSaveCountdown">5:00</span></span>
+    <button class="save-btn" onclick="saveToFile()" id="saveBtn">⬇ save now</button>
+  </div>
+</div>
+
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sidebar-section-label">Views</div>
+    <button class="nav-item active" data-view="progress" onclick="switchView('progress')">
+      <span class="nav-item-icon">🗺</span> Progress
+    </button>
+    <button class="nav-item" data-view="today" onclick="switchView('today')">
+      <span class="nav-item-icon">📋</span> Today
+    </button>
+    <button class="nav-item" data-view="calendar" onclick="switchView('calendar')">
+      <span class="nav-item-icon">🗓</span> Calendar
+    </button>
+    <button class="nav-item" data-view="strategy" onclick="switchView('strategy')">
+      <span class="nav-item-icon">📅</span> Strategy
+    </button>
+    <button class="nav-item" data-view="practice" onclick="switchView('practice')">
+      <span class="nav-item-icon">⌨️</span> Practice
+    </button>
+    <button class="nav-item" data-view="journal" onclick="switchView('journal')">
+      <span class="nav-item-icon">📓</span> Journal
+    </button>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label">Phases</div>
+    <span class="phase-chip pc1">🌱 Phase 1 — Foundation</span>
+    <span class="phase-chip pc2">⚙️ Phase 2 — Builder</span>
+    <span class="phase-chip pc3">🧠 Phase 3 — Quant Mind</span>
+    <span class="phase-chip pc4">🚀 Phase 4 — Trading</span>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-section-label">Legend</div>
+      <div style="padding:0 1rem;display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text3);font-family:var(--mono)"><div style="width:8px;height:8px;border-radius:50%;background:var(--accent)"></div>Phase 1</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text3);font-family:var(--mono)"><div style="width:8px;height:8px;border-radius:50%;background:var(--accent2)"></div>Phase 2</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text3);font-family:var(--mono)"><div style="width:8px;height:8px;border-radius:50%;background:var(--accent4)"></div>Phase 3</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text3);font-family:var(--mono)"><div style="width:8px;height:8px;border-radius:50%;background:var(--accent3)"></div>Phase 4</div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="content">
+
+    <!-- PROGRESS VIEW -->
+    <div id="view-progress" class="view active">
+      <div class="view-title">Progress overview</div>
+      <div class="view-sub" id="progressSub">Loading...</div>
+      <div class="cols-4" style="margin-bottom:1.5rem" id="statGrid"></div>
+      <div class="journey-card">
+        <div class="journey-top">
+          <span class="journey-stage" id="journeyStageLabel">🌱 Seed</span>
+          <span class="journey-pct-badge" id="journeyPct">0%</span>
+        </div>
+        <div class="journey-track-wrap">
+          <div class="journey-track">
+            <div class="journey-fill" id="journeyFill" style="width:0%"></div>
+            <div class="journey-avatar" id="journeyAvatar" style="left:0%">🌱</div>
+            <div class="journey-milestone" style="left:0%"><div class="milestone-dot active"></div></div>
+            <div class="journey-milestone" style="left:25%"><div class="milestone-dot" id="md25"></div></div>
+            <div class="journey-milestone" style="left:50%"><div class="milestone-dot" id="md50"></div></div>
+            <div class="journey-milestone" style="left:75%"><div class="milestone-dot" id="md75"></div></div>
+            <div class="journey-milestone" style="left:100%"><div class="milestone-dot" id="md100"></div></div>
+          </div>
+        </div>
+        <div class="journey-labels">
+          <span>🌱 Seed</span><span>🌿 Plant</span><span>🌳 Tree</span><span>🧠 Thinker</span><span>🚀 Quant</span>
+        </div>
+        <div class="reward-banner" id="rewardBanner" style="display:none"></div>
+      </div>
+      <div class="section-label">Worlds</div>
+      <div class="worlds-grid" id="worldsWrap"></div>
+      <div class="section-label">Track breakdown</div>
+      <div id="tracksContainer"></div>
+    </div>
+
+    <!-- TODAY VIEW -->
+    <div id="view-today" class="view">
+      <div class="view-title">Today's routine</div>
+      <div class="view-sub">Check off items as you complete them — topic progress updates automatically</div>
+
+      <div class="autolink-info">
+        <span class="autolink-info-icon">⚡</span>
+        <div>
+          <strong>Auto-link active.</strong> Completing all items in a block pushes progress to linked topics. Partial completion credits proportionally. You can always override via sliders in Progress view — manual values win if they're higher.
+        </div>
+      </div>
+
+      <div class="today-grid" id="dailyContainer"></div>
+    </div>
+
+    <!-- CALENDAR VIEW -->
+    <div id="view-calendar" class="view">
+      <div class="view-title">Calendar</div>
+      <div class="view-sub">Activity heatmap · click any date to browse · scheduled strategy days</div>
+
+      <div class="cal-schedule-bar">
+        <span class="cal-sched-label">📅 Strategy start date</span>
+        <input type="date" id="calSchedStart" class="cal-date-input" onchange="setScheduleStart(this.value)"/>
+        <span class="cal-sched-hint" id="calSchedHint"></span>
+      </div>
+
+      <div class="cal-layout">
+        <div class="cal-main">
+          <div class="cal-header">
+            <button class="cal-nav-btn" onclick="calShiftMonth(-1)">‹</button>
+            <div class="cal-month-label" id="calMonthLabel"></div>
+            <button class="cal-nav-btn" onclick="calShiftMonth(1)">›</button>
+            <button class="cal-today-btn" onclick="calGoToday()">Today</button>
+          </div>
+          <div class="cal-weekdays" id="calWeekdays"></div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="cal-legend">
+            <span class="cal-legend-label">Less</span>
+            <span class="cal-legend-cell" style="background:var(--surface2)"></span>
+            <span class="cal-legend-cell" style="background:rgba(6,214,160,0.25)"></span>
+            <span class="cal-legend-cell" style="background:rgba(6,214,160,0.5)"></span>
+            <span class="cal-legend-cell" style="background:rgba(6,214,160,0.75)"></span>
+            <span class="cal-legend-cell" style="background:rgba(6,214,160,1)"></span>
+            <span class="cal-legend-label">More</span>
+            <span style="margin-left:auto;display:flex;align-items:center;gap:6px"><span class="cal-sched-dot"></span><span class="cal-legend-label">Strategy day</span></span>
+          </div>
+        </div>
+
+        <div class="cal-detail" id="calDetail"></div>
+      </div>
+    </div>
+
+    <!-- STRATEGY VIEW -->
+    <div id="view-strategy" class="view">
+      <div class="view-title">Day-by-day strategy</div>
+      <div class="view-sub">Full daily breakdown — resources, tasks, practice problems</div>
+      <div class="strategy-toolbar" id="stratToolbar">
+        <input class="strat-search" type="text" placeholder="Search day, topic, block..." oninput="filterDays(this.value)" id="stratSearch"/>
+        <div class="strat-phase-tabs" id="stratPhaseTabs">
+          <button class="strat-ptab active" onclick="filterPhase('all',this)">All</button>
+          <button class="strat-ptab" onclick="filterPhase('Phase 1',this)">Phase 1</button>
+          <button class="strat-ptab" onclick="filterPhase('Phase 2',this)">Phase 2</button>
+          <button class="strat-ptab" onclick="filterPhase('Phase 3',this)">Phase 3</button>
+          <button class="strat-ptab" onclick="filterPhase('Phase 4',this)">Phase 4</button>
+        </div>
+      </div>
+      <div id="stratDayList"></div>
+    </div>
+
+    <!-- PRACTICE VIEW -->
+    <div id="view-practice" class="view">
+      <div class="view-title">Practice</div>
+      <div class="view-sub">Block-by-block drills grouped by day — code, math, quant puzzles &amp; Linux commands</div>
+
+      <div class="prac-day-bar" id="pracDayBar"></div>
+
+      <div class="prac-mode-bar">
+        <button class="prac-mode-btn active" data-mode="code" onclick="setPracMode('code',this)">⌨️ Code</button>
+        <button class="prac-mode-btn" data-mode="math" onclick="setPracMode('math',this)">∑ Math</button>
+        <button class="prac-mode-btn" data-mode="quant" onclick="setPracMode('quant',this)">◈ Quant thinking</button>
+        <button class="prac-mode-btn" data-mode="linux" onclick="setPracMode('linux',this)">$_ Linux</button>
+      </div>
+
+      <!-- CODE MODE -->
+      <div id="pracModeCode">
+        <div class="prac-toolbar">
+          <input class="strat-search" type="text" placeholder="Search problems..." oninput="filterQuestions(this.value)" id="pracSearch"/>
+          <div class="prac-filter-tabs" id="pracTopicTabs">
+            <button class="prac-ftab active" onclick="filterQTopic('all',this)">All</button>
+            <button class="prac-ftab" onclick="filterQTopic('Easy',this)">Easy</button>
+            <button class="prac-ftab" onclick="filterQTopic('Medium',this)">Medium</button>
+            <button class="prac-ftab" onclick="filterQTopic('solved',this)">Solved</button>
+            <button class="prac-ftab" onclick="filterQTopic('unsolved',this)">Unsolved</button>
+          </div>
+          <span class="prac-solved-count" id="pracSolvedCount"></span>
+        </div>
+
+        <div class="prac-layout">
+          <div class="prac-qlist" id="pracQList"></div>
+          <div class="prac-workspace">
+            <div class="prac-q-detail" id="pracQDetail">
+              <div class="prac-empty">← Pick a problem to start coding.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUIZ MODE (math / quant / linux) -->
+      <div id="pracModeQuiz" style="display:none">
+        <div class="prac-toolbar">
+          <input class="strat-search" type="text" placeholder="Search..." oninput="filterQuiz(this.value)" id="quizSearch"/>
+          <div class="prac-filter-tabs">
+            <button class="prac-ftab active" data-qf="all" onclick="filterQuizState('all',this)">All</button>
+            <button class="prac-ftab" data-qf="solved" onclick="filterQuizState('solved',this)">Solved</button>
+            <button class="prac-ftab" data-qf="unsolved" onclick="filterQuizState('unsolved',this)">Unsolved</button>
+          </div>
+          <span class="prac-solved-count" id="quizSolvedCount"></span>
+        </div>
+        <div class="quiz-list" id="quizList"></div>
+      </div>
+    </div>
+
+    <!-- JOURNAL VIEW -->
+    <div id="view-journal" class="view">
+      <div class="view-title">Reflection journal</div>
+      <div class="view-sub" id="journalDateLabel">Loading...</div>
+      <div class="journal-layout">
+        <div class="journal-card"><div class="journal-q">01 — What problem confused me most?</div><textarea class="journal-textarea" id="j1" placeholder="Write here..." oninput="collectJournal();markDirty()"></textarea></div>
+        <div class="journal-card"><div class="journal-q">02 — What clicked today?</div><textarea class="journal-textarea" id="j2" placeholder="Write here..." oninput="collectJournal();markDirty()"></textarea></div>
+        <div class="journal-card"><div class="journal-q">03 — What bug wasted most time?</div><textarea class="journal-textarea" id="j3" placeholder="Write here..." oninput="collectJournal();markDirty()"></textarea></div>
+        <div class="journal-card"><div class="journal-q">04 — Which concept is still weak?</div><textarea class="journal-textarea" id="j4" placeholder="Write here..." oninput="collectJournal();markDirty()"></textarea></div>
+        <div class="journal-card" style="grid-column:1/-1"><div class="journal-q">05 — Did I panic while stuck? How did I handle it?</div><textarea class="journal-textarea" id="j5" placeholder="Write here..." style="min-height:80px" oninput="collectJournal();markDirty()"></textarea></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- toast -->
+<div class="auto-link-toast" id="alToast"><span class="auto-link-toast-dot"></span><span id="alToastMsg"></span></div>
+
+<script>
+const STORE = /*DATA_START*/{"progress":{},"dailyChecks":{},"journal":{}}/*DATA_END*/;
+
+/* ─────────────────────────────────────────────
+   TOPIC MAP
+   Each block index (0-7) maps to an array of:
+   { topicId, maxContrib }
+   where maxContrib = max % this block can push
+   the topic to (i.e. completing this block alone
+   takes the topic to that value at most).
+   Multiple blocks can cover the same topic —
+   they stack up to 100.
+   Partial block completion scales linearly.
+────────────────────────────────────────────── */
+const BLOCK_TOPIC_MAP = {
+  0: [ // Block 1 — C++ theory
+    { topicId: 'cpp_syntax',      maxContrib: 30 },
+    { topicId: 'cpp_arrays',      maxContrib: 30 },
+    { topicId: 'cpp_vectors',     maxContrib: 20 },
+    { topicId: 'cpp_stl',         maxContrib: 20 },
+    { topicId: 'cpp_oops',        maxContrib: 15 },
+    { topicId: 'cpp_pointers',    maxContrib: 15 },
+    { topicId: 'cpp_recursion',   maxContrib: 10 },
+  ],
+  1: [ // Block 2 — Implementation / DSA
+    { topicId: 'cpp_arrays',      maxContrib: 40 },
+    { topicId: 'cpp_syntax',      maxContrib: 20 },
+    { topicId: 'dsa_hashing',     maxContrib: 15 },
+    { topicId: 'dsa_binsearch',   maxContrib: 15 },
+    { topicId: 'proj_calc',       maxContrib: 25 },
+    { topicId: 'proj_student',    maxContrib: 25 },
+    { topicId: 'proj_guess',      maxContrib: 25 },
+  ],
+  2: [ // Block 3 — LeetCode gym
+    { topicId: 'cpp_stack_queue', maxContrib: 30 },
+    { topicId: 'dsa_hashing',     maxContrib: 25 },
+    { topicId: 'dsa_binsearch',   maxContrib: 25 },
+    { topicId: 'dsa_linked',      maxContrib: 10 },
+    { topicId: 'dsa_heaps',       maxContrib: 10 },
+    { topicId: 'dsa_trees',       maxContrib: 10 },
+    { topicId: 'dsa_graphs',      maxContrib: 10 },
+    { topicId: 'dsa_dp',          maxContrib: 10 },
+    { topicId: 'cf_exposure',     maxContrib: 20 },
+  ],
+  3: [ // Block 4 — Mathematics
+    { topicId: 'math_algebra',    maxContrib: 40 },
+    { topicId: 'math_prob',       maxContrib: 30 },
+    { topicId: 'math_calc',       maxContrib: 20 },
+    { topicId: 'math_stats',      maxContrib: 20 },
+    { topicId: 'math_linalg',     maxContrib: 15 },
+    { topicId: 'math_bayes',      maxContrib: 15 },
+    { topicId: 'math_regression', maxContrib: 10 },
+  ],
+  4: [ // Block 5 — Python
+    { topicId: 'py_basics',       maxContrib: 40 },
+    { topicId: 'py_lists',        maxContrib: 35 },
+    { topicId: 'py_numpy',        maxContrib: 20 },
+    { topicId: 'py_pandas',       maxContrib: 15 },
+    { topicId: 'py_matplotlib',   maxContrib: 10 },
+    { topicId: 'py_simulations',  maxContrib: 10 },
+    { topicId: 'py_backtest',     maxContrib:  5 },
+    { topicId: 'proj_prob_sim',   maxContrib: 15 },
+    { topicId: 'proj_stock',      maxContrib: 10 },
+  ],
+  5: [ // Block 6 — Linux
+    { topicId: 'linux_basics',    maxContrib: 50 },
+    { topicId: 'linux_cpp',       maxContrib: 50 },
+    { topicId: 'linux_git',       maxContrib: 20 },
+    { topicId: 'linux_bash',      maxContrib: 15 },
+  ],
+  6: [ // Block 7 — Quant thinking
+    { topicId: 'qt_decompose',        maxContrib: 25 },
+    { topicId: 'qt_abstraction',      maxContrib: 25 },
+    { topicId: 'qt_recursion_think',  maxContrib: 20 },
+    { topicId: 'qt_optimization',     maxContrib: 20 },
+    { topicId: 'qt_probabilistic',    maxContrib: 20 },
+    { topicId: 'qt_systems',          maxContrib: 15 },
+    { topicId: 'qt_state',            maxContrib: 15 },
+    { topicId: 'qt_puzzles',          maxContrib: 30 },
+    { topicId: 'qt_probability_q',    maxContrib: 25 },
+    { topicId: 'qt_reasoning',        maxContrib: 25 },
+  ],
+  7: [ // Block 8 — Journal (soft credit)
+    { topicId: 'qt_decompose',    maxContrib: 5 },
+    { topicId: 'qt_abstraction',  maxContrib: 5 },
+  ],
+};
+
+/* resolve all block contributions for a given day's checks */
+/* Returns { topicId -> newAutoValue } — never decreases below manual */
+function computeAutoProgress(tk) {
+  const checks = dailyChecks[tk] || {};
+  const contrib = {}; // topicId -> accumulated %
+
+  DAILY_BLOCKS.forEach((block, bi) => {
+    const total = block.items.length;
+    const done  = block.items.filter((_, ii) => checks[bi + '_' + ii]).length;
+    const ratio = total > 0 ? done / total : 0;
+    const mapping = BLOCK_TOPIC_MAP[bi] || [];
+    mapping.forEach(({ topicId, maxContrib }) => {
+      contrib[topicId] = (contrib[topicId] || 0) + Math.round(maxContrib * ratio);
+    });
+  });
+
+  // cap each at 100
+  Object.keys(contrib).forEach(k => { contrib[k] = Math.min(100, contrib[k]); });
+  return contrib;
+}
+
+/* Apply auto-progress to progress state — manual wins if higher */
+function applyAutoProgress(tk, silent) {
+  const auto = computeAutoProgress(tk);
+  const changed = [];
+
+  Object.entries(auto).forEach(([topicId, autoVal]) => {
+    const current = progress[topicId] || 0;
+    if (autoVal > current) {
+      progress[topicId] = autoVal;
+      changed.push({ topicId, autoVal });
+    }
+  });
+
+  if (changed.length > 0) {
+    markDirty();
+    // refresh progress view if it's visible
+    if (document.getElementById('view-progress').classList.contains('active')) {
+      renderSummary();
+      renderTracks();
+    }
+    if (!silent) {
+      flashAutoLinkToast(changed);
+    }
+  }
+  return changed;
+}
+
+/* ── STATIC DATA ── */
+const TRACKS=[
+  {id:'cpp',name:'C++ + DSA',icon:'{ }',color:'#7c6fff',bgColor:'rgba(124,111,255,0.12)',topics:[
+    {id:'cpp_syntax',name:'Syntax, loops, functions',phase:'p1'},{id:'cpp_arrays',name:'Arrays & strings',phase:'p1'},
+    {id:'cpp_vectors',name:'STL vectors & pairs',phase:'p1'},{id:'cpp_stl',name:'Maps, sets, iterators',phase:'p1'},
+    {id:'cpp_stack_queue',name:'Stack & queue',phase:'p1'},{id:'cpp_recursion',name:'Recursion basics',phase:'p1'},
+    {id:'cpp_pointers',name:'Pointers & memory',phase:'p1'},{id:'cpp_oops',name:'OOP fundamentals',phase:'p1'},
+    {id:'dsa_hashing',name:'Hashing & sliding window',phase:'p2'},{id:'dsa_binsearch',name:'Binary search',phase:'p2'},
+    {id:'dsa_linked',name:'Linked lists',phase:'p3'},{id:'dsa_heaps',name:'Heaps',phase:'p3'},
+    {id:'dsa_trees',name:'Trees & traversals',phase:'p3'},{id:'dsa_graphs',name:'Graphs, BFS & DFS',phase:'p4'},
+    {id:'dsa_shortest',name:'Shortest path',phase:'p4'},{id:'dsa_dp',name:'Dynamic programming',phase:'p4'},
+    {id:'cf_exposure',name:'Codeforces exposure',phase:'p4'}
+  ]},
+  {id:'math',name:'Mathematics',icon:'∑',color:'#4ecdc4',bgColor:'rgba(78,205,196,0.12)',topics:[
+    {id:'math_algebra',name:'Algebra intuition (3B1B)',phase:'p1'},{id:'math_prob',name:'Probability fundamentals',phase:'p1'},
+    {id:'math_calc',name:'Calculus intuition (3B1B)',phase:'p2'},{id:'math_stats',name:'Statistics & distributions',phase:'p2'},
+    {id:'math_linalg',name:'Linear algebra (3B1B)',phase:'p3'},{id:'math_bayes',name:'Bayesian thinking',phase:'p3'},
+    {id:'math_regression',name:'Regression & covariance',phase:'p3'}
+  ]},
+  {id:'linux',name:'Linux + Engineering',icon:'$_',color:'#8b90a0',bgColor:'rgba(139,144,160,0.12)',topics:[
+    {id:'linux_basics',name:'Terminal basics',phase:'p1'},{id:'linux_cpp',name:'Compile C++ from terminal',phase:'p1'},
+    {id:'linux_git',name:'Git & version control',phase:'p2'},{id:'linux_bash',name:'Bash scripting',phase:'p3'}
+  ]},
+  {id:'python',name:'Python for Quant',icon:'Py',color:'#ffd166',bgColor:'rgba(255,209,102,0.12)',topics:[
+    {id:'py_basics',name:'Variables, loops, functions',phase:'p1'},{id:'py_lists',name:'Lists & dictionaries',phase:'p1'},
+    {id:'py_numpy',name:'NumPy & vectorized ops',phase:'p2'},{id:'py_pandas',name:'pandas & data analysis',phase:'p2'},
+    {id:'py_matplotlib',name:'Matplotlib & visualization',phase:'p3'},{id:'py_simulations',name:'Monte Carlo simulations',phase:'p3'},
+    {id:'py_backtest',name:'Backtesting engine',phase:'p4'}
+  ]},
+  {id:'projects',name:'Projects',icon:'▶',color:'#06d6a0',bgColor:'rgba(6,214,160,0.12)',topics:[
+    {id:'proj_calc',name:'Calculator',phase:'p1'},{id:'proj_student',name:'Student record system',phase:'p1'},
+    {id:'proj_guess',name:'Number guessing game',phase:'p1'},{id:'proj_prob_sim',name:'Probability simulator',phase:'p2'},
+    {id:'proj_stock',name:'Stock analyzer',phase:'p2'},{id:'proj_monte',name:'Monte Carlo simulator',phase:'p3'},
+    {id:'proj_backtest',name:'Backtesting engine',phase:'p4'},{id:'proj_portfolio',name:'Portfolio optimizer',phase:'p4'},
+    {id:'proj_trading',name:'Trading simulator',phase:'p4'}
+  ]},
+  {id:'quant_think',name:'Quantitative Thinking',icon:'◈',color:'#ff9f43',bgColor:'rgba(255,159,67,0.12)',topics:[
+    {id:'qt_decompose',name:'Decomposition thinking',phase:'p1'},{id:'qt_abstraction',name:'Abstraction thinking',phase:'p1'},
+    {id:'qt_recursion_think',name:'Recursion thinking',phase:'p2'},{id:'qt_optimization',name:'Optimization thinking',phase:'p2'},
+    {id:'qt_probabilistic',name:'Probabilistic thinking',phase:'p2'},{id:'qt_systems',name:'Systems thinking',phase:'p3'},
+    {id:'qt_state',name:'State thinking',phase:'p3'},{id:'qt_puzzles',name:'Puzzle-solving fluency',phase:'p1'},
+    {id:'qt_probability_q',name:'Probability problem solving',phase:'p2'},{id:'qt_reasoning',name:'Logical reasoning',phase:'p2'}
+  ]}
+];
+
+const DAILY_BLOCKS=[
+  {title:'Block 1 — C++ theory',time:'1.5 hrs',color:'#7c6fff',items:['Read LearnCpp for current topic only','Type code from scratch (don\'t copy)','Modify and break the code intentionally','Predict output before running']},
+  {title:'Block 2 — Implementation',time:'2 hrs',color:'#4ecdc4',items:['5 easy problems on Code360','1 thinking / struggle problem','Debug independently before seeking help']},
+  {title:'Block 3 — LeetCode gym',time:'1.5 hrs',color:'#ff6b6b',items:['2–3 easy LeetCode problems (topic-wise)','Focus on pattern recognition','Debug and understand before moving on']},
+  {title:'Block 4 — Mathematics',time:'1–1.5 hrs',color:'#ffd166',items:['Watch 3Blue1Brown (pause and think actively)','Khan Academy practice: functions / logs / sequences']},
+  {title:'Block 5 — Python',time:'45 mins',color:'#06d6a0',items:['Study Python official tutorial or Py4E','Write 2–3 tiny scripts (calculator, even/odd etc.)']},
+  {title:'Block 6 — Linux',time:'20–30 mins',color:'#8b90a0',items:['Linux Journey lesson','Compile a C++ file from terminal']},
+  {title:'Block 7 — Quant thinking',time:'30 mins',color:'#ff9f43',items:['1 puzzle (brain teaser, logic, or math puzzle)','1 probability question (classic or self-invented)','1 reasoning problem (pattern, sequence, or argument)']},
+  {title:'Block 8 — Journal',time:'15 mins',color:'#c77dff',items:['Fill in today\'s journal','Note the weakest concept of the day']}
+];
+
+const PHASE_LABELS={p1:'Phase 1',p2:'Phase 2',p3:'Phase 3',p4:'Phase 4'};
+
+const STAGES=[
+  {min:0,  max:24,  emoji:'🌱',label:'🌱 Seed',    reward:null},
+  {min:25, max:49,  emoji:'🌿',label:'🌿 Plant',   reward:'🏅 C++ Apprentice — Phase 1 complete!'},
+  {min:50, max:74,  emoji:'🌳',label:'🌳 Tree',    reward:'⚔️ Problem Solver — Phase 2 complete!'},
+  {min:75, max:99,  emoji:'🧠',label:'🧠 Thinker', reward:'🧠 Quant Thinker — Phase 3 complete!'},
+  {min:100,max:100, emoji:'🚀',label:'🚀 Quant',   reward:'🚀 Quant Candidate — You made it!'},
+];
+
+const WORLDS=[
+  {name:'Foundation World',emoji:'🌱',color:'#7c6fff',range:[0,25],  desc:'C++ · Basics · Algebra'},
+  {name:'Builder World',   emoji:'⚙️',color:'#4ecdc4',range:[25,50], desc:'DSA · Stats · NumPy'},
+  {name:'Quant Mind',      emoji:'🧠',color:'#ffd166',range:[50,75], desc:'Graphs · ML · Systems'},
+  {name:'Trading World',   emoji:'🚀',color:'#06d6a0',range:[75,100],desc:'DP · Backtest · Deploy'},
+];
+
+const DAYS=[
+  {
+    id:1, phase:'Phase 1', title:'Arrays Fundamentals',
+    blocks:[
+      {color:'#7c6fff',title:'Block 1 — C++',time:'45–60 mins',content:`<div class="block-content">
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://www.learncpp.com/cpp-tutorial/arrays-part-i/" target="_blank">LearnCpp — Arrays Part I</a><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://www.learncpp.com/cpp-tutorial/array-indexing-and-static-array-length/" target="_blank">LearnCpp — Array Indexing &amp; Length</a>
+        <br/><br/>
+        <span class="block-tag tag-task">✍ Implement</span>
+        <ul><li>Sum of all array elements</li><li>Largest element in array</li><li>Smallest element in array</li></ul>
+        <span class="block-tag tag-think">🔥 Break The Code</span>
+        <ul><li>Write <code>int arr[5]; cout&lt;&lt;arr[10];</code></li><li>Ask: What happens? Why? (undefined behaviour)</li></ul>
+        <em>No AI. No copying. Debug yourself first.</em>
+      </div>`},
+      {color:'#4ecdc4',title:'Block 2 — DSA',time:'1–1.5 hrs',content:`<div class="block-content">
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://takeuforward.org/data-structure/introduction-to-arrays-data-structures/" target="_blank">Striver A2Z — Arrays</a><br/><br/>
+        <span class="block-tag tag-practice">💻 Practice</span>
+        <ul>
+          <li><a href="https://www.naukri.com/code360/problems/largest-element-in-the-array-largest-element-in-the-array_5026279" target="_blank">Largest Element — Code360</a></li>
+          <li><a href="https://www.naukri.com/code360/problems/ninja-and-the-second-order-elements_6573455" target="_blank">Second Largest Element — Code360</a></li>
+          <li><a href="https://www.naukri.com/code360/problems/ninja-and-the-sorted-check_6581957" target="_blank">Check if Array Sorted — Code360</a></li>
+        </ul>
+        Read → think manually → brute force → code → debug yourself.
+      </div>`},
+      {color:'#ff9f43',title:'Block 3 — Quant Thinking',time:'30 mins',content:`<div class="block-content">
+        <span class="block-tag tag-think">🧩 Puzzle 1</span> Locker problem — revisit. Was your reasoning correct?<br/><br/>
+        <span class="block-tag tag-think">🧩 Puzzle 2</span> Coin symmetry problem — revisit.<br/><br/>
+        <span class="block-tag tag-think">🎲 Probability</span>
+        <ul><li>Roll two dice. What is more likely?</li><li><strong>A.</strong> Sum = 8</li><li><strong>B.</strong> At least one die shows 4</li></ul>
+        <em>Draw the sample space first. Think about "at least".</em><br/><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://www.khanacademy.org/math/statistics-probability/probability-library/basic-theoretical-probability/a/basic-theoretical-probability-article" target="_blank">Khan Academy — Basic Probability</a>
+      </div>`},
+      {color:'#4ecdc4',title:'Block 4 — Mathematics',time:'1–1.5 hrs',content:`<div class="block-content">
+        <span class="block-tag tag-resource">▶ Watch</span>
+        <a href="https://www.youtube.com/watch?v=fNk_zzaMoSs" target="_blank">3Blue1Brown — Essence of Algebra, Ch.1</a><br/><br/>
+        Pause every 2–3 mins. Ask: <em>what changed? what pattern? what does this mean geometrically?</em><br/>
+        One video only. Do NOT binge.
+      </div>`},
+      {color:'#ffd166',title:'Block 5 — Python',time:'45 mins',content:`<div class="block-content">
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://docs.python.org/3/tutorial/introduction.html" target="_blank">Python Official Tutorial — Introduction</a><br/><br/>
+        <span class="block-tag tag-task">✍ Write</span>
+        <ul><li>Calculator (add, subtract, multiply, divide)</li><li>Even/Odd checker</li></ul>
+        No libraries. Pure logic. 2–3 tiny scripts only.
+      </div>`},
+      {color:'#8b90a0',title:'Block 6 — Linux',time:'20–30 mins',content:`<div class="block-content">
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://linuxjourney.com/" target="_blank">Linux Journey — Grasshopper</a><br/><br/>
+        <span class="block-tag tag-task">✍ Run in terminal</span>
+        <ul>
+          <li><code>pwd</code> — print working directory</li>
+          <li><code>ls</code> — list files</li>
+          <li><code>mkdir test</code> then <code>cd test</code></li>
+          <li><code>g++ main.cpp</code> then <code>./a.out</code></li>
+        </ul>
+      </div>`},
+      {color:'#c77dff',title:'Block 7 — Journal',time:'15 mins',content:`<div class="block-content">
+        Open the Journal tab and answer all 5 questions.<br/><br/>
+        <span class="block-tag tag-think">💭 Key questions</span>
+        <ul><li>What clicked today?</li><li>What confused me most?</li><li>What pattern did I discover?</li></ul>
+      </div>`},
+    ],
+    success:[
+      'Print the sum, largest and smallest of an array',
+      'Reverse an array by hand and in code',
+      'Work out a basic two-dice probability',
+      'Write a calculator and even/odd checker in Python',
+      'Run pwd / ls / mkdir / cd and compile with g++'
+    ]
+  },
+  {
+    id:2, phase:'Phase 1', title:'Array Traversal, Frequency & Search',
+    blocks:[
+      {color:'#7c6fff',title:'Block 1 — C++',time:'45–60 mins',content:`<div class="block-content">
+        <span class="block-tag tag-task">📚 Continue arrays</span> Array traversal · frequency counting · linear search.<br/><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://www.learncpp.com/cpp-tutorial/arrays-and-loops/" target="_blank">LearnCpp — Arrays and Loops</a><br/>
+        <em>Code from scratch — don't copy.</em>
+        <br/><br/>
+        <span class="block-tag tag-task">✍ Write</span>
+        <ul>
+          <li><strong>P1.</strong> Frequency of a number in an array<br/><code>1 2 3 2 5 2</code>, target <code>2</code> → answer <code>3</code></li>
+          <li><strong>P2.</strong> Sum of even elements</li>
+          <li><strong>P3.</strong> Reverse an array</li>
+        </ul>
+        <span class="block-tag tag-think">🧠 Thinking question</span>
+        Why is <code>arr[n]</code> O(1) while searching for an element is O(n)? <em>Don't search. Think.</em>
+      </div>`},
+      {color:'#4ecdc4',title:'Block 2 — DSA',time:'1–1.5 hrs',content:`<div class="block-content">
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://takeuforward.org/data-structure/introduction-to-arrays-data-structures/" target="_blank">Striver A2Z — Arrays</a><br/><br/>
+        <span class="block-tag tag-practice">💻 Solve (Easy)</span>
+        <ul>
+          <li>Find Largest Element</li>
+          <li>Find Second Largest Element</li>
+          <li>Remove Duplicates from Sorted Array</li>
+        </ul>
+        <span class="block-tag tag-think">📝 After each problem, write</span>
+        <ul><li><strong>Brute force:</strong></li><li><strong>Better:</strong></li><li><strong>Optimal:</strong></li></ul>
+        <em>This habit is extremely valuable — build it now.</em>
+      </div>`},
+      {color:'#ff9f43',title:'Block 3 — Quant Thinking',time:'30 mins',content:`<div class="block-content">
+        <span class="block-tag tag-think">🎲 Problem 1 (warmup)</span>
+        Roll one die. Would you rather win if <strong>A)</strong> the number is 6, or <strong>B)</strong> the number is even? What are the probabilities?<br/><br/>
+        <span class="block-tag tag-think">🪙 Problem 2</span>
+        Toss 3 coins. Probability of exactly 2 heads? Try deriving it.<br/><br/>
+        <span class="block-tag tag-think">🎂 Problem 3 (interesting)</span>
+        A room has 23 people. Probability that at least two share a birthday — guess only (no calculation): &lt;10% · ~25% · ~50% · &gt;90%? Write your guess.
+      </div>`},
+      {color:'#4ecdc4',title:'Block 4 — Mathematics',time:'1–1.5 hrs',content:`<div class="block-content">
+        <span class="block-tag tag-resource">▶ Watch</span>
+        <a href="https://www.youtube.com/c/3blue1brown" target="_blank">3Blue1Brown — Essence of Algebra, Chapter 2</a><br/><br/>
+        Only one chapter. Pause frequently and ask what each step means.
+      </div>`},
+      {color:'#ffd166',title:'Block 5 — Python',time:'45 mins',content:`<div class="block-content">
+        <span class="block-tag tag-task">📚 Study</span> <code>if</code> · <code>else</code> · loops<br/><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://docs.python.org/3/tutorial/controlflow.html" target="_blank">Python Tutorial — Control Flow Tools</a><br/><br/>
+        <span class="block-tag tag-task">✍ Write</span>
+        <ul><li>Script 1 — Multiplication table generator</li><li>Script 2 — Prime number checker</li></ul>
+      </div>`},
+      {color:'#8b90a0',title:'Block 6 — Linux',time:'20–30 mins',content:`<div class="block-content">
+        <span class="block-tag tag-task">✍ Learn &amp; actually use</span>
+        <ul>
+          <li><code>touch</code> — create files</li>
+          <li><code>mv</code> — move / rename files</li>
+          <li><code>cp</code> — copy files</li>
+          <li><code>rm</code> — delete files</li>
+        </ul>
+        Create files, move them, delete them. Use them for real.
+      </div>`},
+      {color:'#c77dff',title:'Block 7 — Journal',time:'15 mins',content:`<div class="block-content">
+        <span class="block-tag tag-think">💭 Answer</span>
+        <ul><li>What pattern did I notice in arrays?</li><li>Which quant puzzle surprised me?</li><li>What took longest to debug?</li></ul>
+      </div>`},
+    ],
+    success:[
+      'Reverse an array yourself',
+      'Explain O(1) vs O(n)',
+      'Solve 3 array problems (frequency, even sum, reverse)',
+      'Derive probability of exactly 2 heads in 3 tosses',
+      'Write a prime checker in Python'
+    ]
+  },
+  {
+    id:3, phase:'Phase 1', title:'STL Vectors, Counting & Patterns',
+    blocks:[
+      {color:'#7c6fff',title:'Block 1 — C++',time:'45–60 mins',content:`<div class="block-content">
+        <span class="block-tag tag-task">📚 Learn</span> What is a vector? Why vector instead of array? · <code>push_back()</code> · <code>size()</code> · indexing.<br/><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://www.learncpp.com/cpp-tutorial/introduction-to-stdvector-and-list-constructors/" target="_blank">LearnCpp — Introduction to std::vector</a><br/>
+        <em>Code from scratch.</em>
+        <br/><br/>
+        <span class="block-tag tag-task">✍ Write</span>
+        <ul>
+          <li><strong>P1.</strong> Input N numbers into a vector, then print them</li>
+          <li><strong>P2.</strong> Find the largest element in a vector</li>
+          <li><strong>P3.</strong> Find the sum of vector elements</li>
+        </ul>
+        <span class="block-tag tag-think">🧠 Thinking question</span>
+        Why does <code>vector.push_back(x)</code> feel easier than <code>int arr[100]</code>? What problem is vector solving?
+      </div>`},
+      {color:'#4ecdc4',title:'Block 2 — DSA',time:'1–1.5 hrs',content:`<div class="block-content">
+        <span class="block-tag tag-task">📐 Topic</span> Basic array patterns.<br/><br/>
+        <span class="block-tag tag-practice">💻 Solve</span>
+        <ul>
+          <li>Move all zeros to the end</li>
+          <li>Left-rotate the array by one place</li>
+          <li>Find the missing number (1 to N)</li>
+        </ul>
+        <span class="block-tag tag-think">📝 After every solution, write</span>
+        <ul><li><strong>Observation:</strong></li><li><strong>Pattern:</strong></li><li><strong>Time complexity:</strong></li></ul>
+      </div>`},
+      {color:'#ff9f43',title:'Block 3 — Quant Thinking',time:'30 mins',content:`<div class="block-content">
+        <span class="block-tag tag-think">🔢 Goal: counting</span><br/><br/>
+        <span class="block-tag tag-think">Problem 1</span> How many 3-digit numbers can be formed using 1, 2, 3, 4 without repetition?<br/><br/>
+        <span class="block-tag tag-think">Problem 2</span> How many handshakes occur if 10 people shake hands exactly once?<br/><br/>
+        <span class="block-tag tag-think">Problem 3</span> A password is 2 letters then 2 digits. How many possibilities exist?<br/><br/>
+        <em>Don't search formulas. Build the reasoning.</em>
+      </div>`},
+      {color:'#4ecdc4',title:'Block 4 — Mathematics',time:'1–1.5 hrs',content:`<div class="block-content">
+        <span class="block-tag tag-resource">▶ Watch</span>
+        <a href="https://www.youtube.com/c/3blue1brown" target="_blank">3Blue1Brown — Essence of Algebra, Chapter 3</a><br/><br/>
+        Focus on: variables · relationships · abstraction. One chapter, pause often.
+      </div>`},
+      {color:'#ffd166',title:'Block 5 — Python',time:'45 mins',content:`<div class="block-content">
+        <span class="block-tag tag-task">📚 Learn</span> Lists · list indexing · loops over lists.<br/><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://docs.python.org/3/tutorial/datastructures.html" target="_blank">Python Tutorial — Data Structures</a><br/><br/>
+        <span class="block-tag tag-task">✍ Write</span>
+        <ul><li>Script 1 — Find the largest element in a list</li><li>Script 2 — Reverse a list</li></ul>
+      </div>`},
+      {color:'#8b90a0',title:'Block 6 — Linux',time:'20–30 mins',content:`<div class="block-content">
+        <span class="block-tag tag-task">✍ Learn &amp; use</span>
+        <ul>
+          <li><code>cat</code> — read a file</li>
+          <li><code>echo</code> — print / write text</li>
+          <li><code>nano</code> — edit a file</li>
+        </ul>
+        Create a file, write text into it, read it, then edit it — for real.
+      </div>`},
+      {color:'#c77dff',title:'Block 7 — Journal',time:'15 mins',content:`<div class="block-content">
+        <span class="block-tag tag-think">💭 Answer</span>
+        <ul><li>What is the difference between an array and a vector?</li><li>What counting pattern appeared repeatedly?</li><li>Which problem required the most thinking?</li></ul>
+      </div>`},
+    ],
+    success:[
+      'Input numbers into a vector and print them',
+      'Find the largest element and sum of a vector',
+      'Explain why a vector is easier than a raw array',
+      'Count arrangements (3-digit numbers, handshakes, passwords)',
+      'Use cat / echo / nano to create and edit a file'
+    ]
+  },
+];
+
+/* ── STATE ── */
+let progress=STORE.progress||{};
+let dailyChecks=STORE.dailyChecks||{};
+let journal=STORE.journal||{};
+let openTracks={};
+let stratActiveDay=null;
+let stratActiveBlock=null;
+let activePhaseFilter='all';
+let isDirty=false;
+let autoSaveSecondsLeft=300;
+let countdownInterval=null;
+let toastTimer=null;
+
+/* ── HELPERS ── */
+function allTopics(){return TRACKS.flatMap(t=>t.topics)}
+function trackPct(track){const v=track.topics.map(t=>progress[t.id]||0);return Math.round(v.reduce((a,b)=>a+b,0)/v.length)}
+function overallPct(){const v=allTopics().map(t=>progress[t.id]||0);return Math.round(v.reduce((a,b)=>a+b,0)/v.length)}
+function topicsDone(){return allTopics().filter(t=>(progress[t.id]||0)>=100).length}
+function todayKey(){return new Date().toISOString().slice(0,10)}
+function markDirty(){isDirty=true}
+
+function makeSVGRing(pct,color,size=40){
+  const r=(size/2)-4,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
+  return `<svg class="ring-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle class="ring-bg" cx="${size/2}" cy="${size/2}" r="${r}"/><circle class="ring-fg" cx="${size/2}" cy="${size/2}" r="${r}" stroke="${color}" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/><text class="ring-text" x="${size/2}" y="${size/2}" transform="rotate(90 ${size/2} ${size/2})">${pct}%</text></svg>`;
+}
+
+/* ── TOAST ── */
+function flashAutoLinkToast(changed) {
+  if (!changed.length) return;
+  const topicNames = {};
+  TRACKS.forEach(t => t.topics.forEach(tp => { topicNames[tp.id] = tp.name; }));
+  const names = changed.slice(0, 3).map(c => topicNames[c.topicId] || c.topicId).join(', ');
+  const extra = changed.length > 3 ? ` +${changed.length - 3} more` : '';
+  document.getElementById('alToastMsg').textContent = `Auto-updated: ${names}${extra}`;
+  const toast = document.getElementById('alToast');
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+/* ── RENDER PROGRESS ── */
+function renderSummary(){
+  const pct=overallPct(),done=topicsDone(),total=allTopics().length;
+  const stage=STAGES.find(s=>pct>=s.min&&pct<=s.max)||STAGES[0];
+
+  document.getElementById('statGrid').innerHTML=`
+    <div class="stat-card sc1"><div class="stat-label">overall</div><div class="stat-val">${pct}%</div><div class="stat-sub">of all topics</div></div>
+    <div class="stat-card sc2"><div class="stat-label">topics done</div><div class="stat-val">${done}</div><div class="stat-sub">of ${total} total</div></div>
+    <div class="stat-card sc3"><div class="stat-label">active tracks</div><div class="stat-val">${TRACKS.filter(t=>trackPct(t)>0).length}</div><div class="stat-sub">of ${TRACKS.length} tracks</div></div>
+    <div class="stat-card sc4"><div class="stat-label">current stage</div><div class="stat-val" style="font-size:22px">${stage.emoji}</div><div class="stat-sub">${stage.label}</div></div>
+  `;
+  document.getElementById('progressSub').textContent=`${pct}% complete · ${done}/${total} topics · ${stage.label}`;
+
+  const avatarPos=Math.min(pct,99);
+  document.getElementById('journeyAvatar').style.left=avatarPos+'%';
+  document.getElementById('journeyAvatar').textContent=stage.emoji;
+  document.getElementById('journeyFill').style.width=pct+'%';
+  document.getElementById('journeyStageLabel').textContent=stage.label;
+  document.getElementById('journeyPct').textContent=pct+'%';
+  [[25,'md25'],[50,'md50'],[75,'md75'],[100,'md100']].forEach(([t,id])=>{
+    const el=document.getElementById(id);if(el)el.classList.toggle('active',pct>=t);
+  });
+  const banner=document.getElementById('rewardBanner');
+  if(stage.reward){banner.style.display='block';banner.textContent=stage.reward;}
+  else banner.style.display='none';
+
+  document.getElementById('worldsWrap').innerHTML=WORLDS.map(w=>{
+    const unlocked=pct>=w.range[0];
+    const wp=unlocked?Math.min(100,Math.round(Math.max(0,pct-w.range[0])/(w.range[1]-w.range[0])*100)):0;
+    return `<div class="world-card ${unlocked?'unlocked':'locked'}">
+      <span class="world-emoji">${w.emoji}</span>
+      <div class="world-name">${w.name}</div>
+      <div class="world-sub">${w.desc}</div>
+      <div class="world-bar-track"><div class="world-bar-fill" style="width:${wp}%;background:${w.color}"></div></div>
+      <div class="world-pct">${unlocked?wp+'% explored':'locked'}</div>
+      ${!unlocked?'<div class="world-lock">🔒</div>':''}
+    </div>`;
+  }).join('');
+}
+
+/* ── RENDER TRACKS ── */
+function renderTracks(){
+  document.getElementById('tracksContainer').innerHTML=TRACKS.map(track=>{
+    const pct=trackPct(track),isOpen=openTracks[track.id];
+    const topics=track.topics.map(topic=>{
+      const val=progress[topic.id]||0;
+      // check if this topic has any auto-link coverage
+      const hasAutoLink=Object.values(BLOCK_TOPIC_MAP).some(arr=>arr.some(e=>e.topicId===topic.id));
+      return `<div class="topic-row">
+        <div class="topic-top">
+          <span class="topic-name">${topic.name}</span>
+          <span class="topic-auto-badge ${hasAutoLink?'visible':''}" title="auto-linked from daily blocks">⚡ auto</span>
+          <span class="phase-pill ${topic.phase}">${PHASE_LABELS[topic.phase]}</span>
+        </div>
+        <div class="topic-bottom">
+          <input type="range" class="topic-slider" min="0" max="100" step="5" value="${val}" oninput="updateTopic('${topic.id}','${track.id}',this)" style="accent-color:${track.color}"/>
+          <span class="topic-pct" id="pct-${topic.id}">${val}%</span>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="track-card">
+      <div class="track-header" onclick="toggleTrack('${track.id}')">
+        <div class="track-left">
+          <div class="track-icon" style="background:${track.bgColor};color:${track.color}">${track.icon}</div>
+          <div><div class="track-name">${track.name}</div><div class="track-meta">${track.topics.length} topics · <span style="color:var(--accent5);font-size:10px">⚡ auto-linked</span></div></div>
+        </div>
+        <div class="track-right">
+          <div class="track-ring" id="ring-${track.id}">${makeSVGRing(pct,track.color)}</div>
+          <span class="chevron-icon ${isOpen?'open':''}" id="chev-${track.id}">▾</span>
+        </div>
+      </div>
+      <div class="track-body ${isOpen?'open':''}" id="body-${track.id}">
+        <div class="topics-grid">${topics}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleTrack(id){
+  openTracks[id]=!openTracks[id];
+  document.getElementById('body-'+id).classList.toggle('open',openTracks[id]);
+  document.getElementById('chev-'+id).classList.toggle('open',openTracks[id]);
+}
+
+function updateTopic(topicId,trackId,slider){
+  progress[topicId]=parseInt(slider.value);
+  document.getElementById('pct-'+topicId).textContent=slider.value+'%';
+  const track=TRACKS.find(t=>t.id===trackId);
+  document.getElementById('ring-'+trackId).innerHTML=makeSVGRing(trackPct(track),track.color);
+  renderSummary();
+  markDirty();
+}
+
+/* ── RENDER TODAY ── */
+function renderDaily(){
+  const tk=todayKey(),checks=dailyChecks[tk]||{};
+  const autoContrib=computeAutoProgress(tk);
+
+  document.getElementById('dailyContainer').innerHTML=DAILY_BLOCKS.map((block,bi)=>{
+    const done=block.items.filter((_,ii)=>checks[bi+'_'+ii]).length;
+    const total=block.items.length;
+    const fillPct=Math.round(done/total*100);
+    const allDone=done===total;
+
+    // which topics does this block link to?
+    const linked=(BLOCK_TOPIC_MAP[bi]||[]).map(e=>e.topicId);
+    const topicNames={};
+    TRACKS.forEach(t=>t.topics.forEach(tp=>{topicNames[tp.id]=tp.name;}));
+    const linkedLabel=linked.slice(0,3).map(id=>topicNames[id]||id).join(' · ')+(linked.length>3?' +'+(linked.length-3):'');
+
+    const items=block.items.map((item,ii)=>{
+      const key=bi+'_'+ii,isDone=checks[key];
+      return `<div class="daily-item" onclick="toggleCheck('${tk}','${key}','box-${bi}_${ii}','lbl-${bi}_${ii}','${bi}')">
+        <div class="check-box ${isDone?'checked':''}" id="box-${bi}_${ii}"></div>
+        <span class="daily-label ${isDone?'checked':''}" id="lbl-${bi}_${ii}">${item}</span>
+      </div>`;
+    }).join('');
+
+    return `<div class="daily-block">
+      <div class="daily-block-header">
+        <div class="block-dot" style="background:${block.color}"></div>
+        <span>${block.title}</span>
+        <span class="daily-count" id="dcnt-${bi}">${done}/${total}</span>
+        <span class="block-complete-badge ${allDone?'visible':''}" id="bdge-${bi}">✓ done</span>
+      </div>
+      <div class="block-progress-bar"><div class="block-progress-fill" id="bpf-${bi}" style="width:${fillPct}%;background:${block.color}"></div></div>
+      <div class="daily-items">${items}</div>
+      ${linked.length?`<div style="padding:.5rem 1.25rem .625rem;font-size:10px;color:var(--text3);font-family:var(--mono);border-top:1px solid var(--border)">⚡ links → ${linkedLabel}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function toggleCheck(tk,key,boxId,lblId,bi){
+  if(!dailyChecks[tk])dailyChecks[tk]={};
+  dailyChecks[tk][key]=!dailyChecks[tk][key];
+  const isDone=dailyChecks[tk][key];
+  document.getElementById(boxId).classList.toggle('checked',isDone);
+  document.getElementById(lblId).classList.toggle('checked',isDone);
+
+  const block=DAILY_BLOCKS[parseInt(bi)];
+  const done=block.items.filter((_,ii)=>dailyChecks[tk][bi+'_'+ii]).length;
+  const total=block.items.length;
+  const fillPct=Math.round(done/total*100);
+
+  document.getElementById('dcnt-'+bi).textContent=done+'/'+total;
+
+  // update block progress bar
+  const bpf=document.getElementById('bpf-'+bi);
+  if(bpf)bpf.style.width=fillPct+'%';
+
+  // show/hide done badge
+  const bdge=document.getElementById('bdge-'+bi);
+  if(bdge)bdge.classList.toggle('visible',done===total);
+
+  // apply auto-link
+  applyAutoProgress(tk, false);
+  markDirty();
+}
+
+/* ── RENDER STRATEGY ── */
+const PHASE_COLOR_MAP={
+  'Phase 1':['rgba(124,111,255,0.12)','var(--accent)'],
+  'Phase 2':['rgba(78,205,196,0.12)','var(--accent2)'],
+  'Phase 3':['rgba(255,209,102,0.12)','var(--accent4)'],
+  'Phase 4':['rgba(255,107,107,0.12)','var(--accent3)']
+};
+
+/* LEVEL 1 — list of days */
+function renderStratDays(filter=''){
+  const list=document.getElementById('stratDayList');if(!list)return;
+  const tb=document.getElementById('stratToolbar'); if(tb) tb.style.display='flex';
+  const q=filter.toLowerCase();
+  const filtered=DAYS.filter(d=>{
+    const pm=activePhaseFilter==='all'||d.phase===activePhaseFilter;
+    const tm=!q||('day '+d.id).includes(q)||d.title.toLowerCase().includes(q)||d.phase.toLowerCase().includes(q)||d.blocks.some(b=>b.title.toLowerCase().includes(q));
+    return pm&&tm;
+  });
+  if(!filtered.length){list.innerHTML=`<div style="text-align:center;color:var(--text3);font-size:13px;padding:3rem">No days match.</div>`;return;}
+  list.innerHTML=filtered.map(d=>{
+    const [pbg,pc]=PHASE_COLOR_MAP[d.phase]||PHASE_COLOR_MAP['Phase 1'];
+    return `<div class="day-card">
+      <div class="day-card-header" onclick="openStratDay(${d.id})">
+        <div class="day-header-left">
+          <span class="day-number">Day ${d.id}</span>
+          <span class="day-title">${d.title}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="strat-block-count">${d.blocks.length} blocks</span>
+          <span class="day-phase-tag" style="background:${pbg};color:${pc}">${d.phase}</span>
+          <span style="color:var(--text3);font-size:14px">›</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* LEVEL 2 — block tiles for a chosen day */
+function openStratDay(dayId){
+  stratActiveDay=dayId;
+  stratActiveBlock=null;
+  renderStratBlocks();
+}
+function renderStratBlocks(){
+  const list=document.getElementById('stratDayList');if(!list)return;
+  const tb=document.getElementById('stratToolbar'); if(tb) tb.style.display='none';
+  const d=DAYS.find(x=>x.id===stratActiveDay);if(!d)return;
+  const [pbg,pc]=PHASE_COLOR_MAP[d.phase]||PHASE_COLOR_MAP['Phase 1'];
+
+  const crumb=`<div class="strat-crumb">
+    <span class="strat-crumb-link" onclick="backToStratDays()">← All days</span>
+    <span class="strat-crumb-sep">/</span>
+    <span class="strat-crumb-current">Day ${d.id} · ${d.title}</span>
+    <span class="day-phase-tag" style="background:${pbg};color:${pc};margin-left:auto">${d.phase}</span>
+  </div>`;
+
+  const tiles=d.blocks.map((b,bi)=>{
+    return `<div class="strat-block-tile" onclick="openStratBlock(${bi})">
+      <div class="strat-tile-top">
+        <div class="block-color-dot" style="background:${b.color}"></div>
+        <span class="strat-tile-time">${b.time}</span>
+      </div>
+      <div class="strat-tile-title">${b.title}</div>
+      <div class="strat-tile-open">Open ›</div>
+    </div>`;
+  }).join('');
+
+  let successHtml='';
+  if(d.success&&d.success.length){
+    const items=d.success.map(s=>`<div class="strat-success-item"><span class="strat-success-tick">✓</span><span>${s}</span></div>`).join('');
+    const hasPractice=practiceDays().includes(d.id);
+    successHtml=`<div class="strat-success">
+      <div class="strat-success-title">🎯 By the end of Day ${d.id} you should be able to:</div>
+      ${items}
+      ${hasPractice?`<button class="strat-practice-btn" onclick="openPracticeDay(${d.id})">⌨️ Practice Day ${d.id} problems ›</button>`:''}
+    </div>`;
+  }
+
+  list.innerHTML=`${crumb}<div class="strat-block-grid">${tiles}</div>${successHtml}`;
+}
+
+/* LEVEL 3 — single block detail */
+function openStratBlock(blockIdx){
+  stratActiveBlock=blockIdx;
+  renderStratBlockDetail();
+}
+function renderStratBlockDetail(){
+  const list=document.getElementById('stratDayList');if(!list)return;
+  const tb=document.getElementById('stratToolbar'); if(tb) tb.style.display='none';
+  const d=DAYS.find(x=>x.id===stratActiveDay);if(!d)return;
+  const b=d.blocks[stratActiveBlock];if(!b)return;
+
+  const crumb=`<div class="strat-crumb">
+    <span class="strat-crumb-link" onclick="backToStratDays()">All days</span>
+    <span class="strat-crumb-sep">/</span>
+    <span class="strat-crumb-link" onclick="renderStratBlocks()">Day ${d.id}</span>
+    <span class="strat-crumb-sep">/</span>
+    <span class="strat-crumb-current">${b.title}</span>
+  </div>`;
+
+  // prev / next block nav
+  const prevIdx=stratActiveBlock>0?stratActiveBlock-1:null;
+  const nextIdx=stratActiveBlock<d.blocks.length-1?stratActiveBlock+1:null;
+  const nav=`<div class="strat-block-nav">
+    ${prevIdx!==null?`<button class="strat-nav-btn" onclick="openStratBlock(${prevIdx})">← ${d.blocks[prevIdx].title}</button>`:'<span></span>'}
+    ${nextIdx!==null?`<button class="strat-nav-btn" onclick="openStratBlock(${nextIdx})">${d.blocks[nextIdx].title} →</button>`:'<span></span>'}
+  </div>`;
+
+  list.innerHTML=`${crumb}
+    <div class="strat-detail-card">
+      <div class="strat-detail-header">
+        <div class="block-color-dot" style="background:${b.color};width:10px;height:10px"></div>
+        <span class="strat-detail-title">${b.title}</span>
+        <span class="strat-detail-time">${b.time}</span>
+      </div>
+      <div class="strat-detail-body">${b.content}</div>
+    </div>
+    ${nav}`;
+}
+
+function backToStratDays(){
+  stratActiveDay=null;
+  stratActiveBlock=null;
+  renderStratDays(document.getElementById('stratSearch')?.value||'');
+}
+
+/* master render — routes to the right level */
+function renderStrategy(filter=''){
+  if(stratActiveDay!==null&&stratActiveBlock!==null){renderStratBlockDetail();}
+  else if(stratActiveDay!==null){renderStratBlocks();}
+  else{renderStratDays(filter);}
+}
+
+function filterDays(val){
+  // searching always returns to day list
+  stratActiveDay=null;stratActiveBlock=null;
+  renderStratDays(val);
+}
+function filterPhase(phase,btn){
+  activePhaseFilter=phase;
+  stratActiveDay=null;stratActiveBlock=null;
+  document.querySelectorAll('.strat-ptab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderStratDays(document.getElementById('stratSearch')?.value||'');
+}
+
+/* ── JOURNAL ── */
+function loadJournal(){
+  const tk=todayKey(),j=journal[tk]||{};
+  document.getElementById('journalDateLabel').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  ['j1','j2','j3','j4','j5'].forEach(id=>{document.getElementById(id).value=j[id]||'';});
+}
+function collectJournal(){
+  const tk=todayKey();
+  if(!journal[tk])journal[tk]={};
+  ['j1','j2','j3','j4','j5'].forEach(id=>{journal[tk][id]=document.getElementById(id).value;});
+}
+
+/* ── CALENDAR ── */
+let scheduleStart = STORE.scheduleStart || null;
+let calMonth, calYear, calSelectedDate = null;
+(function initCalDate(){const n=new Date();calMonth=n.getMonth();calYear=n.getFullYear();})();
+
+const WEEKDAY_LABELS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+/* total checkable items across all daily blocks */
+function totalDailyItems(){return DAILY_BLOCKS.reduce((a,b)=>a+b.items.length,0);}
+
+/* completion ratio (0-1) for a given date key */
+function dateCompletion(dk){
+  const checks=dailyChecks[dk]||{};
+  const done=Object.values(checks).filter(Boolean).length;
+  const total=totalDailyItems();
+  return total>0?done/total:0;
+}
+
+/* heatmap fill for a ratio */
+function heatFill(ratio){
+  if(ratio<=0)return 'var(--surface2)';
+  if(ratio<0.26)return 'rgba(6,214,160,0.25)';
+  if(ratio<0.51)return 'rgba(6,214,160,0.5)';
+  if(ratio<0.76)return 'rgba(6,214,160,0.75)';
+  return 'rgba(6,214,160,1)';
+}
+
+/* which strategy day (if any) maps to this date key */
+function strategyDayForDate(dk){
+  if(!scheduleStart)return null;
+  const start=new Date(scheduleStart+'T00:00:00');
+  const target=new Date(dk+'T00:00:00');
+  const diff=Math.round((target-start)/86400000);
+  const dayId=diff+1; // Day 1 = start date
+  if(dayId<1)return null;
+  return DAYS.find(d=>d.id===dayId)||null;
+}
+
+function dateKeyFrom(y,m,d){
+  const mm=String(m+1).padStart(2,'0'),dd=String(d).padStart(2,'0');
+  return `${y}-${mm}-${dd}`;
+}
+
+function setScheduleStart(val){
+  scheduleStart=val||null;
+  markDirty();
+  renderCalendar();
+  const hint=document.getElementById('calSchedHint');
+  if(hint)hint.textContent=scheduleStart?'Day 1 begins on this date':'Set a date to schedule strategy days';
+}
+
+function calShiftMonth(delta){
+  calMonth+=delta;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  renderCalendar();
+}
+function calGoToday(){
+  const n=new Date();calMonth=n.getMonth();calYear=n.getFullYear();
+  calSelectedDate=todayKey();
+  renderCalendar();
+  renderCalDetail();
+}
+
+function renderCalendar(){
+  // schedule input + hint
+  const inp=document.getElementById('calSchedStart');
+  if(inp&&scheduleStart)inp.value=scheduleStart;
+  const hint=document.getElementById('calSchedHint');
+  if(hint)hint.textContent=scheduleStart?'Day 1 begins on this date':'Set a date to schedule strategy days';
+
+  // month label
+  const monthName=new Date(calYear,calMonth,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  document.getElementById('calMonthLabel').textContent=monthName;
+
+  // weekday headers
+  document.getElementById('calWeekdays').innerHTML=WEEKDAY_LABELS.map(w=>`<div class="cal-weekday">${w}</div>`).join('');
+
+  // grid
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const tk=todayKey();
+  let cells='';
+  for(let i=0;i<firstDay;i++)cells+=`<div class="cal-cell empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const dk=dateKeyFrom(calYear,calMonth,d);
+    const ratio=dateCompletion(dk);
+    const fill=heatFill(ratio);
+    const sched=strategyDayForDate(dk);
+    const hasJournal=journal[dk]&&Object.values(journal[dk]).some(v=>v&&v.trim());
+    const isToday=dk===tk;
+    const isSel=dk===calSelectedDate;
+    const numClass=ratio>=0.76?'on-fill':(ratio<=0?'dim':'');
+    cells+=`<div class="cal-cell ${isToday?'today':''} ${isSel?'selected':''}" style="background:${fill}" onclick="selectCalDate('${dk}')">
+      <span class="cal-cell-num ${numClass}">${d}</span>
+      ${sched?'<span class="cal-sched-dot"></span>':''}
+      ${hasJournal?'<span class="cal-jrnl-dot"></span>':''}
+    </div>`;
+  }
+  document.getElementById('calGrid').innerHTML=cells;
+}
+
+function selectCalDate(dk){
+  calSelectedDate=dk;
+  renderCalendar();
+  renderCalDetail();
+}
+
+function renderCalDetail(){
+  const panel=document.getElementById('calDetail');if(!panel)return;
+  if(!calSelectedDate){
+    panel.innerHTML=`<div class="cal-detail-empty">Click any date to see<br/>that day's progress,<br/>schedule and journal.</div>`;
+    return;
+  }
+  const dk=calSelectedDate;
+  const dObj=new Date(dk+'T00:00:00');
+  const dateLabel=dObj.toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  const isToday=dk===todayKey();
+  const sched=strategyDayForDate(dk);
+  const checks=dailyChecks[dk]||{};
+  const doneTotal=Object.values(checks).filter(Boolean).length;
+  const total=totalDailyItems();
+  const pct=Math.round(doneTotal/total*100);
+
+  // scheduled strategy day
+  let schedHtml='';
+  if(sched){
+    schedHtml=`<div class="cal-detail-section-label">Scheduled</div>
+      <div class="cal-sched-card">
+        <div class="cal-sched-card-title">Day ${sched.id} · ${sched.title}</div>
+        <div class="cal-sched-card-meta">${sched.phase} · ${sched.blocks.length} blocks</div>
+        <button class="cal-sched-open-btn" onclick="openScheduledDay(${sched.id})">Open in Strategy ›</button>
+      </div>`;
+  }
+
+  // per-block completion
+  const blockRows=DAILY_BLOCKS.map((b,bi)=>{
+    const bDone=b.items.filter((_,ii)=>checks[bi+'_'+ii]).length;
+    const full=bDone===b.items.length;
+    return `<div class="cal-mini-block">
+      <span class="cal-mini-dot" style="background:${b.color}"></span>
+      <span class="cal-mini-name">${b.title}</span>
+      <span class="cal-mini-count ${full?'full':''}">${bDone}/${b.items.length}</span>
+    </div>`;
+  }).join('');
+
+  // journal preview
+  const jr=journal[dk]||{};
+  const jqLabels={j1:'Confused me most',j2:'What clicked',j3:'Worst bug',j4:'Weak concept',j5:'Panic / handling'};
+  const jrFilled=Object.entries(jqLabels).filter(([k])=>jr[k]&&jr[k].trim());
+  let jrnlHtml='';
+  if(jrFilled.length){
+    jrnlHtml=jrFilled.map(([k,lbl])=>`<div class="cal-jrnl-preview"><span class="jq">${lbl}</span>${escapeHtml(jr[k])}</div>`).join('');
+  }else{
+    jrnlHtml=`<div class="cal-jrnl-empty">No journal entry for this date.</div>`;
+  }
+
+  panel.innerHTML=`
+    <div class="cal-detail-date">${dateLabel}${isToday?' · Today':''}</div>
+    <div class="cal-detail-sub">${dk}</div>
+    ${schedHtml}
+    <div class="cal-detail-section-label">Completion</div>
+    <div class="cal-completion-ring">
+      ${makeSVGRing(pct,'#06d6a0',44)}
+      <div class="cal-completion-text"><strong>${doneTotal}</strong> / ${total} items done</div>
+    </div>
+    ${blockRows}
+    <div class="cal-detail-section-label">Journal</div>
+    ${jrnlHtml}
+    ${isToday?`<button class="cal-open-today-btn" onclick="switchView('today')">Open Today's routine ›</button>`:''}
+  `;
+}
+
+function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function openScheduledDay(dayId){
+  stratActiveDay=dayId;stratActiveBlock=null;
+  switchView('strategy');
+}
+
+/* ── PRACTICE / COMPILER ── */
+const QUESTION_TOPIC_CAP = 50; // solving all qs of a topic credits up to this %
+
+const QUESTION_BANK=[
+  {id:'q_sum',title:'Sum of array elements',topic:'cpp_arrays',diff:'Easy',
+   prompt:'Read N, then N integers. Print their sum.',
+   sample:{in:'5\n1 2 3 4 5',out:'15'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  int sum=0;\n  for(int i=0;i<n;i++){\n    int x; cin>>x;\n    sum+=x;\n  }\n  cout<<sum<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nnums=list(map(int,input().split()))\nprint(sum(nums))`}},
+  {id:'q_max',title:'Largest element',topic:'cpp_arrays',diff:'Easy',
+   prompt:'Read N, then N integers. Print the largest.',
+   sample:{in:'4\n3 9 2 7',out:'9'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  int mx;\n  for(int i=0;i<n;i++){\n    int x; cin>>x;\n    if(i==0||x>mx) mx=x;\n  }\n  cout<<mx<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nnums=list(map(int,input().split()))\nprint(max(nums))`}},
+  {id:'q_min',title:'Smallest element',topic:'cpp_arrays',diff:'Easy',
+   prompt:'Read N, then N integers. Print the smallest.',
+   sample:{in:'4\n3 9 2 7',out:'2'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  int mn;\n  for(int i=0;i<n;i++){\n    int x; cin>>x;\n    if(i==0||x<mn) mn=x;\n  }\n  cout<<mn<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nnums=list(map(int,input().split()))\nprint(min(nums))`}},
+  {id:'q_rev',title:'Reverse an array',topic:'cpp_arrays',diff:'Easy',
+   prompt:'Read N, then N integers. Print them in reverse order, space-separated.',
+   sample:{in:'5\n1 2 3 4 5',out:'5 4 3 2 1'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  int a[100];\n  for(int i=0;i<n;i++) cin>>a[i];\n  for(int i=n-1;i>=0;i--){\n    cout<<a[i];\n    if(i>0) cout<<" ";\n  }\n  cout<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nnums=list(map(int,input().split()))\nprint(*nums[::-1])`}},
+  {id:'q_2nd',title:'Second largest',topic:'cpp_arrays',diff:'Medium',
+   prompt:'Read N, then N integers. Print the second-largest distinct value.',
+   sample:{in:'5\n4 9 9 2 7',out:'7'},
+   starter:{cpp:`#include <iostream>\n#include <set>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  set<int> s;\n  for(int i=0;i<n;i++){ int x; cin>>x; s.insert(x); }\n  auto it=s.rbegin(); ++it;\n  cout<<*it<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nnums=set(map(int,input().split()))\nprint(sorted(nums)[-2])`}},
+  {id:'q_search',title:'Linear search',topic:'cpp_arrays',diff:'Easy',
+   prompt:'Read N, then N integers, then a target T. Print the 0-based index of T, or -1.',
+   sample:{in:'5\n10 20 30 40 50\n30',out:'2'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  int a[100];\n  for(int i=0;i<n;i++) cin>>a[i];\n  int t; cin>>t;\n  int idx=-1;\n  for(int i=0;i<n;i++) if(a[i]==t){ idx=i; break; }\n  cout<<idx<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nnums=list(map(int,input().split()))\nt=int(input())\nprint(nums.index(t) if t in nums else -1)`}},
+  {id:'q_evenodd',title:'Count even and odd',topic:'cpp_syntax',diff:'Easy',
+   prompt:'Read N, then N integers. Print "<evens> <odds>".',
+   sample:{in:'5\n1 2 3 4 5',out:'2 3'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  int e=0,o=0;\n  for(int i=0;i<n;i++){\n    int x; cin>>x;\n    if(x%2==0) e++; else o++;\n  }\n  cout<<e<<" "<<o<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nnums=list(map(int,input().split()))\ne=sum(1 for x in nums if x%2==0)\nprint(e, n-e)`}},
+  {id:'q_fact',title:'Factorial',topic:'cpp_recursion',diff:'Easy',
+   prompt:'Read N. Print N! (factorial).',
+   sample:{in:'5',out:'120'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nlong long fact(int n){\n  if(n<=1) return 1;\n  return n*fact(n-1);\n}\nint main(){\n  int n; cin>>n;\n  cout<<fact(n)<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nf=1\nfor i in range(2,n+1): f*=i\nprint(f)`}},
+  {id:'q_fib',title:'Fibonacci up to N terms',topic:'cpp_syntax',diff:'Easy',
+   prompt:'Read N. Print the first N Fibonacci numbers (starting 0 1), space-separated.',
+   sample:{in:'7',out:'0 1 1 2 3 5 8'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  long long a=0,b=1;\n  for(int i=0;i<n;i++){\n    cout<<a;\n    if(i<n-1) cout<<" ";\n    long long c=a+b; a=b; b=c;\n  }\n  cout<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\na,b=0,1\nres=[]\nfor _ in range(n):\n    res.append(a)\n    a,b=b,a+b\nprint(*res)`}},
+  {id:'q_prime',title:'Check prime',topic:'cpp_syntax',diff:'Easy',
+   prompt:'Read N. Print "yes" if prime, else "no".',
+   sample:{in:'13',out:'yes'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  bool prime = n>1;\n  for(int i=2;i*i<=n;i++) if(n%i==0){ prime=false; break; }\n  cout<<(prime?"yes":"no")<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nprime = n>1 and all(n%i for i in range(2,int(n**0.5)+1))\nprint("yes" if prime else "no")`}},
+  {id:'q_gcd',title:'GCD of two numbers',topic:'cpp_recursion',diff:'Easy',
+   prompt:'Read two integers A and B. Print their GCD.',
+   sample:{in:'48 36',out:'12'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint gcd(int a,int b){ return b==0?a:gcd(b,a%b); }\nint main(){\n  int a,b; cin>>a>>b;\n  cout<<gcd(a,b)<<endl;\n  return 0;\n}`,
+            py:`import math\na,b=map(int,input().split())\nprint(math.gcd(a,b))`}},
+  {id:'q_digsum',title:'Sum of digits',topic:'cpp_syntax',diff:'Easy',
+   prompt:'Read an integer N. Print the sum of its digits.',
+   sample:{in:'9305',out:'17'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  int s=0;\n  while(n>0){ s+=n%10; n/=10; }\n  cout<<s<<endl;\n  return 0;\n}`,
+            py:`n=input().strip()\nprint(sum(int(c) for c in n))`}},
+  {id:'q_revstr',title:'Reverse a string',topic:'cpp_arrays',diff:'Easy',
+   prompt:'Read a string (one line). Print it reversed.',
+   sample:{in:'quant',out:'tnauq'},
+   starter:{cpp:`#include <iostream>\n#include <string>\n#include <algorithm>\nusing namespace std;\nint main(){\n  string s; getline(cin,s);\n  reverse(s.begin(),s.end());\n  cout<<s<<endl;\n  return 0;\n}`,
+            py:`s=input()\nprint(s[::-1])`}},
+  {id:'q_palin',title:'Check palindrome',topic:'cpp_arrays',diff:'Easy',
+   prompt:'Read a string. Print "yes" if it reads the same backwards, else "no".',
+   sample:{in:'level',out:'yes'},
+   starter:{cpp:`#include <iostream>\n#include <string>\nusing namespace std;\nint main(){\n  string s; getline(cin,s);\n  string r(s.rbegin(),s.rend());\n  cout<<(s==r?"yes":"no")<<endl;\n  return 0;\n}`,
+            py:`s=input()\nprint("yes" if s==s[::-1] else "no")`}},
+  {id:'q_vowels',title:'Count vowels',topic:'cpp_arrays',diff:'Easy',
+   prompt:'Read a string. Print the number of vowels (a,e,i,o,u).',
+   sample:{in:'education',out:'5'},
+   starter:{cpp:`#include <iostream>\n#include <string>\nusing namespace std;\nint main(){\n  string s; getline(cin,s);\n  int c=0;\n  for(char ch:s){\n    char l=tolower(ch);\n    if(l=='a'||l=='e'||l=='i'||l=='o'||l=='u') c++;\n  }\n  cout<<c<<endl;\n  return 0;\n}`,
+            py:`s=input().lower()\nprint(sum(s.count(v) for v in "aeiou"))`}},
+  {id:'q_table',title:'Multiplication table',topic:'cpp_syntax',diff:'Easy',
+   prompt:'Read N. Print N x 1 through N x 10, one per line as "N x i = result".',
+   sample:{in:'3',out:'3 x 1 = 3\n3 x 2 = 6\n... (through x 10)'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  for(int i=1;i<=10;i++)\n    cout<<n<<" x "<<i<<" = "<<n*i<<"\\n";\n  return 0;\n}`,
+            py:`n=int(input())\nfor i in range(1,11):\n    print(f"{n} x {i} = {n*i}")`}},
+  {id:'q_freq',title:'Frequency of a number',topic:'cpp_arrays',diff:'Easy',
+   prompt:'Read N, then N integers, then a target T. Print how many times T appears.',
+   sample:{in:'6\n1 2 3 2 5 2\n2',out:'3'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  int a[100];\n  for(int i=0;i<n;i++) cin>>a[i];\n  int t; cin>>t;\n  int cnt=0;\n  for(int i=0;i<n;i++) if(a[i]==t) cnt++;\n  cout<<cnt<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nnums=list(map(int,input().split()))\nt=int(input())\nprint(nums.count(t))`}},
+  {id:'q_sumeven',title:'Sum of even elements',topic:'cpp_arrays',diff:'Easy',
+   prompt:'Read N, then N integers. Print the sum of only the even numbers.',
+   sample:{in:'6\n1 2 3 4 5 6',out:'12'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  int sum=0;\n  for(int i=0;i<n;i++){\n    int x; cin>>x;\n    if(x%2==0) sum+=x;\n  }\n  cout<<sum<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nnums=list(map(int,input().split()))\nprint(sum(x for x in nums if x%2==0))`}},
+  {id:'q_dedup',title:'Remove duplicates from sorted array',topic:'cpp_arrays',diff:'Medium',
+   prompt:'Read N, then N integers in non-decreasing order. Print the unique values in order, space-separated.',
+   sample:{in:'7\n1 1 2 2 2 3 4',out:'1 2 3 4'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  int prev; bool first=true;\n  for(int i=0;i<n;i++){\n    int x; cin>>x;\n    if(first||x!=prev){\n      if(!first) cout<<" ";\n      cout<<x; prev=x; first=false;\n    }\n  }\n  cout<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nnums=list(map(int,input().split()))\nout=[]\nfor x in nums:\n    if not out or out[-1]!=x: out.append(x)\nprint(*out)`}},
+  {id:'q_vec_print',title:'Read into a vector and print',topic:'cpp_vectors',diff:'Easy',
+   prompt:'Read N, then N integers into a vector. Print them back, space-separated.',
+   sample:{in:'4\n10 20 30 40',out:'10 20 30 40'},
+   starter:{cpp:`#include <iostream>\n#include <vector>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  vector<int> v;\n  for(int i=0;i<n;i++){ int x; cin>>x; v.push_back(x); }\n  for(int i=0;i<(int)v.size();i++){\n    cout<<v[i];\n    if(i<(int)v.size()-1) cout<<" ";\n  }\n  cout<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nv=list(map(int,input().split()))\nprint(*v)`}},
+  {id:'q_vec_max',title:'Largest element in a vector',topic:'cpp_vectors',diff:'Easy',
+   prompt:'Read N, then N integers into a vector. Print the largest element.',
+   sample:{in:'5\n3 9 2 7 5',out:'9'},
+   starter:{cpp:`#include <iostream>\n#include <vector>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  vector<int> v;\n  for(int i=0;i<n;i++){ int x; cin>>x; v.push_back(x); }\n  int mx=v[0];\n  for(int x:v) if(x>mx) mx=x;\n  cout<<mx<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nv=list(map(int,input().split()))\nprint(max(v))`}},
+  {id:'q_vec_sum',title:'Sum of vector elements',topic:'cpp_vectors',diff:'Easy',
+   prompt:'Read N, then N integers into a vector. Print the sum of all elements.',
+   sample:{in:'5\n1 2 3 4 5',out:'15'},
+   starter:{cpp:`#include <iostream>\n#include <vector>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  vector<int> v;\n  for(int i=0;i<n;i++){ int x; cin>>x; v.push_back(x); }\n  int sum=0;\n  for(int x:v) sum+=x;\n  cout<<sum<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nv=list(map(int,input().split()))\nprint(sum(v))`}},
+  {id:'q_movezeros',title:'Move all zeros to the end',topic:'cpp_arrays',diff:'Medium',
+   prompt:'Read N, then N integers. Move all zeros to the end (keeping the order of non-zeros). Print the result space-separated.',
+   sample:{in:'7\n0 1 0 3 12 0 5',out:'1 3 12 5 0 0 0'},
+   starter:{cpp:`#include <iostream>\n#include <vector>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  vector<int> v;\n  for(int i=0;i<n;i++){ int x; cin>>x; v.push_back(x); }\n  vector<int> res;\n  for(int x:v) if(x!=0) res.push_back(x);\n  while((int)res.size()<n) res.push_back(0);\n  for(int i=0;i<n;i++){ cout<<res[i]; if(i<n-1) cout<<" "; }\n  cout<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nv=list(map(int,input().split()))\nnz=[x for x in v if x!=0]\nres=nz+[0]*(n-len(nz))\nprint(*res)`}},
+  {id:'q_rotate1',title:'Left rotate array by one',topic:'cpp_arrays',diff:'Easy',
+   prompt:'Read N, then N integers. Rotate the array left by one position. Print the result space-separated.',
+   sample:{in:'5\n1 2 3 4 5',out:'2 3 4 5 1'},
+   starter:{cpp:`#include <iostream>\n#include <vector>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  vector<int> v;\n  for(int i=0;i<n;i++){ int x; cin>>x; v.push_back(x); }\n  int first=v[0];\n  for(int i=0;i<n-1;i++) v[i]=v[i+1];\n  v[n-1]=first;\n  for(int i=0;i<n;i++){ cout<<v[i]; if(i<n-1) cout<<" "; }\n  cout<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nv=list(map(int,input().split()))\nv=v[1:]+v[:1]\nprint(*v)`}},
+  {id:'q_missing',title:'Find the missing number (1 to N)',topic:'cpp_arrays',diff:'Medium',
+   prompt:'You are given N-1 distinct integers from 1..N (one is missing). Read N, then the N-1 integers. Print the missing number.',
+   sample:{in:'5\n1 2 4 5',out:'3'},
+   starter:{cpp:`#include <iostream>\nusing namespace std;\nint main(){\n  int n; cin>>n;\n  long long total=(long long)n*(n+1)/2;\n  for(int i=0;i<n-1;i++){ int x; cin>>x; total-=x; }\n  cout<<total<<endl;\n  return 0;\n}`,
+            py:`n=int(input())\nnums=list(map(int,input().split()))\nprint(n*(n+1)//2 - sum(nums))`}},
+];
+
+/* ── NON-CODE PRACTICE BANKS (math / quant / linux) ──
+   Each item: { id, mode, topic, diff, prompt,
+     numeric:{value,tol} OR accept:[strings],
+     solution (html), hint? }
+   For numeric, user input may be a decimal or a fraction a/b.
+*/
+const MATH_BANK=[
+  {id:'m_dice8',mode:'math',topic:'math_prob',diff:'Easy',
+   prompt:'Roll two fair dice. What is the probability the sum equals 8? (enter a fraction like 5/36 or a decimal)',
+   numeric:{value:5/36,tol:0.005},
+   hint:'Count ordered pairs (a,b) with a+b=8 out of 36.',
+   solution:`Favourable pairs: (2,6)(3,5)(4,4)(5,3)(6,2) = 5. Total outcomes = 36. So <code>5/36 ≈ 0.139</code>.`},
+  {id:'m_atleast4',mode:'math',topic:'math_prob',diff:'Medium',
+   prompt:'Roll two fair dice. Probability that at least one die shows a 4?',
+   numeric:{value:11/36,tol:0.005},
+   hint:'Use the complement: P(no 4 at all).',
+   solution:`P(no 4) = (5/6)² = 25/36. So P(at least one 4) = 1 − 25/36 = <code>11/36 ≈ 0.306</code>.`},
+  {id:'m_2heads',mode:'math',topic:'math_prob',diff:'Easy',
+   prompt:'Flip a fair coin 3 times. Probability of exactly 2 heads?',
+   numeric:{value:3/8,tol:0.005},
+   solution:`Ways to get exactly 2 heads = C(3,2) = 3, out of 2³ = 8 outcomes. So <code>3/8 = 0.375</code>.`},
+  {id:'m_ace',mode:'math',topic:'math_prob',diff:'Easy',
+   prompt:'Probability of drawing an Ace from a standard 52-card deck?',
+   numeric:{value:1/13,tol:0.005},
+   solution:`4 aces / 52 cards = <code>1/13 ≈ 0.077</code>.`},
+  {id:'m_ev_die',mode:'math',topic:'math_stats',diff:'Easy',
+   prompt:'Expected value of a single roll of a fair six-sided die?',
+   numeric:{value:3.5,tol:0.01},
+   solution:`(1+2+3+4+5+6)/6 = 21/6 = <code>3.5</code>.`},
+  {id:'m_comb',mode:'math',topic:'math_prob',diff:'Medium',
+   prompt:'How many ways to choose 2 items from 5 distinct items? (C(5,2))',
+   numeric:{value:10,tol:0},
+   solution:`C(5,2) = 5! / (2!·3!) = 120 / (2·6) = <code>10</code>.`},
+  {id:'m_linear',mode:'math',topic:'math_algebra',diff:'Easy',
+   prompt:'Solve for x:  2x + 3 = 11.  x = ?',
+   numeric:{value:4,tol:0},
+   solution:`2x = 11 − 3 = 8, so x = <code>4</code>.`},
+  {id:'m_log',mode:'math',topic:'math_algebra',diff:'Easy',
+   prompt:'Evaluate:  log₂(8) = ?',
+   numeric:{value:3,tol:0},
+   solution:`2³ = 8, so log₂(8) = <code>3</code>.`},
+  {id:'m_func',mode:'math',topic:'math_algebra',diff:'Easy',
+   prompt:'If f(x) = x², what is f(5)?',
+   numeric:{value:25,tol:0},
+   solution:`f(5) = 5² = <code>25</code>.`},
+  {id:'m_seq',mode:'math',topic:'math_algebra',diff:'Easy',
+   prompt:'Next term in the sequence: 2, 4, 8, 16, … ?',
+   numeric:{value:32,tol:0},
+   solution:`Each term doubles (×2), so next is 16 × 2 = <code>32</code>.`},
+];
+
+const QUANT_BANK=[
+  {id:'q_batball',mode:'quant',topic:'qt_reasoning',diff:'Easy',
+   prompt:'A bat and a ball cost $1.10 together. The bat costs $1.00 more than the ball. How much is the ball, in cents?',
+   numeric:{value:5,tol:0},
+   hint:'It is NOT 10 cents — set up the equation.',
+   solution:`Let ball = b. Bat = b + 1.00. Then b + (b+1.00) = 1.10 → 2b = 0.10 → b = 0.05 = <code>5 cents</code>.`},
+  {id:'q_widgets',mode:'quant',topic:'qt_reasoning',diff:'Easy',
+   prompt:'If 5 machines make 5 widgets in 5 minutes, how many minutes for 100 machines to make 100 widgets?',
+   numeric:{value:5,tol:0},
+   solution:`Each machine makes 1 widget in 5 minutes. 100 machines work in parallel, so 100 widgets still take <code>5 minutes</code>.`},
+  {id:'q_monty',mode:'quant',topic:'qt_probabilistic',diff:'Medium',
+   prompt:'Monty Hall: 3 doors, you pick one, host opens a goat door, you switch. Probability you win the car? (fraction)',
+   numeric:{value:2/3,tol:0.01},
+   hint:'Your first pick is right 1/3 of the time.',
+   solution:`Your initial pick wins 1/3. Switching wins whenever your first pick was wrong = <code>2/3 ≈ 0.667</code>.`},
+  {id:'q_handshake',mode:'quant',topic:'qt_reasoning',diff:'Easy',
+   prompt:'10 people in a room. Everyone shakes hands once with everyone else. How many handshakes total?',
+   numeric:{value:45,tol:0},
+   solution:`C(10,2) = 10·9/2 = <code>45</code>.`},
+  {id:'q_squares',mode:'quant',topic:'qt_decompose',diff:'Medium',
+   prompt:'How many squares (of all sizes) are on a standard 8×8 chessboard?',
+   numeric:{value:204,tol:0},
+   hint:'Sum of squares: 1² + 2² + … + 8².',
+   solution:`Count k×k squares for k=1..8: 8²+7²+…+1² = 64+49+36+25+16+9+4+1 = <code>204</code>.`},
+  {id:'q_eggs',mode:'quant',topic:'qt_optimization',diff:'Hard',
+   prompt:'Two identical eggs, a 100-floor building. Minimum number of drops to guarantee finding the highest safe floor (worst case)?',
+   numeric:{value:14,tol:0},
+   hint:'First drop at floor x, then x−1, x−2, … must cover 100.',
+   solution:`Find smallest x with x(x+1)/2 ≥ 100. x=14 gives 105 ≥ 100. So <code>14 drops</code>.`},
+  {id:'q_lookandsay',mode:'quant',topic:'qt_reasoning',diff:'Medium',
+   prompt:'Next term: 1, 11, 21, 1211, 111221, … ?',
+   accept:['312211'],
+   hint:'Read the previous term aloud (look-and-say).',
+   solution:`Each term describes the previous: 111221 is "three 1s, two 2s, one 1" → <code>312211</code>.`},
+  {id:'q_birthday',mode:'quant',topic:'qt_probabilistic',diff:'Medium',
+   prompt:'In a room of 23 people, is the probability that two share a birthday more than 50%? (yes/no)',
+   accept:['yes','y','true'],
+   solution:`Yes — the famous birthday paradox. With 23 people the probability is about 50.7%, so just over <code>50%</code>.`},
+  {id:'q_socks',mode:'quant',topic:'qt_decompose',diff:'Easy',
+   prompt:'A drawer has 10 black and 10 white socks (unsorted, in the dark). How many socks must you pull to guarantee a matching pair?',
+   numeric:{value:3,tol:0},
+   hint:'Pigeonhole principle.',
+   solution:`Only 2 colours exist. By the pigeonhole principle, <code>3 socks</code> guarantees two of the same colour.`},
+  {id:'q_clock',mode:'quant',topic:'qt_reasoning',diff:'Medium',
+   prompt:'How many times do the hour and minute hands of a clock overlap in 12 hours?',
+   numeric:{value:11,tol:0},
+   solution:`The hands align every 12/11 hours, giving <code>11 overlaps</code> in 12 hours (not 12).`},
+  {id:'q_die6even',mode:'quant',topic:'qt_probabilistic',diff:'Easy',
+   prompt:'Roll one fair die. What is the probability the number is even? (fraction or decimal)',
+   numeric:{value:0.5,tol:0.01},
+   hint:'Even faces: 2, 4, 6. Compare with P(=6) = 1/6.',
+   solution:`Even faces {2,4,6} → 3/6 = <code>1/2</code>. Since P(=6) is only 1/6, betting on "even" (1/2) is the better choice.`},
+  {id:'q_o1on',mode:'quant',topic:'qt_decompose',diff:'Medium',concept:true,
+   prompt:'Why is accessing arr[n] O(1), but searching for an element O(n)? Think it through, then reveal.',
+   solution:`An array is a contiguous block in memory. <code>arr[n]</code> is computed directly as <code>base_address + n × element_size</code> — one arithmetic step, independent of array length, so <strong>O(1)</strong>.<br/><br/>Searching for a <em>value</em> (not an index) means you don't know where it lives, so in the worst case you must inspect every element until you find it (or reach the end) — that's up to N comparisons, so <strong>O(n)</strong>. Indexing uses position; searching must examine contents.`},
+  {id:'q_3digit',mode:'quant',topic:'qt_reasoning',diff:'Easy',
+   prompt:'How many 3-digit numbers can be formed using the digits 1, 2, 3, 4 without repetition?',
+   numeric:{value:24,tol:0},
+   hint:'4 choices for the first digit, then 3, then 2.',
+   solution:`First digit: 4 choices, second: 3 left, third: 2 left → 4 × 3 × 2 = <code>24</code>.`},
+  {id:'q_password',mode:'quant',topic:'qt_reasoning',diff:'Medium',
+   prompt:'A password is 2 letters (a–z) followed by 2 digits (0–9), e.g. ab12. How many possible passwords are there?',
+   numeric:{value:67600,tol:0},
+   hint:'Multiply the choices for each position: 26 · 26 · 10 · 10.',
+   solution:`26 choices per letter and 10 per digit, in fixed positions: 26 × 26 × 10 × 10 = <code>67,600</code>.`},
+  {id:'q_vec_concept',mode:'quant',topic:'cpp_vectors',diff:'Medium',concept:true,
+   prompt:'Why does vector.push_back(x) feel easier than int arr[100]? What problem is a vector solving?',
+   solution:`A raw array like <code>int arr[100]</code> has a <strong>fixed size you must decide up front</strong> — too small and you overflow, too big and you waste memory, and you must track how many slots you've actually used.<br/><br/>A <code>std::vector</code> is a <strong>dynamic array</strong>: <code>push_back</code> grows it automatically as you add elements, it remembers its own <code>size()</code>, and it manages (allocates/frees) memory for you. So it solves the "I don't know how many items I'll have" problem and removes manual memory/size bookkeeping.`},
+];
+
+const LINUX_BANK=[
+  {id:'l_pwd',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'Print the current (working) directory.',
+   accept:['pwd'],
+   solution:`<code>pwd</code> — "print working directory".`},
+  {id:'l_ls',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'List the files in the current directory.',
+   accept:['ls'],
+   solution:`<code>ls</code> lists directory contents.`},
+  {id:'l_lsla',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'List ALL files (including hidden) in long format.',
+   accept:['ls -la','ls -al','ls -l -a','ls -a -l','ls -lah','ls -hal'],
+   hint:'Combine the -l and -a flags.',
+   solution:`<code>ls -la</code> — -l for long format, -a to include hidden (dot) files.`},
+  {id:'l_mkdir',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'Create a new directory called  test.',
+   accept:['mkdir test','mkdir ./test'],
+   solution:`<code>mkdir test</code> makes a new directory.`},
+  {id:'l_cd',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'Change into the  test  directory.',
+   accept:['cd test','cd ./test'],
+   solution:`<code>cd test</code> changes directory.`},
+  {id:'l_cdup',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'Move up one directory level (to the parent).',
+   accept:['cd ..','cd ../'],
+   solution:`<code>cd ..</code> — ".." refers to the parent directory.`},
+  {id:'l_cat',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'Show the contents of a file called  notes.txt.',
+   accept:['cat notes.txt','cat ./notes.txt'],
+   solution:`<code>cat notes.txt</code> prints a file to the terminal.`},
+  {id:'l_rm',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'Delete a file called  old.txt.',
+   accept:['rm old.txt','rm ./old.txt'],
+   solution:`<code>rm old.txt</code> removes a file. (Be careful — there is no trash bin!)`},
+  {id:'l_cp',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'Copy  a.txt  to  b.txt.',
+   accept:['cp a.txt b.txt'],
+   solution:`<code>cp a.txt b.txt</code> copies a file.`},
+  {id:'l_mv',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'Rename (move)  a.txt  to  b.txt.',
+   accept:['mv a.txt b.txt'],
+   solution:`<code>mv a.txt b.txt</code> moves or renames a file.`},
+  {id:'l_gpp',mode:'linux',topic:'linux_cpp',diff:'Easy',
+   prompt:'Compile a C++ file called  main.cpp  with g++ (default output).',
+   accept:['g++ main.cpp','g++ ./main.cpp'],
+   solution:`<code>g++ main.cpp</code> compiles to the default executable <code>a.out</code>.`},
+  {id:'l_run',mode:'linux',topic:'linux_cpp',diff:'Easy',
+   prompt:'Run the compiled program  a.out  from the current directory.',
+   accept:['./a.out'],
+   hint:'You need to tell the shell it is in the current directory.',
+   solution:`<code>./a.out</code> — the "./" tells the shell to run from the current folder.`},
+  {id:'l_gppo',mode:'linux',topic:'linux_cpp',diff:'Medium',
+   prompt:'Compile  main.cpp  into an executable named  app.',
+   accept:['g++ main.cpp -o app','g++ -o app main.cpp'],
+   hint:'Use the -o flag to name the output.',
+   solution:`<code>g++ main.cpp -o app</code> — -o sets the output filename.`},
+  {id:'l_touch',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'Create a new empty file called  notes.txt.',
+   accept:['touch notes.txt','touch ./notes.txt'],
+   solution:`<code>touch notes.txt</code> creates an empty file (or updates its timestamp if it exists).`},
+  {id:'l_echo',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'Print the text  hello  to the terminal.',
+   accept:['echo hello','echo "hello"',"echo 'hello'"],
+   solution:`<code>echo hello</code> prints text to standard output.`},
+  {id:'l_echo_file',mode:'linux',topic:'linux_basics',diff:'Medium',
+   prompt:'Write the text  hi  into a file called  notes.txt  (overwriting it), using echo.',
+   accept:['echo hi > notes.txt','echo "hi" > notes.txt',"echo 'hi' > notes.txt"],
+   hint:'Use the > redirection operator.',
+   solution:`<code>echo "hi" > notes.txt</code> — the <code>></code> operator redirects output into a file, replacing its contents. (Use <code>>></code> to append instead.)`},
+  {id:'l_nano',mode:'linux',topic:'linux_basics',diff:'Easy',
+   prompt:'Open the file  notes.txt  for editing in the nano text editor.',
+   accept:['nano notes.txt','nano ./notes.txt'],
+   solution:`<code>nano notes.txt</code> opens the file in nano. Save with Ctrl+O, exit with Ctrl+X.`},
+];
+
+const QUIZ_BANKS={math:MATH_BANK,quant:QUANT_BANK,linux:LINUX_BANK};
+function allQuizItems(){return [...MATH_BANK,...QUANT_BANK,...LINUX_BANK];}
+
+/* which roadmap day each practice item belongs to (default day 1) */
+const PRACTICE_DAY={
+  /* Day 1 */
+  q_sum:1,q_max:1,q_min:1,q_rev:1,q_evenodd:1,q_fib:1,q_fact:1,q_digsum:1,q_revstr:1,
+  m_dice8:1,m_atleast4:1,m_ace:1,m_comb:1,m_linear:1,m_log:1,m_func:1,m_seq:1,m_ev_die:1,
+  q_batball:1,q_widgets:1,q_squares:1,q_eggs:1,q_lookandsay:1,q_socks:1,q_clock:1,q_monty:1,
+  l_pwd:1,l_ls:1,l_lsla:1,l_mkdir:1,l_cd:1,l_cdup:1,l_gpp:1,l_run:1,l_gppo:1,
+  /* Day 2 */
+  q_search:2,q_2nd:2,q_freq:2,q_sumeven:2,q_dedup:2,q_prime:2,q_table:2,q_gcd:2,q_palin:2,q_vowels:2,
+  m_2heads:2,
+  q_die6even:2,q_birthday:2,q_o1on:2,
+  l_touch:2,l_rm:2,l_cp:2,l_mv:2,
+  /* Day 3 */
+  q_vec_print:3,q_vec_max:3,q_vec_sum:3,q_movezeros:3,q_rotate1:3,q_missing:3,
+  q_3digit:3,q_handshake:3,q_password:3,q_vec_concept:3,
+  l_cat:3,l_echo:3,l_echo_file:3,l_nano:3,
+};
+function itemDay(item){return PRACTICE_DAY[item.id]||1;}
+/* all distinct days present, sorted */
+function practiceDays(){
+  const s=new Set([...QUESTION_BANK,...allQuizItems()].map(i=>itemDay(i)));
+  return [...s].sort((a,b)=>a-b);
+}
+
+let solved = STORE.solved || {};
+let currentQ = null;
+let currentLang = 'cpp';
+let activeQFilter = 'all';
+let editBuffers = {}; // qid_lang -> code (session only)
+let pyodide = null;
+let pyodideLoading = false;
+let jscppReady = false;
+let jscppLoading = false;
+const JSCPP_URLS=[
+  'https://cdn.jsdelivr.net/npm/JSCPP@2.0.0/dist/JSCPP.es5.min.js',
+  'https://cdn.jsdelivr.net/npm/JSCPP/dist/JSCPP.es5.min.js',
+  'https://unpkg.com/JSCPP@2.0.0/dist/JSCPP.es5.min.js',
+  'https://unpkg.com/JSCPP/dist/JSCPP.es5.min.js',
+  'https://cdn.jsdelivr.net/npm/jscpp/dist/JSCPP.es5.min.js',
+  'https://unpkg.com/jscpp/dist/JSCPP.es5.min.js',
+  'https://cdn.jsdelivr.net/npm/JSCPP@2.0.0/dist/JSCPP.js',
+  'https://unpkg.com/JSCPP@2.0.0/dist/JSCPP.js'
+];
+
+/* load a single external script; resolves true if it loaded, false on error/timeout */
+function loadScriptOnce(url){
+  return new Promise((resolve)=>{
+    const s=document.createElement('script');
+    s.src=url;s.async=true;
+    let done=false;
+    const finish=(ok)=>{if(done)return;done=true;if(!ok&&s.parentNode)s.parentNode.removeChild(s);resolve(ok);};
+    s.onload=()=>finish(true);
+    s.onerror=()=>finish(false);
+    setTimeout(()=>finish(false),12000); // timeout guard
+    document.head.appendChild(s);
+  });
+}
+
+/* try each candidate URL until window.JSCPP is defined */
+async function ensureJSCPP(){
+  if(jscppReady||typeof JSCPP!=='undefined'){jscppReady=true;return true;}
+  if(jscppLoading){
+    while(jscppLoading){await new Promise(r=>setTimeout(r,150));}
+    return jscppReady;
+  }
+  jscppLoading=true;
+  try{
+    for(const url of JSCPP_URLS){
+      const ok=await loadScriptOnce(url);
+      if(ok&&typeof JSCPP!=='undefined'){jscppReady=true;break;}
+    }
+  }finally{
+    jscppLoading=false;
+  }
+  return jscppReady;
+}
+
+function questionsForTopic(topicId){return QUESTION_BANK.filter(q=>q.topic===topicId);}
+
+/* credit solved questions (code + quiz) toward topic progress (highest wins) */
+function applyQuestionProgress(silent){
+  const all=[...QUESTION_BANK,...allQuizItems()];
+  const byTopic={};
+  all.forEach(q=>{
+    byTopic[q.topic]=byTopic[q.topic]||{total:0,done:0};
+    byTopic[q.topic].total++;
+    if(solved[q.id]) byTopic[q.topic].done++;
+  });
+  let changed=false;
+  Object.entries(byTopic).forEach(([topicId,{total,done}])=>{
+    if(total===0)return;
+    const contrib=Math.round(done/total*QUESTION_TOPIC_CAP);
+    const cur=progress[topicId]||0;
+    if(contrib>cur){progress[topicId]=contrib;changed=true;}
+  });
+  if(changed){
+    markDirty();
+    if(document.getElementById('view-progress').classList.contains('active')){renderSummary();renderTracks();}
+  }
+}
+
+function topicName(id){
+  for(const t of TRACKS) for(const tp of t.topics) if(tp.id===id) return tp.name;
+  return id;
+}
+
+function renderQuestionList(filter=''){
+  const wrap=document.getElementById('pracQList');if(!wrap)return;
+  const q=filter.toLowerCase();
+  const filtered=QUESTION_BANK.filter(item=>{
+    if(!dayMatch(item))return false;
+    let fm=true;
+    if(activeQFilter==='solved')fm=!!solved[item.id];
+    else if(activeQFilter==='unsolved')fm=!solved[item.id];
+    else if(activeQFilter==='Easy')fm=item.diff==='Easy';
+    else if(activeQFilter==='Medium')fm=item.diff==='Medium';
+    const tm=!q||item.title.toLowerCase().includes(q)||item.prompt.toLowerCase().includes(q)||topicName(item.topic).toLowerCase().includes(q);
+    return fm&&tm;
+  });
+  const total=QUESTION_BANK.filter(dayMatch).length;
+  const done=QUESTION_BANK.filter(x=>dayMatch(x)&&solved[x.id]).length;
+  document.getElementById('pracSolvedCount').textContent=`${done}/${total} solved`;
+
+  if(!filtered.length){wrap.innerHTML=`<div style="color:var(--text3);font-size:12px;font-family:var(--mono);padding:2rem;text-align:center">No problems match.</div>`;return;}
+  wrap.innerHTML=filtered.map(item=>{
+    const isSolved=!!solved[item.id];
+    const isActive=currentQ&&currentQ.id===item.id;
+    return `<div class="prac-q-item ${isActive?'active':''}" onclick="loadQuestion('${item.id}')">
+      <div class="prac-q-item-top">
+        <span class="prac-q-check ${isSolved?'solved':''}"></span>
+        <span class="prac-q-title">${item.title}</span>
+      </div>
+      <div class="prac-q-meta">
+        <span class="prac-diff diff-${item.diff}">${item.diff}</span>
+        <span class="prac-q-topic">${topicName(item.topic)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function loadQuestion(qid){
+  const q=QUESTION_BANK.find(x=>x.id===qid);if(!q)return;
+  currentQ=q;
+  renderQuestionList(document.getElementById('pracSearch')?.value||'');
+  renderQuestionDetail();
+}
+
+function bufKey(qid,lang){return qid+'_'+lang;}
+function langStub(lang){
+  if(lang==='cpp')return `#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your solution here\n    \n    return 0;\n}`;
+  return `# Write your solution here\n`;
+}
+
+function getCode(){
+  const k=bufKey(currentQ.id,currentLang);
+  if(editBuffers[k]!==undefined)return editBuffers[k];
+  return langStub(currentLang);
+}
+
+function renderQuestionDetail(){
+  const panel=document.getElementById('pracQDetail');if(!panel||!currentQ)return;
+  const q=currentQ;
+  const isSolved=!!solved[q.id];
+  const code=getCode();
+  panel.innerHTML=`
+    <div class="prac-detail-head">
+      <div class="prac-detail-title-row">
+        <span class="prac-diff diff-${q.diff}">${q.diff}</span>
+        <span class="prac-detail-title">${q.title}</span>
+        <button class="prac-solve-btn ${isSolved?'solved':''}" id="pracSolveBtn" onclick="toggleSolved()">${isSolved?'✓ Solved':'Mark solved'}</button>
+      </div>
+      <div class="prac-detail-prompt">${q.prompt}</div>
+      <div class="prac-sample"><b>Sample input</b><pre>${escapeHtml(q.sample.in)}</pre><b style="display:inline-block;margin-top:6px">Expected output</b><pre>${escapeHtml(q.sample.out)}</pre></div>
+    </div>
+    <div class="prac-editor-bar">
+      <div class="prac-lang-toggle">
+        <button class="prac-lang-btn ${currentLang==='cpp'?'active':''}" onclick="setLang('cpp')">C++</button>
+        <button class="prac-lang-btn ${currentLang==='py'?'active':''}" onclick="setLang('py')">Python</button>
+      </div>
+      <button class="prac-reset-btn" onclick="resetCode()">↺ Clear</button>
+      <button class="prac-run-btn" id="pracRunBtn" onclick="runCode()">▶ Run</button>
+    </div>
+    <textarea class="prac-code" id="pracCode" spellcheck="false" oninput="onCodeInput()" placeholder="Write your code, then hit Run…">${escapeHtml(code)}</textarea>
+    <div class="prac-io-row">
+      <div class="prac-io-col">
+        <div class="prac-io-label">stdin (input)</div>
+        <textarea class="prac-stdin" id="pracStdin" spellcheck="false">${escapeHtml(q.sample.in)}</textarea>
+      </div>
+      <div class="prac-io-col">
+        <div class="prac-io-label">terminal output</div>
+        <div class="prac-output muted" id="pracOutput">Run your code to see output…</div>
+      </div>
+    </div>
+    <div class="prac-sol-bar">
+      <button class="prac-revealsol-btn" id="pracRevealSolBtn" onclick="toggleSolution()">👁 Reveal solution</button>
+    </div>
+    <div class="prac-solution-panel" id="pracSolPanel" style="display:none">
+      <div class="prac-sol-label">Reference solution — <span id="pracSolLang"></span> <span class="prac-sol-warn">(try it yourself first!)</span></div>
+      <pre class="prac-sol-code" id="pracSolCode"></pre>
+      <button class="prac-load-sol-btn" onclick="loadSolutionIntoEditor()">Load into editor</button>
+    </div>
+  `;
+  // tab key handling
+  const ta=document.getElementById('pracCode');
+  ta.addEventListener('keydown',e=>{
+    if(e.key==='Tab'){e.preventDefault();
+      const s=ta.selectionStart,en=ta.selectionEnd;
+      ta.value=ta.value.slice(0,s)+'  '+ta.value.slice(en);
+      ta.selectionStart=ta.selectionEnd=s+2;
+      onCodeInput();
+    }
+  });
+}
+
+function toggleSolution(){
+  const panel=document.getElementById('pracSolPanel');
+  const btn=document.getElementById('pracRevealSolBtn');
+  if(!panel)return;
+  const showing=panel.style.display!=='none';
+  if(showing){panel.style.display='none';btn.textContent='👁 Reveal solution';}
+  else{
+    document.getElementById('pracSolCode').textContent=currentQ.starter[currentLang]||'';
+    document.getElementById('pracSolLang').textContent=currentLang==='cpp'?'C++':'Python';
+    panel.style.display='';
+    btn.textContent='🙈 Hide solution';
+  }
+}
+function loadSolutionIntoEditor(){
+  if(!currentQ)return;
+  const sol=currentQ.starter[currentLang]||'';
+  editBuffers[bufKey(currentQ.id,currentLang)]=sol;
+  const ta=document.getElementById('pracCode');
+  if(ta)ta.value=sol;
+}
+
+function onCodeInput(){
+  if(!currentQ)return;
+  editBuffers[bufKey(currentQ.id,currentLang)]=document.getElementById('pracCode').value;
+}
+function setLang(lang){
+  if(!currentQ||lang===currentLang)return;
+  const ta=document.getElementById('pracCode');
+  if(ta)editBuffers[bufKey(currentQ.id,currentLang)]=ta.value;
+  currentLang=lang;
+  renderQuestionDetail();
+}
+function resetCode(){
+  if(!currentQ)return;
+  delete editBuffers[bufKey(currentQ.id,currentLang)];
+  const ta=document.getElementById('pracCode');
+  if(ta)ta.value=langStub(currentLang);
+  onCodeInput();
+}
+function toggleSolved(){
+  if(!currentQ)return;
+  solved[currentQ.id]=!solved[currentQ.id];
+  markDirty();
+  applyQuestionProgress();
+  renderQuestionList(document.getElementById('pracSearch')?.value||'');
+  updateSolveBtn();
+}
+function updateSolveBtn(){
+  const btn=document.getElementById('pracSolveBtn');
+  if(btn&&currentQ){
+    const s=!!solved[currentQ.id];
+    btn.classList.toggle('solved',s);
+    btn.textContent=s?'✓ Solved':'Mark solved';
+  }
+}
+
+function setOutput(html,cls){
+  const el=document.getElementById('pracOutput');if(!el)return;
+  el.className='prac-output'+(cls?' '+cls:'');
+  el.innerHTML=html;
+}
+
+/* normalize output for expected-match comparison */
+function normalizeOut(s){
+  return String(s).replace(/\r/g,'').split('\n').map(l=>l.replace(/\s+$/,'')).join('\n').replace(/\n+$/,'').trim();
+}
+
+async function runCode(){
+  if(!currentQ)return;
+  const code=document.getElementById('pracCode').value;
+  const stdin=document.getElementById('pracStdin').value;
+  const runBtn=document.getElementById('pracRunBtn');
+  runBtn.disabled=true;
+  setOutput('Running…','muted');
+  let res;
+  try{
+    res=currentLang==='cpp'?await runCpp(code,stdin):await runPy(code,stdin);
+  }catch(e){
+    setOutput('<span class="err">'+escapeHtml(String(e&&e.message||e))+'</span>');
+    runBtn.disabled=false;return;
+  }
+  runBtn.disabled=false;
+
+  // error → show partial output + error
+  if(res.error){
+    const partial=res.output&&res.output.length?escapeHtml(res.output)+'\n':'';
+    setOutput(partial+'<span class="err">'+escapeHtml(res.error)+'</span>');
+    return;
+  }
+
+  // success → show output, then compare to expected (skip if expected has a "..." placeholder)
+  const body=res.output&&res.output.length?escapeHtml(res.output):'(no output)';
+  const exit=res.exit!==undefined?`<span class="muted">\n[exit code ${res.exit}]</span>`:'';
+  const exp=currentQ.sample.out||'';
+  const checkable=exp&&!exp.includes('...');
+
+  if(checkable&&normalizeOut(res.output)===normalizeOut(exp)){
+    setOutput(body+exit+'<span class="ok">\n\n✓ Output matches the expected result — solved!</span>','ok');
+    if(!solved[currentQ.id]){
+      solved[currentQ.id]=true;markDirty();applyQuestionProgress();
+      renderQuestionList(document.getElementById('pracSearch')?.value||'');
+      updateSolveBtn();
+    }
+  }else if(checkable){
+    setOutput(body+exit+'<span class="muted">\n\n↳ ran fine, but output doesn\'t match the expected result yet.</span>','ok');
+  }else{
+    setOutput(body+exit,'ok');
+  }
+}
+
+async function runCpp(code,stdin){
+  if(typeof JSCPP==='undefined'){
+    setOutput('Loading C++ engine (first run only)…','muted');
+    const ok=await ensureJSCPP();
+    if(!ok||typeof JSCPP==='undefined'){
+      return {output:'',error:'Could not load the C++ engine. This needs an internet connection the first time — check your connection and try Run again.'};
+    }
+  }
+  let out='';
+  const config={stdio:{write:(s)=>{out+=s;}},unsigned_overflow:'warn'};
+  try{
+    const exitCode=JSCPP.run(code,stdin,config);
+    return {output:out,error:null,exit:exitCode};
+  }catch(e){
+    return {output:out,error:String(e&&e.message||e)};
+  }
+}
+
+async function ensurePyodide(){
+  if(pyodide)return pyodide;
+  if(pyodideLoading){
+    while(pyodideLoading){await new Promise(r=>setTimeout(r,150));}
+    return pyodide;
+  }
+  pyodideLoading=true;
+  setOutput('Loading Python engine (first run only, ~a few seconds)…','muted');
+  try{
+    const mod=await import('https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.mjs');
+    pyodide=await mod.loadPyodide();
+  }finally{
+    pyodideLoading=false;
+  }
+  return pyodide;
+}
+
+async function runPy(code,stdin){
+  const py=await ensurePyodide();
+  if(!py)return {output:'',error:'Python engine failed to load. Check your connection and retry.'};
+  py.runPython(`import sys, io\nsys.stdin=io.StringIO(${JSON.stringify(stdin)})\n_OUT=io.StringIO()\nsys.stdout=_OUT\nsys.stderr=_OUT`);
+  let errMsg=null;
+  try{
+    py.runPython(code);
+  }catch(e){
+    errMsg=String(e&&e.message||e);
+  }
+  const out=py.runPython('_OUT.getvalue()');
+  py.runPython('import sys\nsys.stdout=sys.__stdout__\nsys.stderr=sys.__stderr__\nsys.stdin=sys.__stdin__');
+  if(errMsg){
+    const tail=errMsg.split('\n').filter(l=>l.trim()).slice(-6).join('\n');
+    return {output:out,error:tail};
+  }
+  return {output:out,error:null};
+}
+
+function filterQuestions(val){renderQuestionList(val);}
+function filterQTopic(f,btn){
+  activeQFilter=f;
+  document.querySelectorAll('.prac-ftab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderQuestionList(document.getElementById('pracSearch')?.value||'');
+}
+function renderPractice(){
+  renderPracDayBar();
+  if(practiceMode==='code'){
+    // warm up the C++ engine in the background so Run is instant
+    if(!jscppReady&&!jscppLoading){ensureJSCPP();}
+    renderQuestionList(document.getElementById('pracSearch')?.value||'');
+    if(currentQ)renderQuestionDetail();
+  }else{
+    renderQuizList();
+  }
+}
+
+/* ── NON-CODE QUIZ MODES ── */
+let practiceMode='code';
+let activeQuizState='all';
+let practiceDay='all';
+
+function renderPracDayBar(){
+  const bar=document.getElementById('pracDayBar');if(!bar)return;
+  const days=practiceDays();
+  let html='<span class="prac-day-label">Day</span>';
+  html+=`<button class="prac-day-btn ${practiceDay==='all'?'active':''}" onclick="setPracDay('all',this)">All</button>`;
+  days.forEach(d=>{
+    html+=`<button class="prac-day-btn ${practiceDay===d?'active':''}" onclick="setPracDay(${d},this)">Day ${d}</button>`;
+  });
+  bar.innerHTML=html;
+}
+function setPracDay(day,btn){
+  practiceDay=day;
+  document.querySelectorAll('.prac-day-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  if(practiceMode==='code'){
+    currentQ=null;
+    renderQuestionList(document.getElementById('pracSearch')?.value||'');
+    document.getElementById('pracQDetail').innerHTML='<div class="prac-empty">← Pick a problem to start coding.</div>';
+  }else{
+    renderQuizList();
+  }
+}
+function dayMatch(item){return practiceDay==='all'||itemDay(item)===practiceDay;}
+
+/* jump to Practice filtered to a given day (from Strategy) */
+function openPracticeDay(dayId){
+  practiceDay=dayId;
+  practiceMode='code';
+  switchView('practice');
+  // sync mode bar buttons
+  document.querySelectorAll('.prac-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode==='code'));
+  document.getElementById('pracModeCode').style.display='';
+  document.getElementById('pracModeQuiz').style.display='none';
+}
+
+function setPracMode(mode,btn){
+  practiceMode=mode;
+  document.querySelectorAll('.prac-mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const codeWrap=document.getElementById('pracModeCode');
+  const quizWrap=document.getElementById('pracModeQuiz');
+  if(mode==='code'){
+    codeWrap.style.display='';quizWrap.style.display='none';
+    renderQuestionList(document.getElementById('pracSearch')?.value||'');
+  }else{
+    codeWrap.style.display='none';quizWrap.style.display='';
+    document.getElementById('quizSearch').value='';
+    activeQuizState='all';
+    document.querySelectorAll('#pracModeQuiz .prac-ftab').forEach(t=>t.classList.toggle('active',t.dataset.qf==='all'));
+    renderQuizList();
+  }
+}
+
+function parseNum(s){
+  s=String(s).trim().replace(/[^0-9./-]/g,'');
+  if(s==='')return null;
+  if(s.includes('/')){
+    const parts=s.split('/');
+    if(parts.length===2){
+      const a=parseFloat(parts[0]),b=parseFloat(parts[1]);
+      if(!isNaN(a)&&!isNaN(b)&&b!==0)return a/b;
+    }
+    return null;
+  }
+  const v=parseFloat(s);
+  return isNaN(v)?null:v;
+}
+
+function quizAnswerCorrect(item,userVal){
+  const u=String(userVal||'').trim();
+  if(u==='')return null;
+  if(item.numeric){
+    const v=parseNum(u);
+    if(v===null)return false;
+    return Math.abs(v-item.numeric.value)<=(item.numeric.tol||0)+1e-9;
+  }
+  const accept=item.accept||[];
+  const norm=s=>String(s).toLowerCase().replace(/\s+/g,' ').trim();
+  return accept.some(a=>norm(a)===norm(u));
+}
+
+function renderQuizList(filter=''){
+  const wrap=document.getElementById('quizList');if(!wrap)return;
+  const bank=QUIZ_BANKS[practiceMode]||[];
+  const q=(filter||document.getElementById('quizSearch')?.value||'').toLowerCase();
+  const filtered=bank.filter(item=>{
+    if(!dayMatch(item))return false;
+    let sm=true;
+    if(activeQuizState==='solved')sm=!!solved[item.id];
+    else if(activeQuizState==='unsolved')sm=!solved[item.id];
+    const tm=!q||item.prompt.toLowerCase().includes(q)||topicName(item.topic).toLowerCase().includes(q);
+    return sm&&tm;
+  });
+  const total=bank.filter(dayMatch).length,done=bank.filter(x=>dayMatch(x)&&solved[x.id]).length;
+  document.getElementById('quizSolvedCount').textContent=`${done}/${total} solved`;
+
+  if(!filtered.length){wrap.innerHTML=`<div style="color:var(--text3);font-size:12px;font-family:var(--mono);padding:2rem;text-align:center">No items match.</div>`;return;}
+
+  wrap.innerHTML=filtered.map(item=>{
+    const isSolved=!!solved[item.id];
+    const prefix=item.mode==='linux'?'$':'';
+    // concept question: reveal-only, no answer box
+    if(item.concept){
+      return `<div class="quiz-card ${isSolved?'solved':''}" id="qc-${item.id}">
+        <div class="quiz-card-head">
+          <span class="quiz-check ${isSolved?'solved':''}" onclick="toggleQuizSolved('${item.id}')" title="toggle understood"></span>
+          <span class="quiz-prompt">${item.prompt}</span>
+          <span class="quiz-tags">
+            <span class="prac-diff diff-${item.diff}">Concept</span>
+            <span class="quiz-topic">${topicName(item.topic)}</span>
+          </span>
+        </div>
+        <div class="quiz-concept-actions">
+          <button class="quiz-reveal-btn" onclick="revealQuiz('${item.id}')">Reveal explanation</button>
+          <button class="quiz-check-btn" onclick="toggleQuizSolved('${item.id}')">${isSolved?'✓ Understood':'Mark understood'}</button>
+        </div>
+        <div class="quiz-solution" id="qs-${item.id}"><span class="sol-label">Explanation</span>${item.solution}</div>
+      </div>`;
+    }
+    return `<div class="quiz-card ${isSolved?'solved':''}" id="qc-${item.id}">
+      <div class="quiz-card-head">
+        <span class="quiz-check ${isSolved?'solved':''}" onclick="toggleQuizSolved('${item.id}')" title="toggle solved"></span>
+        <span class="quiz-prompt">${item.prompt}</span>
+        <span class="quiz-tags">
+          <span class="prac-diff diff-${item.diff}">${item.diff}</span>
+          <span class="quiz-topic">${topicName(item.topic)}</span>
+        </span>
+      </div>
+      <div class="quiz-answer-row">
+        ${prefix?`<span class="quiz-prefix">${prefix}</span>`:''}
+        <input class="quiz-input" id="qi-${item.id}" placeholder="${item.mode==='linux'?'type the command…':'your answer…'}" onkeydown="if(event.key==='Enter')checkQuiz('${item.id}')" oninput="clearQuizState('${item.id}')"/>
+        <button class="quiz-check-btn" onclick="checkQuiz('${item.id}')">Check</button>
+        <button class="quiz-reveal-btn" onclick="revealQuiz('${item.id}')">Reveal</button>
+      </div>
+      <div class="quiz-feedback" id="qf-${item.id}"></div>
+      ${item.hint?`<div class="quiz-hint">💡 ${item.hint}</div>`:''}
+      <div class="quiz-solution" id="qs-${item.id}"><span class="sol-label">Solution</span>${item.solution}</div>
+    </div>`;
+  }).join('');
+}
+
+function quizItemById(id){return allQuizItems().find(x=>x.id===id);}
+
+function clearQuizState(id){
+  const inp=document.getElementById('qi-'+id);
+  if(inp)inp.classList.remove('correct','wrong');
+  const fb=document.getElementById('qf-'+id);
+  if(fb){fb.textContent='';fb.className='quiz-feedback';}
+}
+
+function checkQuiz(id){
+  const item=quizItemById(id);if(!item)return;
+  const inp=document.getElementById('qi-'+id);
+  const fb=document.getElementById('qf-'+id);
+  const res=quizAnswerCorrect(item,inp.value);
+  if(res===null){fb.textContent='Type an answer first.';fb.className='quiz-feedback';return;}
+  if(res){
+    inp.classList.remove('wrong');inp.classList.add('correct');
+    fb.textContent='✓ Correct!';fb.className='quiz-feedback correct';
+    if(!solved[id]){solved[id]=true;markDirty();applyQuestionProgress();}
+    document.getElementById('qc-'+id)?.classList.add('solved');
+    document.querySelector('#qc-'+id+' .quiz-check')?.classList.add('solved');
+    document.getElementById('qs-'+id)?.classList.add('show');
+    updateQuizCount();
+  }else{
+    inp.classList.remove('correct');inp.classList.add('wrong');
+    fb.textContent='✗ Not quite — try again or reveal.';fb.className='quiz-feedback wrong';
+  }
+}
+
+function revealQuiz(id){
+  document.getElementById('qs-'+id)?.classList.add('show');
+  const item=quizItemById(id);
+  // show the canonical answer in feedback for numeric/accept
+  const fb=document.getElementById('qf-'+id);
+  if(fb&&!fb.textContent){fb.textContent='Solution shown below.';fb.className='quiz-feedback';}
+}
+
+function toggleQuizSolved(id){
+  solved[id]=!solved[id];
+  markDirty();applyQuestionProgress();
+  document.getElementById('qc-'+id)?.classList.toggle('solved',solved[id]);
+  document.querySelector('#qc-'+id+' .quiz-check')?.classList.toggle('solved',solved[id]);
+  updateQuizCount();
+}
+
+function updateQuizCount(){
+  const bank=QUIZ_BANKS[practiceMode]||[];
+  const total=bank.filter(dayMatch).length,done=bank.filter(x=>dayMatch(x)&&solved[x.id]).length;
+  const el=document.getElementById('quizSolvedCount');
+  if(el)el.textContent=`${done}/${total} solved`;
+}
+
+function filterQuiz(val){renderQuizList(val);}
+function filterQuizState(state,btn){
+  activeQuizState=state;
+  document.querySelectorAll('#pracModeQuiz .prac-ftab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderQuizList();
+}
+
+/* ── SAVE ── */
+function buildFileBlob(){
+  try{const jv=document.getElementById('view-journal');if(jv&&jv.classList.contains('active'))collectJournal();}catch(e){}
+  const store={progress,dailyChecks,journal,scheduleStart,solved};
+  const html=document.documentElement.outerHTML;
+  const updated=html.replace(/\/\*DATA_START\*\/[\s\S]*?\/\*DATA_END\*\//,'/*DATA_START*/'+JSON.stringify(store)+'/*DATA_END*/');
+  return new Blob([updated],{type:'text/html'});
+}
+function triggerDownload(blob){
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='quant_roadmap_tracker.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);
+}
+function saveToFile(){
+  const btn=document.getElementById('saveBtn');btn.textContent='⏳ saving...';btn.classList.add('saving');
+  triggerDownload(buildFileBlob());isDirty=false;resetCountdown();
+  setTimeout(()=>{btn.classList.remove('saving');btn.textContent='⬇ save now';},600);
+}
+function resetCountdown(){autoSaveSecondsLeft=300;updateCountdownDisplay();}
+function updateCountdownDisplay(){
+  const el=document.getElementById('autoSaveCountdown');if(!el)return;
+  const m=Math.floor(autoSaveSecondsLeft/60),s=autoSaveSecondsLeft%60;
+  el.textContent=m+':'+(s<10?'0':'')+s;
+}
+function runAutoSave(){
+  if(!isDirty)return;
+  triggerDownload(buildFileBlob());isDirty=false;
+  const btn=document.getElementById('saveBtn');
+  if(btn){btn.textContent='✓ auto-saved';setTimeout(()=>{btn.textContent='⬇ save now';},2500);}
+}
+function startAutoSave(){
+  resetCountdown();
+  countdownInterval=setInterval(()=>{
+    autoSaveSecondsLeft--;updateCountdownDisplay();
+    if(autoSaveSecondsLeft<=0){runAutoSave();resetCountdown();}
+  },1000);
+}
+
+/* ── VIEW SWITCH ── */
+const VIEWS=['progress','today','calendar','strategy','practice','journal'];
+function switchView(v){
+  try{const jv=document.getElementById('view-journal');if(jv&&jv.classList.contains('active'))collectJournal();}catch(e){}
+  VIEWS.forEach(n=>{
+    const el=document.getElementById('view-'+n);
+    if(el){el.classList.toggle('active',n===v);el.style.display='';}
+  });
+  document.querySelectorAll('.nav-item').forEach(t=>{t.classList.toggle('active',t.dataset.view===v);});
+  if(v==='today')renderDaily();
+  if(v==='calendar'){renderCalendar();renderCalDetail();}
+  if(v==='journal')loadJournal();
+  if(v==='strategy')renderStrategy();
+  if(v==='practice')renderPractice();
+}
+
+/* ── INIT ── */
+document.getElementById('topbarDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+
+// on load, silently apply auto-progress from any existing checks
+applyAutoProgress(todayKey(), true);
+applyQuestionProgress(true);
+
+renderSummary();
+renderTracks();
+startAutoSave();
+</script>
+</body>
+</html>
