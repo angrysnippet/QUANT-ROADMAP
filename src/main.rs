@@ -2,6 +2,7 @@ use dioxus::prelude::*;
 
 mod state;
 mod roadmap;
+mod landing;
 mod layout;
 mod progress;
 mod today;
@@ -10,6 +11,7 @@ mod strategy;
 mod practice;
 mod journal;
 
+use landing::Landing;
 use layout::AppShell;
 use progress::Progress;
 use today::Today;
@@ -22,8 +24,10 @@ use state::use_app_state;
 #[derive(Debug, Clone, Routable, PartialEq)]
 #[rustfmt::skip]
 pub enum Route {
+    #[route("/")]
+    Landing {},
     #[layout(AppShell)]
-        #[route("/")]
+        #[route("/progress")]
         Progress {},
         #[route("/today")]
         Today {},
