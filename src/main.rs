@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 
 mod state;
+mod roadmap;
 mod layout;
 mod progress;
 mod today;
@@ -20,7 +21,7 @@ use state::use_app_state;
 
 #[derive(Debug, Clone, Routable, PartialEq)]
 #[rustfmt::skip]
-enum Route {
+pub enum Route {
     #[layout(AppShell)]
         #[route("/")]
         Progress {},
