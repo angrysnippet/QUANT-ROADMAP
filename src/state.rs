@@ -51,8 +51,3 @@ pub fn use_app_state() -> Signal<AppState> {
     });
     state
 }
-
-/// Convenience accessor for descendants of the root provider.
-pub fn use_state_ctx() -> Signal<AppState> {
-    use_context::<Signal<AppState>>()
-}
