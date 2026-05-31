@@ -1,0 +1,75 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment; let a newer run cancel an in-progress one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust (stable + wasm target)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install Dioxus CLI
+        run: cargo binstall dioxus-cli --version '^0.7' --no-confirm
+
+      # Project sites are served from https://<user>.github.io/QUANT-ROADMAP/,
+      # so the build needs that base path. Injected only in CI so local
+      # `dx serve` keeps serving at the root.
+      - name: Set base path for project-site hosting
+        run: sed -i '/^\[web.app\]/a base_path = "QUANT-ROADMAP"' Dioxus.toml
+
+      - name: Build web (release)
+        run: dx build --release
+
+      - name: Assemble site (SPA fallback + disable Jekyll)
+        run: |
+          DIST=$(find target/dx -type d -path '*release*/web/public' | head -1)
+          if [ -z "$DIST" ]; then
+            echo "::error::Could not locate the dx web build output under target/dx"
+            find target/dx -maxdepth 4 -type d
+            exit 1
+          fi
+          mkdir -p _site
+          cp -r "$DIST"/. _site/
+          # Client-side router: serve index.html for unknown deep links.
+          cp _site/index.html _site/404.html
+          touch _site/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
