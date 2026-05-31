@@ -103,8 +103,13 @@ pub fn Calendar() -> Element {
     let cells: Vec<Cell> = (1..=dim)
         .map(|d| {
             let key = format!("{year}-{month:02}-{d:02}");
-            let done = daily_checks
-                .get(&key)
+            // Routine/journal are keyed by strategy-day id; project this date
+            // onto its scheduled day (if any) and look completion up by that id.
+            let sched_day = strategy_day_for_date(&key, &schedule_start);
+            let day_key = sched_day.map(|s| s.id.to_string());
+            let done = day_key
+                .as_ref()
+                .and_then(|k| daily_checks.get(k))
                 .map(|m| m.values().filter(|v| **v).count())
                 .unwrap_or(0);
             let ratio = if total > 0 { done as f64 / total as f64 } else { 0.0 };
@@ -115,15 +120,16 @@ pub fn Calendar() -> Element {
             } else {
                 ""
             };
-            let has_journal = journal
-                .get(&key)
+            let has_journal = day_key
+                .as_ref()
+                .and_then(|k| journal.get(k))
                 .map(|m| m.values().any(|v| !v.trim().is_empty()))
                 .unwrap_or(false);
             Cell {
                 day: d,
                 today: key == tk,
                 selected: Some(&key) == sel.as_ref(),
-                sched: strategy_day_for_date(&key, &schedule_start).is_some(),
+                sched: sched_day.is_some(),
                 journal: has_journal,
                 fill: heat_fill(ratio),
                 num_class,
@@ -271,9 +277,20 @@ fn CalDetail(selected: Option<String>) -> Element {
     };
 
     let snap = app.read();
-    let checks = snap.daily_checks.get(&dk).cloned().unwrap_or_default();
-    let journal = snap.journal.get(&dk).cloned().unwrap_or_default();
     let schedule_start = snap.schedule_start.clone();
+    // Routine/journal are keyed by the strategy-day id this date maps to.
+    let sched = strategy_day_for_date(&dk, &schedule_start);
+    let day_key = sched.map(|s| s.id.to_string());
+    let checks = day_key
+        .as_ref()
+        .and_then(|k| snap.daily_checks.get(k))
+        .cloned()
+        .unwrap_or_default();
+    let journal = day_key
+        .as_ref()
+        .and_then(|k| snap.journal.get(k))
+        .cloned()
+        .unwrap_or_default();
     drop(snap);
 
     let date = NaiveDate::parse_from_str(&dk, "%Y-%m-%d").ok();
@@ -289,8 +306,6 @@ fn CalDetail(selected: Option<String>) -> Element {
     } else {
         0.0
     };
-
-    let sched = strategy_day_for_date(&dk, &schedule_start);
 
     let journal_filled: Vec<(&str, String)> = JOURNAL_PROMPTS
         .iter()
@@ -316,7 +331,7 @@ fn CalDetail(selected: Option<String>) -> Element {
                 div { class: "cal-detail-section-label", "Scheduled" }
                 div { class: "cal-sched-card",
                     div { class: "cal-sched-card-title", "Day {day.id} · {day.title}" }
-                    div { class: "cal-sched-card-meta", "{day.phase} · {day.blocks} blocks" }
+                    div { class: "cal-sched-card-meta", "{day.phase} · {day.blocks.len()} blocks" }
                     button {
                         class: "cal-sched-open-btn",
                         onclick: move |_| {
@@ -379,7 +394,7 @@ fn CalDetail(selected: Option<String>) -> Element {
 
 /// SVG progress ring, matching `makeSVGRing` from spec.html (uses the existing
 /// `.ring-svg/.ring-bg/.ring-fg/.ring-text` styles in main.css).
-fn make_ring(pct: f64, color: &str, size: f64) -> Element {
+pub(crate) fn make_ring(pct: f64, color: &str, size: f64) -> Element {
     let r = size / 2.0 - 4.0;
     let circ = 2.0 * std::f64::consts::PI * r;
     let offset = circ - (pct / 100.0) * circ;

@@ -5,6 +5,8 @@
 //! - `DAYS`: the day-by-day strategy schedule. `schedule_start` maps "Day 1"
 //!   onto a calendar date; each subsequent day follows one calendar day later.
 
+use std::collections::HashMap;
+
 pub struct DailyBlock {
     pub title: &'static str,
     pub color: &'static str,
@@ -82,18 +84,259 @@ pub fn total_daily_items() -> usize {
     DAILY_BLOCKS.iter().map(|b| b.items.len()).sum()
 }
 
+/// One block within a strategy day. `content` is raw HTML ported verbatim from
+/// spec.html and rendered via `dangerous_inner_html` (styled by `.block-content`
+/// & `.block-tag` rules in main.css).
+pub struct StrategyBlock {
+    pub color: &'static str,
+    pub title: &'static str,
+    pub time: &'static str,
+    pub content: &'static str,
+}
+
 pub struct StrategyDay {
     pub id: i64,
-    pub title: &'static str,
     pub phase: &'static str,
-    /// Number of blocks in this strategy day (used for the "N blocks" meta).
-    pub blocks: usize,
+    pub title: &'static str,
+    pub blocks: &'static [StrategyBlock],
+    /// "By the end of the day you should be able to…" checklist items.
+    pub success: &'static [&'static str],
+}
+
+/// `(background, foreground)` colours for a phase tag. Mirrors `PHASE_COLOR_MAP`.
+pub fn phase_color(phase: &str) -> (&'static str, &'static str) {
+    match phase {
+        "Phase 2" => ("rgba(78,205,196,0.12)", "var(--accent2)"),
+        "Phase 3" => ("rgba(255,209,102,0.12)", "var(--accent4)"),
+        "Phase 4" => ("rgba(255,107,107,0.12)", "var(--accent3)"),
+        _ => ("rgba(124,111,255,0.12)", "var(--accent)"),
+    }
 }
 
 pub const DAYS: &[StrategyDay] = &[
-    StrategyDay { id: 1, phase: "Phase 1", blocks: 7, title: "Arrays Fundamentals" },
-    StrategyDay { id: 2, phase: "Phase 1", blocks: 7, title: "Array Traversal, Frequency & Search" },
-    StrategyDay { id: 3, phase: "Phase 1", blocks: 7, title: "STL Vectors, Counting & Patterns" },
+    StrategyDay {
+        id: 1,
+        phase: "Phase 1",
+        title: "Arrays Fundamentals",
+        blocks: &[
+            StrategyBlock { color: "#7c6fff", title: "Block 1 — C++", time: "45–60 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://www.learncpp.com/cpp-tutorial/arrays-part-i/" target="_blank">LearnCpp — Arrays Part I</a><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://www.learncpp.com/cpp-tutorial/array-indexing-and-static-array-length/" target="_blank">LearnCpp — Array Indexing &amp; Length</a>
+        <br/><br/>
+        <span class="block-tag tag-task">✍ Implement</span>
+        <ul><li>Sum of all array elements</li><li>Largest element in array</li><li>Smallest element in array</li></ul>
+        <span class="block-tag tag-think">🔥 Break The Code</span>
+        <ul><li>Write <code>int arr[5]; cout&lt;&lt;arr[10];</code></li><li>Ask: What happens? Why? (undefined behaviour)</li></ul>
+        <em>No AI. No copying. Debug yourself first.</em>
+      </div>"# },
+            StrategyBlock { color: "#4ecdc4", title: "Block 2 — DSA", time: "1–1.5 hrs", content: r#"<div class="block-content">
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://takeuforward.org/data-structure/introduction-to-arrays-data-structures/" target="_blank">Striver A2Z — Arrays</a><br/><br/>
+        <span class="block-tag tag-practice">💻 Practice</span>
+        <ul>
+          <li><a href="https://www.naukri.com/code360/problems/largest-element-in-the-array-largest-element-in-the-array_5026279" target="_blank">Largest Element — Code360</a></li>
+          <li><a href="https://www.naukri.com/code360/problems/ninja-and-the-second-order-elements_6573455" target="_blank">Second Largest Element — Code360</a></li>
+          <li><a href="https://www.naukri.com/code360/problems/ninja-and-the-sorted-check_6581957" target="_blank">Check if Array Sorted — Code360</a></li>
+        </ul>
+        Read → think manually → brute force → code → debug yourself.
+      </div>"# },
+            StrategyBlock { color: "#ff9f43", title: "Block 3 — Quant Thinking", time: "30 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-think">🧩 Puzzle 1</span> Locker problem — revisit. Was your reasoning correct?<br/><br/>
+        <span class="block-tag tag-think">🧩 Puzzle 2</span> Coin symmetry problem — revisit.<br/><br/>
+        <span class="block-tag tag-think">🎲 Probability</span>
+        <ul><li>Roll two dice. What is more likely?</li><li><strong>A.</strong> Sum = 8</li><li><strong>B.</strong> At least one die shows 4</li></ul>
+        <em>Draw the sample space first. Think about "at least".</em><br/><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://www.khanacademy.org/math/statistics-probability/probability-library/basic-theoretical-probability/a/basic-theoretical-probability-article" target="_blank">Khan Academy — Basic Probability</a>
+      </div>"# },
+            StrategyBlock { color: "#4ecdc4", title: "Block 4 — Mathematics", time: "1–1.5 hrs", content: r#"<div class="block-content">
+        <span class="block-tag tag-resource">▶ Watch</span>
+        <a href="https://www.youtube.com/watch?v=fNk_zzaMoSs" target="_blank">3Blue1Brown — Essence of Algebra, Ch.1</a><br/><br/>
+        Pause every 2–3 mins. Ask: <em>what changed? what pattern? what does this mean geometrically?</em><br/>
+        One video only. Do NOT binge.
+      </div>"# },
+            StrategyBlock { color: "#ffd166", title: "Block 5 — Python", time: "45 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://docs.python.org/3/tutorial/introduction.html" target="_blank">Python Official Tutorial — Introduction</a><br/><br/>
+        <span class="block-tag tag-task">✍ Write</span>
+        <ul><li>Calculator (add, subtract, multiply, divide)</li><li>Even/Odd checker</li></ul>
+        No libraries. Pure logic. 2–3 tiny scripts only.
+      </div>"# },
+            StrategyBlock { color: "#8b90a0", title: "Block 6 — Linux", time: "20–30 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://linuxjourney.com/" target="_blank">Linux Journey — Grasshopper</a><br/><br/>
+        <span class="block-tag tag-task">✍ Run in terminal</span>
+        <ul>
+          <li><code>pwd</code> — print working directory</li>
+          <li><code>ls</code> — list files</li>
+          <li><code>mkdir test</code> then <code>cd test</code></li>
+          <li><code>g++ main.cpp</code> then <code>./a.out</code></li>
+        </ul>
+      </div>"# },
+            StrategyBlock { color: "#c77dff", title: "Block 7 — Journal", time: "15 mins", content: r#"<div class="block-content">
+        Open the Journal tab and answer all 5 questions.<br/><br/>
+        <span class="block-tag tag-think">💭 Key questions</span>
+        <ul><li>What clicked today?</li><li>What confused me most?</li><li>What pattern did I discover?</li></ul>
+      </div>"# },
+        ],
+        success: &[
+            "Print the sum, largest and smallest of an array",
+            "Reverse an array by hand and in code",
+            "Work out a basic two-dice probability",
+            "Write a calculator and even/odd checker in Python",
+            "Run pwd / ls / mkdir / cd and compile with g++",
+        ],
+    },
+    StrategyDay {
+        id: 2,
+        phase: "Phase 1",
+        title: "Array Traversal, Frequency & Search",
+        blocks: &[
+            StrategyBlock { color: "#7c6fff", title: "Block 1 — C++", time: "45–60 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-task">📚 Continue arrays</span> Array traversal · frequency counting · linear search.<br/><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://www.learncpp.com/cpp-tutorial/arrays-and-loops/" target="_blank">LearnCpp — Arrays and Loops</a><br/>
+        <em>Code from scratch — don't copy.</em>
+        <br/><br/>
+        <span class="block-tag tag-task">✍ Write</span>
+        <ul>
+          <li><strong>P1.</strong> Frequency of a number in an array<br/><code>1 2 3 2 5 2</code>, target <code>2</code> → answer <code>3</code></li>
+          <li><strong>P2.</strong> Sum of even elements</li>
+          <li><strong>P3.</strong> Reverse an array</li>
+        </ul>
+        <span class="block-tag tag-think">🧠 Thinking question</span>
+        Why is <code>arr[n]</code> O(1) while searching for an element is O(n)? <em>Don't search. Think.</em>
+      </div>"# },
+            StrategyBlock { color: "#4ecdc4", title: "Block 2 — DSA", time: "1–1.5 hrs", content: r#"<div class="block-content">
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://takeuforward.org/data-structure/introduction-to-arrays-data-structures/" target="_blank">Striver A2Z — Arrays</a><br/><br/>
+        <span class="block-tag tag-practice">💻 Solve (Easy)</span>
+        <ul>
+          <li>Find Largest Element</li>
+          <li>Find Second Largest Element</li>
+          <li>Remove Duplicates from Sorted Array</li>
+        </ul>
+        <span class="block-tag tag-think">📝 After each problem, write</span>
+        <ul><li><strong>Brute force:</strong></li><li><strong>Better:</strong></li><li><strong>Optimal:</strong></li></ul>
+        <em>This habit is extremely valuable — build it now.</em>
+      </div>"# },
+            StrategyBlock { color: "#ff9f43", title: "Block 3 — Quant Thinking", time: "30 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-think">🎲 Problem 1 (warmup)</span>
+        Roll one die. Would you rather win if <strong>A)</strong> the number is 6, or <strong>B)</strong> the number is even? What are the probabilities?<br/><br/>
+        <span class="block-tag tag-think">🪙 Problem 2</span>
+        Toss 3 coins. Probability of exactly 2 heads? Try deriving it.<br/><br/>
+        <span class="block-tag tag-think">🎂 Problem 3 (interesting)</span>
+        A room has 23 people. Probability that at least two share a birthday — guess only (no calculation): &lt;10% · ~25% · ~50% · &gt;90%? Write your guess.
+      </div>"# },
+            StrategyBlock { color: "#4ecdc4", title: "Block 4 — Mathematics", time: "1–1.5 hrs", content: r#"<div class="block-content">
+        <span class="block-tag tag-resource">▶ Watch</span>
+        <a href="https://www.youtube.com/c/3blue1brown" target="_blank">3Blue1Brown — Essence of Algebra, Chapter 2</a><br/><br/>
+        Only one chapter. Pause frequently and ask what each step means.
+      </div>"# },
+            StrategyBlock { color: "#ffd166", title: "Block 5 — Python", time: "45 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-task">📚 Study</span> <code>if</code> · <code>else</code> · loops<br/><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://docs.python.org/3/tutorial/controlflow.html" target="_blank">Python Tutorial — Control Flow Tools</a><br/><br/>
+        <span class="block-tag tag-task">✍ Write</span>
+        <ul><li>Script 1 — Multiplication table generator</li><li>Script 2 — Prime number checker</li></ul>
+      </div>"# },
+            StrategyBlock { color: "#8b90a0", title: "Block 6 — Linux", time: "20–30 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-task">✍ Learn &amp; actually use</span>
+        <ul>
+          <li><code>touch</code> — create files</li>
+          <li><code>mv</code> — move / rename files</li>
+          <li><code>cp</code> — copy files</li>
+          <li><code>rm</code> — delete files</li>
+        </ul>
+        Create files, move them, delete them. Use them for real.
+      </div>"# },
+            StrategyBlock { color: "#c77dff", title: "Block 7 — Journal", time: "15 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-think">💭 Answer</span>
+        <ul><li>What pattern did I notice in arrays?</li><li>Which quant puzzle surprised me?</li><li>What took longest to debug?</li></ul>
+      </div>"# },
+        ],
+        success: &[
+            "Reverse an array yourself",
+            "Explain O(1) vs O(n)",
+            "Solve 3 array problems (frequency, even sum, reverse)",
+            "Derive probability of exactly 2 heads in 3 tosses",
+            "Write a prime checker in Python",
+        ],
+    },
+    StrategyDay {
+        id: 3,
+        phase: "Phase 1",
+        title: "STL Vectors, Counting & Patterns",
+        blocks: &[
+            StrategyBlock { color: "#7c6fff", title: "Block 1 — C++", time: "45–60 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-task">📚 Learn</span> What is a vector? Why vector instead of array? · <code>push_back()</code> · <code>size()</code> · indexing.<br/><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://www.learncpp.com/cpp-tutorial/introduction-to-stdvector-and-list-constructors/" target="_blank">LearnCpp — Introduction to std::vector</a><br/>
+        <em>Code from scratch.</em>
+        <br/><br/>
+        <span class="block-tag tag-task">✍ Write</span>
+        <ul>
+          <li><strong>P1.</strong> Input N numbers into a vector, then print them</li>
+          <li><strong>P2.</strong> Find the largest element in a vector</li>
+          <li><strong>P3.</strong> Find the sum of vector elements</li>
+        </ul>
+        <span class="block-tag tag-think">🧠 Thinking question</span>
+        Why does <code>vector.push_back(x)</code> feel easier than <code>int arr[100]</code>? What problem is vector solving?
+      </div>"# },
+            StrategyBlock { color: "#4ecdc4", title: "Block 2 — DSA", time: "1–1.5 hrs", content: r#"<div class="block-content">
+        <span class="block-tag tag-task">📐 Topic</span> Basic array patterns.<br/><br/>
+        <span class="block-tag tag-practice">💻 Solve</span>
+        <ul>
+          <li>Move all zeros to the end</li>
+          <li>Left-rotate the array by one place</li>
+          <li>Find the missing number (1 to N)</li>
+        </ul>
+        <span class="block-tag tag-think">📝 After every solution, write</span>
+        <ul><li><strong>Observation:</strong></li><li><strong>Pattern:</strong></li><li><strong>Time complexity:</strong></li></ul>
+      </div>"# },
+            StrategyBlock { color: "#ff9f43", title: "Block 3 — Quant Thinking", time: "30 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-think">🔢 Goal: counting</span><br/><br/>
+        <span class="block-tag tag-think">Problem 1</span> How many 3-digit numbers can be formed using 1, 2, 3, 4 without repetition?<br/><br/>
+        <span class="block-tag tag-think">Problem 2</span> How many handshakes occur if 10 people shake hands exactly once?<br/><br/>
+        <span class="block-tag tag-think">Problem 3</span> A password is 2 letters then 2 digits. How many possibilities exist?<br/><br/>
+        <em>Don't search formulas. Build the reasoning.</em>
+      </div>"# },
+            StrategyBlock { color: "#4ecdc4", title: "Block 4 — Mathematics", time: "1–1.5 hrs", content: r#"<div class="block-content">
+        <span class="block-tag tag-resource">▶ Watch</span>
+        <a href="https://www.youtube.com/c/3blue1brown" target="_blank">3Blue1Brown — Essence of Algebra, Chapter 3</a><br/><br/>
+        Focus on: variables · relationships · abstraction. One chapter, pause often.
+      </div>"# },
+            StrategyBlock { color: "#ffd166", title: "Block 5 — Python", time: "45 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-task">📚 Learn</span> Lists · list indexing · loops over lists.<br/><br/>
+        <span class="block-tag tag-resource">📖 Resource</span>
+        <a href="https://docs.python.org/3/tutorial/datastructures.html" target="_blank">Python Tutorial — Data Structures</a><br/><br/>
+        <span class="block-tag tag-task">✍ Write</span>
+        <ul><li>Script 1 — Find the largest element in a list</li><li>Script 2 — Reverse a list</li></ul>
+      </div>"# },
+            StrategyBlock { color: "#8b90a0", title: "Block 6 — Linux", time: "20–30 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-task">✍ Learn &amp; use</span>
+        <ul>
+          <li><code>cat</code> — read a file</li>
+          <li><code>echo</code> — print / write text</li>
+          <li><code>nano</code> — edit a file</li>
+        </ul>
+        Create a file, write text into it, read it, then edit it — for real.
+      </div>"# },
+            StrategyBlock { color: "#c77dff", title: "Block 7 — Journal", time: "15 mins", content: r#"<div class="block-content">
+        <span class="block-tag tag-think">💭 Answer</span>
+        <ul><li>What is the difference between an array and a vector?</li><li>What counting pattern appeared repeatedly?</li><li>Which problem required the most thinking?</li></ul>
+      </div>"# },
+        ],
+        success: &[
+            "Input numbers into a vector and print them",
+            "Find the largest element and sum of a vector",
+            "Explain why a vector is easier than a raw array",
+            "Count arrangements (3-digit numbers, handshakes, passwords)",
+            "Use cat / echo / nano to create and edit a file",
+        ],
+    },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
@@ -112,4 +355,488 @@ pub fn strategy_day_for_date(
         return None;
     }
     DAYS.iter().find(|d| d.id == day_id)
+}
+
+// ── Progress page data (ported from spec.html: TRACKS / STAGES / WORLDS) ──
+
+pub struct Topic {
+    pub id: &'static str,
+    pub name: &'static str,
+    /// Phase key "p1".."p4" — see [`phase_label`].
+    pub phase: &'static str,
+}
+
+pub struct Track {
+    pub id: &'static str,
+    pub name: &'static str,
+    pub icon: &'static str,
+    pub color: &'static str,
+    /// Translucent tint behind the track icon chip.
+    pub bg_color: &'static str,
+    pub topics: &'static [Topic],
+}
+
+pub const TRACKS: &[Track] = &[
+    Track {
+        id: "cpp",
+        name: "C++ + DSA",
+        icon: "{ }",
+        color: "#7c6fff",
+        bg_color: "rgba(124,111,255,0.12)",
+        topics: &[
+            Topic { id: "cpp_syntax", name: "Syntax, loops, functions", phase: "p1" },
+            Topic { id: "cpp_arrays", name: "Arrays & strings", phase: "p1" },
+            Topic { id: "cpp_vectors", name: "STL vectors & pairs", phase: "p1" },
+            Topic { id: "cpp_stl", name: "Maps, sets, iterators", phase: "p1" },
+            Topic { id: "cpp_stack_queue", name: "Stack & queue", phase: "p1" },
+            Topic { id: "cpp_recursion", name: "Recursion basics", phase: "p1" },
+            Topic { id: "cpp_pointers", name: "Pointers & memory", phase: "p1" },
+            Topic { id: "cpp_oops", name: "OOP fundamentals", phase: "p1" },
+            Topic { id: "dsa_hashing", name: "Hashing & sliding window", phase: "p2" },
+            Topic { id: "dsa_binsearch", name: "Binary search", phase: "p2" },
+            Topic { id: "dsa_linked", name: "Linked lists", phase: "p3" },
+            Topic { id: "dsa_heaps", name: "Heaps", phase: "p3" },
+            Topic { id: "dsa_trees", name: "Trees & traversals", phase: "p3" },
+            Topic { id: "dsa_graphs", name: "Graphs, BFS & DFS", phase: "p4" },
+            Topic { id: "dsa_shortest", name: "Shortest path", phase: "p4" },
+            Topic { id: "dsa_dp", name: "Dynamic programming", phase: "p4" },
+            Topic { id: "cf_exposure", name: "Codeforces exposure", phase: "p4" },
+        ],
+    },
+    Track {
+        id: "math",
+        name: "Mathematics",
+        icon: "∑",
+        color: "#4ecdc4",
+        bg_color: "rgba(78,205,196,0.12)",
+        topics: &[
+            Topic { id: "math_algebra", name: "Algebra intuition (3B1B)", phase: "p1" },
+            Topic { id: "math_prob", name: "Probability fundamentals", phase: "p1" },
+            Topic { id: "math_calc", name: "Calculus intuition (3B1B)", phase: "p2" },
+            Topic { id: "math_stats", name: "Statistics & distributions", phase: "p2" },
+            Topic { id: "math_linalg", name: "Linear algebra (3B1B)", phase: "p3" },
+            Topic { id: "math_bayes", name: "Bayesian thinking", phase: "p3" },
+            Topic { id: "math_regression", name: "Regression & covariance", phase: "p3" },
+        ],
+    },
+    Track {
+        id: "linux",
+        name: "Linux + Engineering",
+        icon: "$_",
+        color: "#8b90a0",
+        bg_color: "rgba(139,144,160,0.12)",
+        topics: &[
+            Topic { id: "linux_basics", name: "Terminal basics", phase: "p1" },
+            Topic { id: "linux_cpp", name: "Compile C++ from terminal", phase: "p1" },
+            Topic { id: "linux_git", name: "Git & version control", phase: "p2" },
+            Topic { id: "linux_bash", name: "Bash scripting", phase: "p3" },
+        ],
+    },
+    Track {
+        id: "python",
+        name: "Python for Quant",
+        icon: "Py",
+        color: "#ffd166",
+        bg_color: "rgba(255,209,102,0.12)",
+        topics: &[
+            Topic { id: "py_basics", name: "Variables, loops, functions", phase: "p1" },
+            Topic { id: "py_lists", name: "Lists & dictionaries", phase: "p1" },
+            Topic { id: "py_numpy", name: "NumPy & vectorized ops", phase: "p2" },
+            Topic { id: "py_pandas", name: "pandas & data analysis", phase: "p2" },
+            Topic { id: "py_matplotlib", name: "Matplotlib & visualization", phase: "p3" },
+            Topic { id: "py_simulations", name: "Monte Carlo simulations", phase: "p3" },
+            Topic { id: "py_backtest", name: "Backtesting engine", phase: "p4" },
+        ],
+    },
+    Track {
+        id: "projects",
+        name: "Projects",
+        icon: "▶",
+        color: "#06d6a0",
+        bg_color: "rgba(6,214,160,0.12)",
+        topics: &[
+            Topic { id: "proj_calc", name: "Calculator", phase: "p1" },
+            Topic { id: "proj_student", name: "Student record system", phase: "p1" },
+            Topic { id: "proj_guess", name: "Number guessing game", phase: "p1" },
+            Topic { id: "proj_prob_sim", name: "Probability simulator", phase: "p2" },
+            Topic { id: "proj_stock", name: "Stock analyzer", phase: "p2" },
+            Topic { id: "proj_monte", name: "Monte Carlo simulator", phase: "p3" },
+            Topic { id: "proj_backtest", name: "Backtesting engine", phase: "p4" },
+            Topic { id: "proj_portfolio", name: "Portfolio optimizer", phase: "p4" },
+            Topic { id: "proj_trading", name: "Trading simulator", phase: "p4" },
+        ],
+    },
+    Track {
+        id: "quant_think",
+        name: "Quantitative Thinking",
+        icon: "◈",
+        color: "#ff9f43",
+        bg_color: "rgba(255,159,67,0.12)",
+        topics: &[
+            Topic { id: "qt_decompose", name: "Decomposition thinking", phase: "p1" },
+            Topic { id: "qt_abstraction", name: "Abstraction thinking", phase: "p1" },
+            Topic { id: "qt_recursion_think", name: "Recursion thinking", phase: "p2" },
+            Topic { id: "qt_optimization", name: "Optimization thinking", phase: "p2" },
+            Topic { id: "qt_probabilistic", name: "Probabilistic thinking", phase: "p2" },
+            Topic { id: "qt_systems", name: "Systems thinking", phase: "p3" },
+            Topic { id: "qt_state", name: "State thinking", phase: "p3" },
+            Topic { id: "qt_puzzles", name: "Puzzle-solving fluency", phase: "p1" },
+            Topic { id: "qt_probability_q", name: "Probability problem solving", phase: "p2" },
+            Topic { id: "qt_reasoning", name: "Logical reasoning", phase: "p2" },
+        ],
+    },
+];
+
+/// One topic's maximum auto-link contribution from a daily block.
+pub struct TopicContrib {
+    pub topic_id: &'static str,
+    /// Cap this block contributes toward the topic on a fully-completed day.
+    /// Summed by [`per_day_contrib`] to derive earned progress.
+    pub max_contrib: u32,
+}
+
+/// Maps each daily block (by index into [`DAILY_BLOCKS`]) to the topics whose
+/// progress it can auto-fill. Ported from `BLOCK_TOPIC_MAP` in spec.html; used
+/// to mark auto-linked topics (and, later, to drive auto-progress).
+pub const BLOCK_TOPIC_MAP: &[&[TopicContrib]] = &[
+    // Block 1 — C++ theory
+    &[
+        TopicContrib { topic_id: "cpp_syntax", max_contrib: 30 },
+        TopicContrib { topic_id: "cpp_arrays", max_contrib: 30 },
+        TopicContrib { topic_id: "cpp_vectors", max_contrib: 20 },
+        TopicContrib { topic_id: "cpp_stl", max_contrib: 20 },
+        TopicContrib { topic_id: "cpp_oops", max_contrib: 15 },
+        TopicContrib { topic_id: "cpp_pointers", max_contrib: 15 },
+        TopicContrib { topic_id: "cpp_recursion", max_contrib: 10 },
+    ],
+    // Block 2 — Implementation / DSA
+    &[
+        TopicContrib { topic_id: "cpp_arrays", max_contrib: 40 },
+        TopicContrib { topic_id: "cpp_syntax", max_contrib: 20 },
+        TopicContrib { topic_id: "dsa_hashing", max_contrib: 15 },
+        TopicContrib { topic_id: "dsa_binsearch", max_contrib: 15 },
+        TopicContrib { topic_id: "proj_calc", max_contrib: 25 },
+        TopicContrib { topic_id: "proj_student", max_contrib: 25 },
+        TopicContrib { topic_id: "proj_guess", max_contrib: 25 },
+    ],
+    // Block 3 — LeetCode gym
+    &[
+        TopicContrib { topic_id: "cpp_stack_queue", max_contrib: 30 },
+        TopicContrib { topic_id: "dsa_hashing", max_contrib: 25 },
+        TopicContrib { topic_id: "dsa_binsearch", max_contrib: 25 },
+        TopicContrib { topic_id: "dsa_linked", max_contrib: 10 },
+        TopicContrib { topic_id: "dsa_heaps", max_contrib: 10 },
+        TopicContrib { topic_id: "dsa_trees", max_contrib: 10 },
+        TopicContrib { topic_id: "dsa_graphs", max_contrib: 10 },
+        TopicContrib { topic_id: "dsa_dp", max_contrib: 10 },
+        TopicContrib { topic_id: "cf_exposure", max_contrib: 20 },
+    ],
+    // Block 4 — Mathematics
+    &[
+        TopicContrib { topic_id: "math_algebra", max_contrib: 40 },
+        TopicContrib { topic_id: "math_prob", max_contrib: 30 },
+        TopicContrib { topic_id: "math_calc", max_contrib: 20 },
+        TopicContrib { topic_id: "math_stats", max_contrib: 20 },
+        TopicContrib { topic_id: "math_linalg", max_contrib: 15 },
+        TopicContrib { topic_id: "math_bayes", max_contrib: 15 },
+        TopicContrib { topic_id: "math_regression", max_contrib: 10 },
+    ],
+    // Block 5 — Python
+    &[
+        TopicContrib { topic_id: "py_basics", max_contrib: 40 },
+        TopicContrib { topic_id: "py_lists", max_contrib: 35 },
+        TopicContrib { topic_id: "py_numpy", max_contrib: 20 },
+        TopicContrib { topic_id: "py_pandas", max_contrib: 15 },
+        TopicContrib { topic_id: "py_matplotlib", max_contrib: 10 },
+        TopicContrib { topic_id: "py_simulations", max_contrib: 10 },
+        TopicContrib { topic_id: "py_backtest", max_contrib: 5 },
+        TopicContrib { topic_id: "proj_prob_sim", max_contrib: 15 },
+        TopicContrib { topic_id: "proj_stock", max_contrib: 10 },
+    ],
+    // Block 6 — Linux
+    &[
+        TopicContrib { topic_id: "linux_basics", max_contrib: 50 },
+        TopicContrib { topic_id: "linux_cpp", max_contrib: 50 },
+        TopicContrib { topic_id: "linux_git", max_contrib: 20 },
+        TopicContrib { topic_id: "linux_bash", max_contrib: 15 },
+    ],
+    // Block 7 — Quant thinking
+    &[
+        TopicContrib { topic_id: "qt_decompose", max_contrib: 25 },
+        TopicContrib { topic_id: "qt_abstraction", max_contrib: 25 },
+        TopicContrib { topic_id: "qt_recursion_think", max_contrib: 20 },
+        TopicContrib { topic_id: "qt_optimization", max_contrib: 20 },
+        TopicContrib { topic_id: "qt_probabilistic", max_contrib: 20 },
+        TopicContrib { topic_id: "qt_systems", max_contrib: 15 },
+        TopicContrib { topic_id: "qt_state", max_contrib: 15 },
+        TopicContrib { topic_id: "qt_puzzles", max_contrib: 30 },
+        TopicContrib { topic_id: "qt_probability_q", max_contrib: 25 },
+        TopicContrib { topic_id: "qt_reasoning", max_contrib: 25 },
+    ],
+    // Block 8 — Journal (soft credit)
+    &[
+        TopicContrib { topic_id: "qt_decompose", max_contrib: 5 },
+        TopicContrib { topic_id: "qt_abstraction", max_contrib: 5 },
+    ],
+];
+
+/// Whether a topic receives any auto-link credit from the daily blocks.
+pub fn topic_has_autolink(topic_id: &str) -> bool {
+    BLOCK_TOPIC_MAP
+        .iter()
+        .any(|block| block.iter().any(|c| c.topic_id == topic_id))
+}
+
+/// Every topic across all tracks, in display order.
+pub fn all_topics() -> impl Iterator<Item = &'static Topic> {
+    TRACKS.iter().flat_map(|t| t.topics.iter())
+}
+
+/// Full auto-link contribution a single completed day grants `topic_id` — the
+/// sum of its `max_contrib` across every daily block (a completed day means
+/// every block is 100% done, so `ratio = 1`).
+pub fn per_day_contrib(topic_id: &str) -> u32 {
+    BLOCK_TOPIC_MAP
+        .iter()
+        .flat_map(|block| block.iter())
+        .filter(|c| c.topic_id == topic_id)
+        .map(|c| c.max_contrib)
+        .sum()
+}
+
+/// Earned percent for a topic: each completed day banks `per_day_contrib`,
+/// capped at 100. Progress is therefore a pure function of `completed_days`
+/// (`current_day - 1`) — there is no manually-set value.
+pub fn topic_progress(topic_id: &str, completed_days: u32) -> u32 {
+    (per_day_contrib(topic_id) * completed_days).min(100)
+}
+
+/// Average earned percent across a track's topics (rounded). Mirrors `trackPct`.
+pub fn track_pct(track: &Track, completed_days: u32) -> u32 {
+    if track.topics.is_empty() {
+        return 0;
+    }
+    let sum: u32 = track
+        .topics
+        .iter()
+        .map(|t| topic_progress(t.id, completed_days))
+        .sum();
+    (sum as f64 / track.topics.len() as f64).round() as u32
+}
+
+/// Average earned percent across every topic (rounded). Mirrors `overallPct`.
+pub fn overall_pct(completed_days: u32) -> u32 {
+    let topics: Vec<&Topic> = all_topics().collect();
+    if topics.is_empty() {
+        return 0;
+    }
+    let sum: u32 = topics
+        .iter()
+        .map(|t| topic_progress(t.id, completed_days))
+        .sum();
+    (sum as f64 / topics.len() as f64).round() as u32
+}
+
+/// Number of topics at 100%. Mirrors `topicsDone`.
+pub fn topics_done(completed_days: u32) -> usize {
+    all_topics()
+        .filter(|t| topic_progress(t.id, completed_days) >= 100)
+        .count()
+}
+
+/// Number of tracks with any progress. Mirrors `TRACKS.filter(trackPct>0)`.
+pub fn active_tracks(completed_days: u32) -> usize {
+    TRACKS.iter().filter(|t| track_pct(t, completed_days) > 0).count()
+}
+
+/// Human label for a phase key ("p1".."p4").
+pub fn phase_label(phase: &str) -> &'static str {
+    match phase {
+        "p1" => "Phase 1",
+        "p2" => "Phase 2",
+        "p3" => "Phase 3",
+        "p4" => "Phase 4",
+        _ => "Phase",
+    }
+}
+
+pub struct Stage {
+    pub min: u32,
+    pub max: u32,
+    pub emoji: &'static str,
+    pub label: &'static str,
+    pub reward: Option<&'static str>,
+}
+
+pub const STAGES: &[Stage] = &[
+    Stage { min: 0,   max: 24,  emoji: "🌱", label: "🌱 Seed",    reward: None },
+    Stage { min: 25,  max: 49,  emoji: "🌿", label: "🌿 Plant",   reward: Some("🏅 C++ Apprentice — Phase 1 complete!") },
+    Stage { min: 50,  max: 74,  emoji: "🌳", label: "🌳 Tree",    reward: Some("⚔️ Problem Solver — Phase 2 complete!") },
+    Stage { min: 75,  max: 99,  emoji: "🧠", label: "🧠 Thinker", reward: Some("🧠 Quant Thinker — Phase 3 complete!") },
+    Stage { min: 100, max: 100, emoji: "🚀", label: "🚀 Quant",   reward: Some("🚀 Quant Candidate — You made it!") },
+];
+
+/// The stage that a given overall percent falls into (clamped to the last).
+pub fn stage_for(pct: u32) -> &'static Stage {
+    STAGES
+        .iter()
+        .find(|s| pct >= s.min && pct <= s.max)
+        .unwrap_or(&STAGES[0])
+}
+
+pub struct World {
+    pub name: &'static str,
+    pub emoji: &'static str,
+    pub color: &'static str,
+    pub lo: u32,
+    pub hi: u32,
+    pub desc: &'static str,
+}
+
+pub const WORLDS: &[World] = &[
+    World { name: "Foundation World", emoji: "🌱", color: "#7c6fff", lo: 0,  hi: 25,  desc: "C++ · Basics · Algebra" },
+    World { name: "Builder World",    emoji: "⚙️", color: "#4ecdc4", lo: 25, hi: 50,  desc: "DSA · Stats · NumPy" },
+    World { name: "Quant Mind",       emoji: "🧠", color: "#ffd166", lo: 50, hi: 75,  desc: "Graphs · ML · Systems" },
+    World { name: "Trading World",    emoji: "🚀", color: "#06d6a0", lo: 75, hi: 100, desc: "DP · Backtest · Deploy" },
+];
+
+// ── Practice problems + daily-loop gates ──
+//
+// A minimal port of spec.html's QUESTION_BANK / MATH_BANK / QUANT_BANK /
+// LINUX_BANK plus PRACTICE_DAY (the day each item belongs to, folded into the
+// `day` field). Solving is self-marked, so starter code, sample IO and
+// answer-checking are intentionally omitted. `solution` is empty for code
+// problems (no reveal).
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum PracticeCategory {
+    Code,
+    Math,
+    Quant,
+    Linux,
+}
+
+impl PracticeCategory {
+    pub fn label(self) -> &'static str {
+        match self {
+            PracticeCategory::Code => "Code",
+            PracticeCategory::Math => "Math",
+            PracticeCategory::Quant => "Quant",
+            PracticeCategory::Linux => "Linux",
+        }
+    }
+}
+
+pub struct PracticeProblem {
+    pub id: &'static str,
+    pub category: PracticeCategory,
+    pub topic: &'static str,
+    pub diff: &'static str,
+    pub title: &'static str,
+    pub prompt: &'static str,
+    /// Worked solution as raw HTML; empty for code problems (no reveal).
+    pub solution: &'static str,
+    pub day: u32,
+}
+
+use PracticeCategory::{Code, Linux, Math, Quant};
+
+pub const PROBLEMS: &[PracticeProblem] = &[
+    // ── Code (QUESTION_BANK) ──
+    PracticeProblem { id: "q_sum", category: Code, topic: "cpp_arrays", diff: "Easy", title: "Sum of array elements", prompt: r#"Read N, then N integers. Print their sum."#, solution: "", day: 1 },
+    PracticeProblem { id: "q_max", category: Code, topic: "cpp_arrays", diff: "Easy", title: "Largest element", prompt: r#"Read N, then N integers. Print the largest."#, solution: "", day: 1 },
+    PracticeProblem { id: "q_min", category: Code, topic: "cpp_arrays", diff: "Easy", title: "Smallest element", prompt: r#"Read N, then N integers. Print the smallest."#, solution: "", day: 1 },
+    PracticeProblem { id: "q_rev", category: Code, topic: "cpp_arrays", diff: "Easy", title: "Reverse an array", prompt: r#"Read N, then N integers. Print them in reverse order, space-separated."#, solution: "", day: 1 },
+    PracticeProblem { id: "q_evenodd", category: Code, topic: "cpp_syntax", diff: "Easy", title: "Count even and odd", prompt: r#"Read N, then N integers. Print "<evens> <odds>"."#, solution: "", day: 1 },
+    PracticeProblem { id: "q_fib", category: Code, topic: "cpp_syntax", diff: "Easy", title: "Fibonacci up to N terms", prompt: r#"Read N. Print the first N Fibonacci numbers (starting 0 1), space-separated."#, solution: "", day: 1 },
+    PracticeProblem { id: "q_fact", category: Code, topic: "cpp_recursion", diff: "Easy", title: "Factorial", prompt: r#"Read N. Print N! (factorial)."#, solution: "", day: 1 },
+    PracticeProblem { id: "q_digsum", category: Code, topic: "cpp_syntax", diff: "Easy", title: "Sum of digits", prompt: r#"Read an integer N. Print the sum of its digits."#, solution: "", day: 1 },
+    PracticeProblem { id: "q_revstr", category: Code, topic: "cpp_arrays", diff: "Easy", title: "Reverse a string", prompt: r#"Read a string (one line). Print it reversed."#, solution: "", day: 1 },
+    PracticeProblem { id: "q_search", category: Code, topic: "cpp_arrays", diff: "Easy", title: "Linear search", prompt: r#"Read N, then N integers, then a target T. Print the 0-based index of T, or -1."#, solution: "", day: 2 },
+    PracticeProblem { id: "q_2nd", category: Code, topic: "cpp_arrays", diff: "Medium", title: "Second largest", prompt: r#"Read N, then N integers. Print the second-largest distinct value."#, solution: "", day: 2 },
+    PracticeProblem { id: "q_freq", category: Code, topic: "cpp_arrays", diff: "Easy", title: "Frequency of a number", prompt: r#"Read N, then N integers, then a target T. Print how many times T appears."#, solution: "", day: 2 },
+    PracticeProblem { id: "q_sumeven", category: Code, topic: "cpp_arrays", diff: "Easy", title: "Sum of even elements", prompt: r#"Read N, then N integers. Print the sum of only the even numbers."#, solution: "", day: 2 },
+    PracticeProblem { id: "q_dedup", category: Code, topic: "cpp_arrays", diff: "Medium", title: "Remove duplicates from sorted array", prompt: r#"Read N, then N integers in non-decreasing order. Print the unique values in order, space-separated."#, solution: "", day: 2 },
+    PracticeProblem { id: "q_prime", category: Code, topic: "cpp_syntax", diff: "Easy", title: "Check prime", prompt: r#"Read N. Print "yes" if prime, else "no"."#, solution: "", day: 2 },
+    PracticeProblem { id: "q_table", category: Code, topic: "cpp_syntax", diff: "Easy", title: "Multiplication table", prompt: r#"Read N. Print N x 1 through N x 10, one per line as "N x i = result"."#, solution: "", day: 2 },
+    PracticeProblem { id: "q_gcd", category: Code, topic: "cpp_recursion", diff: "Easy", title: "GCD of two numbers", prompt: r#"Read two integers A and B. Print their GCD."#, solution: "", day: 2 },
+    PracticeProblem { id: "q_palin", category: Code, topic: "cpp_arrays", diff: "Easy", title: "Check palindrome", prompt: r#"Read a string. Print "yes" if it reads the same backwards, else "no"."#, solution: "", day: 2 },
+    PracticeProblem { id: "q_vowels", category: Code, topic: "cpp_arrays", diff: "Easy", title: "Count vowels", prompt: r#"Read a string. Print the number of vowels (a,e,i,o,u)."#, solution: "", day: 2 },
+    PracticeProblem { id: "q_vec_print", category: Code, topic: "cpp_vectors", diff: "Easy", title: "Read into a vector and print", prompt: r#"Read N, then N integers into a vector. Print them back, space-separated."#, solution: "", day: 3 },
+    PracticeProblem { id: "q_vec_max", category: Code, topic: "cpp_vectors", diff: "Easy", title: "Largest element in a vector", prompt: r#"Read N, then N integers into a vector. Print the largest element."#, solution: "", day: 3 },
+    PracticeProblem { id: "q_vec_sum", category: Code, topic: "cpp_vectors", diff: "Easy", title: "Sum of vector elements", prompt: r#"Read N, then N integers into a vector. Print the sum of all elements."#, solution: "", day: 3 },
+    PracticeProblem { id: "q_movezeros", category: Code, topic: "cpp_arrays", diff: "Medium", title: "Move all zeros to the end", prompt: r#"Read N, then N integers. Move all zeros to the end (keeping the order of non-zeros). Print the result space-separated."#, solution: "", day: 3 },
+    PracticeProblem { id: "q_rotate1", category: Code, topic: "cpp_arrays", diff: "Easy", title: "Left rotate array by one", prompt: r#"Read N, then N integers. Rotate the array left by one position. Print the result space-separated."#, solution: "", day: 3 },
+    PracticeProblem { id: "q_missing", category: Code, topic: "cpp_arrays", diff: "Medium", title: "Find the missing number (1 to N)", prompt: r#"You are given N-1 distinct integers from 1..N (one is missing). Read N, then the N-1 integers. Print the missing number."#, solution: "", day: 3 },
+
+    // ── Math (MATH_BANK) ──
+    PracticeProblem { id: "m_dice8", category: Math, topic: "math_prob", diff: "Easy", title: "Two dice sum = 8", prompt: r#"Roll two fair dice. What is the probability the sum equals 8?"#, solution: r#"Favourable pairs: (2,6)(3,5)(4,4)(5,3)(6,2) = 5. Total outcomes = 36. So <code>5/36 ≈ 0.139</code>."#, day: 1 },
+    PracticeProblem { id: "m_atleast4", category: Math, topic: "math_prob", diff: "Medium", title: "At least one 4", prompt: r#"Roll two fair dice. Probability that at least one die shows a 4?"#, solution: r#"P(no 4) = (5/6)² = 25/36. So P(at least one 4) = 1 − 25/36 = <code>11/36 ≈ 0.306</code>."#, day: 1 },
+    PracticeProblem { id: "m_ace", category: Math, topic: "math_prob", diff: "Easy", title: "Draw an Ace", prompt: r#"Probability of drawing an Ace from a standard 52-card deck?"#, solution: r#"4 aces / 52 cards = <code>1/13 ≈ 0.077</code>."#, day: 1 },
+    PracticeProblem { id: "m_comb", category: Math, topic: "math_prob", diff: "Medium", title: "Choose 2 of 5", prompt: r#"How many ways to choose 2 items from 5 distinct items? (C(5,2))"#, solution: r#"C(5,2) = 5! / (2!·3!) = 120 / (2·6) = <code>10</code>."#, day: 1 },
+    PracticeProblem { id: "m_linear", category: Math, topic: "math_algebra", diff: "Easy", title: "Solve 2x+3=11", prompt: r#"Solve for x:  2x + 3 = 11.  x = ?"#, solution: r#"2x = 11 − 3 = 8, so x = <code>4</code>."#, day: 1 },
+    PracticeProblem { id: "m_log", category: Math, topic: "math_algebra", diff: "Easy", title: "log₂(8)", prompt: r#"Evaluate:  log₂(8) = ?"#, solution: r#"2³ = 8, so log₂(8) = <code>3</code>."#, day: 1 },
+    PracticeProblem { id: "m_func", category: Math, topic: "math_algebra", diff: "Easy", title: "f(x)=x², f(5)", prompt: r#"If f(x) = x², what is f(5)?"#, solution: r#"f(5) = 5² = <code>25</code>."#, day: 1 },
+    PracticeProblem { id: "m_seq", category: Math, topic: "math_algebra", diff: "Easy", title: "Next: 2,4,8,16…", prompt: r#"Next term in the sequence: 2, 4, 8, 16, … ?"#, solution: r#"Each term doubles (×2), so next is 16 × 2 = <code>32</code>."#, day: 1 },
+    PracticeProblem { id: "m_ev_die", category: Math, topic: "math_stats", diff: "Easy", title: "Expected value of a die", prompt: r#"Expected value of a single roll of a fair six-sided die?"#, solution: r#"(1+2+3+4+5+6)/6 = 21/6 = <code>3.5</code>."#, day: 1 },
+    PracticeProblem { id: "m_2heads", category: Math, topic: "math_prob", diff: "Easy", title: "Exactly 2 heads in 3 flips", prompt: r#"Flip a fair coin 3 times. Probability of exactly 2 heads?"#, solution: r#"Ways to get exactly 2 heads = C(3,2) = 3, out of 2³ = 8 outcomes. So <code>3/8 = 0.375</code>."#, day: 2 },
+
+    // ── Quant (QUANT_BANK) ──
+    PracticeProblem { id: "q_batball", category: Quant, topic: "qt_reasoning", diff: "Easy", title: "Bat and ball", prompt: r#"A bat and a ball cost $1.10 together. The bat costs $1.00 more than the ball. How much is the ball, in cents?"#, solution: r#"Let ball = b. Bat = b + 1.00. Then b + (b+1.00) = 1.10 → 2b = 0.10 → b = 0.05 = <code>5 cents</code>."#, day: 1 },
+    PracticeProblem { id: "q_widgets", category: Quant, topic: "qt_reasoning", diff: "Easy", title: "5 machines, 5 widgets", prompt: r#"If 5 machines make 5 widgets in 5 minutes, how many minutes for 100 machines to make 100 widgets?"#, solution: r#"Each machine makes 1 widget in 5 minutes. 100 machines work in parallel, so 100 widgets still take <code>5 minutes</code>."#, day: 1 },
+    PracticeProblem { id: "q_squares", category: Quant, topic: "qt_decompose", diff: "Medium", title: "Squares on a chessboard", prompt: r#"How many squares (of all sizes) are on a standard 8×8 chessboard?"#, solution: r#"Count k×k squares for k=1..8: 8²+7²+…+1² = 64+49+36+25+16+9+4+1 = <code>204</code>."#, day: 1 },
+    PracticeProblem { id: "q_eggs", category: Quant, topic: "qt_optimization", diff: "Hard", title: "Two eggs, 100 floors", prompt: r#"Two identical eggs, a 100-floor building. Minimum number of drops to guarantee finding the highest safe floor (worst case)?"#, solution: r#"Find smallest x with x(x+1)/2 ≥ 100. x=14 gives 105 ≥ 100. So <code>14 drops</code>."#, day: 1 },
+    PracticeProblem { id: "q_lookandsay", category: Quant, topic: "qt_reasoning", diff: "Medium", title: "Look-and-say sequence", prompt: r#"Next term: 1, 11, 21, 1211, 111221, … ?"#, solution: r#"Each term describes the previous: 111221 is "three 1s, two 2s, one 1" → <code>312211</code>."#, day: 1 },
+    PracticeProblem { id: "q_socks", category: Quant, topic: "qt_decompose", diff: "Easy", title: "Matching socks in the dark", prompt: r#"A drawer has 10 black and 10 white socks (unsorted, in the dark). How many socks must you pull to guarantee a matching pair?"#, solution: r#"Only 2 colours exist. By the pigeonhole principle, <code>3 socks</code> guarantees two of the same colour."#, day: 1 },
+    PracticeProblem { id: "q_clock", category: Quant, topic: "qt_reasoning", diff: "Medium", title: "Clock hand overlaps", prompt: r#"How many times do the hour and minute hands of a clock overlap in 12 hours?"#, solution: r#"The hands align every 12/11 hours, giving <code>11 overlaps</code> in 12 hours (not 12)."#, day: 1 },
+    PracticeProblem { id: "q_monty", category: Quant, topic: "qt_probabilistic", diff: "Medium", title: "Monty Hall", prompt: r#"Monty Hall: 3 doors, you pick one, host opens a goat door, you switch. Probability you win the car?"#, solution: r#"Your initial pick wins 1/3. Switching wins whenever your first pick was wrong = <code>2/3 ≈ 0.667</code>."#, day: 1 },
+    PracticeProblem { id: "q_die6even", category: Quant, topic: "qt_probabilistic", diff: "Easy", title: "Even vs six", prompt: r#"Roll one fair die. What is the probability the number is even?"#, solution: r#"Even faces {2,4,6} → 3/6 = <code>1/2</code>. Since P(=6) is only 1/6, betting on "even" (1/2) is the better choice."#, day: 2 },
+    PracticeProblem { id: "q_birthday", category: Quant, topic: "qt_probabilistic", diff: "Medium", title: "Birthday paradox", prompt: r#"In a room of 23 people, is the probability that two share a birthday more than 50%?"#, solution: r#"Yes — the famous birthday paradox. With 23 people the probability is about 50.7%, so just over <code>50%</code>."#, day: 2 },
+    PracticeProblem { id: "q_o1on", category: Quant, topic: "qt_decompose", diff: "Medium", title: "O(1) vs O(n)", prompt: r#"Why is accessing arr[n] O(1), but searching for an element O(n)? Think it through, then reveal."#, solution: r#"An array is a contiguous block in memory. <code>arr[n]</code> is computed directly as <code>base_address + n × element_size</code> — one arithmetic step, independent of array length, so <strong>O(1)</strong>.<br/><br/>Searching for a <em>value</em> (not an index) means you don't know where it lives, so in the worst case you must inspect every element until you find it (or reach the end) — that's up to N comparisons, so <strong>O(n)</strong>. Indexing uses position; searching must examine contents."#, day: 2 },
+    PracticeProblem { id: "q_3digit", category: Quant, topic: "qt_reasoning", diff: "Easy", title: "3-digit numbers", prompt: r#"How many 3-digit numbers can be formed using the digits 1, 2, 3, 4 without repetition?"#, solution: r#"First digit: 4 choices, second: 3 left, third: 2 left → 4 × 3 × 2 = <code>24</code>."#, day: 3 },
+    PracticeProblem { id: "q_handshake", category: Quant, topic: "qt_reasoning", diff: "Easy", title: "Handshakes", prompt: r#"10 people in a room. Everyone shakes hands once with everyone else. How many handshakes total?"#, solution: r#"C(10,2) = 10·9/2 = <code>45</code>."#, day: 3 },
+    PracticeProblem { id: "q_password", category: Quant, topic: "qt_reasoning", diff: "Medium", title: "Password count", prompt: r#"A password is 2 letters (a–z) followed by 2 digits (0–9), e.g. ab12. How many possible passwords are there?"#, solution: r#"26 choices per letter and 10 per digit, in fixed positions: 26 × 26 × 10 × 10 = <code>67,600</code>."#, day: 3 },
+    PracticeProblem { id: "q_vec_concept", category: Quant, topic: "cpp_vectors", diff: "Medium", title: "Why vectors?", prompt: r#"Why does vector.push_back(x) feel easier than int arr[100]? What problem is a vector solving?"#, solution: r#"A raw array like <code>int arr[100]</code> has a <strong>fixed size you must decide up front</strong> — too small and you overflow, too big and you waste memory, and you must track how many slots you've actually used.<br/><br/>A <code>std::vector</code> is a <strong>dynamic array</strong>: <code>push_back</code> grows it automatically as you add elements, it remembers its own <code>size()</code>, and it manages (allocates/frees) memory for you. So it solves the "I don't know how many items I'll have" problem and removes manual memory/size bookkeeping."#, day: 3 },
+
+    // ── Linux (LINUX_BANK) ──
+    PracticeProblem { id: "l_pwd", category: Linux, topic: "linux_basics", diff: "Easy", title: "Working directory", prompt: r#"Print the current (working) directory."#, solution: r#"<code>pwd</code> — "print working directory"."#, day: 1 },
+    PracticeProblem { id: "l_ls", category: Linux, topic: "linux_basics", diff: "Easy", title: "List files", prompt: r#"List the files in the current directory."#, solution: r#"<code>ls</code> lists directory contents."#, day: 1 },
+    PracticeProblem { id: "l_lsla", category: Linux, topic: "linux_basics", diff: "Easy", title: "List all, long", prompt: r#"List ALL files (including hidden) in long format."#, solution: r#"<code>ls -la</code> — -l for long format, -a to include hidden (dot) files."#, day: 1 },
+    PracticeProblem { id: "l_mkdir", category: Linux, topic: "linux_basics", diff: "Easy", title: "Make a directory", prompt: r#"Create a new directory called test."#, solution: r#"<code>mkdir test</code> makes a new directory."#, day: 1 },
+    PracticeProblem { id: "l_cd", category: Linux, topic: "linux_basics", diff: "Easy", title: "Change directory", prompt: r#"Change into the test directory."#, solution: r#"<code>cd test</code> changes directory."#, day: 1 },
+    PracticeProblem { id: "l_cdup", category: Linux, topic: "linux_basics", diff: "Easy", title: "Go up a level", prompt: r#"Move up one directory level (to the parent)."#, solution: r#"<code>cd ..</code> — ".." refers to the parent directory."#, day: 1 },
+    PracticeProblem { id: "l_gpp", category: Linux, topic: "linux_cpp", diff: "Easy", title: "Compile with g++", prompt: r#"Compile a C++ file called main.cpp with g++ (default output)."#, solution: r#"<code>g++ main.cpp</code> compiles to the default executable <code>a.out</code>."#, day: 1 },
+    PracticeProblem { id: "l_run", category: Linux, topic: "linux_cpp", diff: "Easy", title: "Run a.out", prompt: r#"Run the compiled program a.out from the current directory."#, solution: r#"<code>./a.out</code> — the "./" tells the shell to run from the current folder."#, day: 1 },
+    PracticeProblem { id: "l_gppo", category: Linux, topic: "linux_cpp", diff: "Medium", title: "Name the output", prompt: r#"Compile main.cpp into an executable named app."#, solution: r#"<code>g++ main.cpp -o app</code> — -o sets the output filename."#, day: 1 },
+    PracticeProblem { id: "l_touch", category: Linux, topic: "linux_basics", diff: "Easy", title: "Create empty file", prompt: r#"Create a new empty file called notes.txt."#, solution: r#"<code>touch notes.txt</code> creates an empty file (or updates its timestamp if it exists)."#, day: 2 },
+    PracticeProblem { id: "l_rm", category: Linux, topic: "linux_basics", diff: "Easy", title: "Delete a file", prompt: r#"Delete a file called old.txt."#, solution: r#"<code>rm old.txt</code> removes a file. (Be careful — there is no trash bin!)"#, day: 2 },
+    PracticeProblem { id: "l_cp", category: Linux, topic: "linux_basics", diff: "Easy", title: "Copy a file", prompt: r#"Copy a.txt to b.txt."#, solution: r#"<code>cp a.txt b.txt</code> copies a file."#, day: 2 },
+    PracticeProblem { id: "l_mv", category: Linux, topic: "linux_basics", diff: "Easy", title: "Rename a file", prompt: r#"Rename (move) a.txt to b.txt."#, solution: r#"<code>mv a.txt b.txt</code> moves or renames a file."#, day: 2 },
+    PracticeProblem { id: "l_cat", category: Linux, topic: "linux_basics", diff: "Easy", title: "Show file contents", prompt: r#"Show the contents of a file called notes.txt."#, solution: r#"<code>cat notes.txt</code> prints a file to the terminal."#, day: 3 },
+    PracticeProblem { id: "l_echo", category: Linux, topic: "linux_basics", diff: "Easy", title: "Print text", prompt: r#"Print the text hello to the terminal."#, solution: r#"<code>echo hello</code> prints text to standard output."#, day: 3 },
+    PracticeProblem { id: "l_echo_file", category: Linux, topic: "linux_basics", diff: "Medium", title: "Write to a file", prompt: r#"Write the text hi into a file called notes.txt (overwriting it), using echo."#, solution: r#"<code>echo "hi" > notes.txt</code> — the <code>></code> operator redirects output into a file, replacing its contents. (Use <code>>></code> to append instead.)"#, day: 3 },
+    PracticeProblem { id: "l_nano", category: Linux, topic: "linux_basics", diff: "Easy", title: "Edit in nano", prompt: r#"Open the file notes.txt for editing in the nano text editor."#, solution: r#"<code>nano notes.txt</code> opens the file in nano. Save with Ctrl+O, exit with Ctrl+X."#, day: 3 },
+];
+
+/// Practice problems mapped to a strategy day, in display order.
+pub fn practice_problems_for_day(day: u32) -> impl Iterator<Item = &'static PracticeProblem> {
+    PROBLEMS.iter().filter(move |p| p.day == day)
+}
+
+/// Practice gate: every problem for `day` is marked solved (vacuously true for
+/// a day with no problems).
+pub fn practice_complete(day: u32, solved: &HashMap<String, bool>) -> bool {
+    practice_problems_for_day(day).all(|p| solved.get(p.id).copied().unwrap_or(false))
+}
+
+/// Strategy gate: every daily-routine item is checked for this day.
+pub fn routine_complete(day_checks: &HashMap<String, bool>) -> bool {
+    day_checks.values().filter(|v| **v).count() >= total_daily_items()
+}
+
+/// Journal gate: all five prompts are non-empty for this day.
+pub fn journal_complete(day_journal: &HashMap<String, String>) -> bool {
+    ["j1", "j2", "j3", "j4", "j5"]
+        .iter()
+        .all(|k| day_journal.get(*k).is_some_and(|v| !v.trim().is_empty()))
 }
