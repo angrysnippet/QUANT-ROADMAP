@@ -33,6 +33,11 @@ jobs:
         uses: cargo-bins/cargo-binstall@main
 
       - name: Install Dioxus CLI
+        # Authenticate to the GitHub API so binstall isn't anonymous-rate-limited
+        # (403) when fetching the prebuilt dx binary, which would force a slow
+        # from-source fallback build.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: cargo binstall dioxus-cli --version '^0.7' --no-confirm
 
       # Project sites are served from https://<user>.github.io/QUANT-ROADMAP/,
