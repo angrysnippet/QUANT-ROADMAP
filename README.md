@@ -1,2 +1,2 @@
 # QUANT-ROADMAP
-THIS IS THE WHOLE ROAD MAP WITH FULL DAY TO DAY TASK WITH COMPILER , ITS LIKE A WHOLE PACKAGE 
+I designed and built an interactive 548-day quant development platform with progress tracking, revision scheduling, dependency mapping, audit systems, and learning analytics.
