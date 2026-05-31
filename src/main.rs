@@ -5,6 +5,7 @@ mod roadmap;
 mod landing;
 mod layout;
 mod progress;
+mod runner;
 mod today;
 mod calendar;
 mod strategy;

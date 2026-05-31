@@ -8,9 +8,21 @@
 //! `dangerous_inner_html` (the same HTML spec.html assigns to `innerHTML`).
 
 use dioxus::prelude::*;
+use pulldown_cmark::{html, Options, Parser};
 
 use crate::roadmap::{phase_color, StrategyDay, DAYS};
 use crate::Route;
+
+/// Render authored Markdown (a day's schedule) to an HTML string.
+fn md_to_html(md: &str) -> String {
+    let mut opts = Options::empty();
+    opts.insert(Options::ENABLE_STRIKETHROUGH);
+    opts.insert(Options::ENABLE_TABLES);
+    let parser = Parser::new_ext(md, opts);
+    let mut out = String::new();
+    html::push_html(&mut out, parser);
+    out
+}
 
 /// (label, filter value) for the phase tabs, in display order.
 const PHASE_TABS: [(&str, &str); 5] = [
@@ -152,6 +164,41 @@ fn day_blocks(
         return rsx! {};
     };
     let (pbg, pc) = phase_color(d.phase);
+
+    // Authored days render their Markdown as a single page (no tile drill-down).
+    if !d.schedule_md.is_empty() {
+        let rendered = md_to_html(d.schedule_md);
+        return rsx! {
+            div { class: "strat-crumb",
+                span {
+                    class: "strat-crumb-link",
+                    onclick: move |_| {
+                        active_day.set(None);
+                        active_block.set(None);
+                    },
+                    "← All days"
+                }
+                span { class: "strat-crumb-sep", "/" }
+                span { class: "strat-crumb-current", "Day {d.id} · {d.title}" }
+                span {
+                    class: "day-phase-tag",
+                    style: "background:{pbg};color:{pc};margin-left:auto",
+                    "{d.phase}"
+                }
+            }
+            div { class: "strat-detail-card",
+                div { class: "schedule-md", dangerous_inner_html: "{rendered}" }
+            }
+            button {
+                class: "strat-practice-btn",
+                style: "margin-top:1rem",
+                onclick: move |_| {
+                    navigator().push(Route::Practice {});
+                },
+                "⌨️ Practice Day {d.id} problems ›"
+            }
+        };
+    }
 
     rsx! {
         div { class: "strat-crumb",
