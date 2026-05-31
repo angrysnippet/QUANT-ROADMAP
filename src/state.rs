@@ -1,11 +1,21 @@
 //! Shared application state, persisted to the browser's localStorage.
 //!
-//! The data model mirrors the original `spec.html` store:
-//! - `progress`      : topic id -> 0..=100 percent
-//! - `daily_checks`  : date ("YYYY-MM-DD") -> { "block_item" -> done }
-//! - `journal`       : date -> { "j1".."j5" -> text }
-//! - `schedule_start`: the calendar date that "Day 1" of the strategy maps to
+//! Progress is *earned*, not set directly: topic percentages are derived from
+//! how many strategy days have been completed (`current_day - 1`), so there is
+//! no stored progress map. A day is completed — and `current_day` advanced —
+//! only when its three gates pass (routine checked, practice solved, journal
+//! filled). See `roadmap.rs` for the derivation and gate helpers.
+//!
+//! Data model:
+//! - `current_day`   : the strategy day the user is currently on (1-based).
+//! - `daily_checks`  : day id ("1", "2", …) -> { "block_item" -> done }
+//! - `journal`       : day id -> { "j1".."j5" -> text }
+//! - `schedule_start`: the calendar date that "Day 1" maps to (Calendar view).
 //! - `solved`        : practice question/quiz id -> solved
+//!
+//! `daily_checks` / `journal` are keyed by strategy-day id (not calendar date)
+//! so the per-day gates are self-paced; the Calendar projects them onto dates
+//! via `strategy_day_for_date`.
 
 use dioxus::prelude::*;
 use gloo_storage::{LocalStorage, Storage};
@@ -14,10 +24,14 @@ use std::collections::HashMap;
 
 const STORAGE_KEY: &str = "qrt_state";
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Default)]
+fn default_current_day() -> u32 {
+    1
+}
+
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct AppState {
-    #[serde(default)]
-    pub progress: HashMap<String, u32>,
+    #[serde(default = "default_current_day")]
+    pub current_day: u32,
     #[serde(default)]
     pub daily_checks: HashMap<String, HashMap<String, bool>>,
     #[serde(default)]
@@ -26,6 +40,18 @@ pub struct AppState {
     pub schedule_start: Option<String>,
     #[serde(default)]
     pub solved: HashMap<String, bool>,
+}
+
+impl Default for AppState {
+    fn default() -> Self {
+        Self {
+            current_day: default_current_day(),
+            daily_checks: HashMap::new(),
+            journal: HashMap::new(),
+            schedule_start: None,
+            solved: HashMap::new(),
+        }
+    }
 }
 
 impl AppState {
