@@ -196,6 +196,117 @@ const DAY1_SCHEDULE: &str = r#"# Day 1 (Today)
   (Reflecting helps consolidate learning and identify gaps.)
 "#;
 
+/// Authored Day 2 schedule (from `finaly daily schedule/DAY 2.txt`).
+const DAY2_SCHEDULE: &str = r#"# Day 2
+🌱 Foundation World
+
+## Previous Day Review (10 min)
+
+- Review Day 1 notes.
+- Re-solve one Day 1 problem from memory.
+
+## Block 1 — C++
+
+**Study** — Continue Arrays. Learn:
+- Array Traversal
+- Frequency Counting
+- Linear Search
+
+**Resource:** LearnCpp — Arrays and Loops
+
+**Code from scratch:**
+- Problem 1 — Frequency of a Number
+- Problem 2 — Sum of Even Elements
+- Problem 3 — Reverse an Array
+
+**Concept check:**
+- What is an array?
+- Why are arrays stored contiguously?
+- Why is indexing O(1)?
+- Why is searching O(n)?
+
+**Thinking question:** Why is `arr[n]` O(1) while searching is O(n)?
+
+**Cross-domain mapping:** Imagine an array stores stock prices for 1000 days. How would traversal, search, and frequency counting help analyze the data?
+
+## Block 2 — DSA
+
+**Striver Arrays** — solve:
+1. Largest Element
+2. Second Largest Element
+3. Remove Duplicates from Sorted Array
+
+For every solution, write: **Brute force**, **Better**, **Optimal**.
+
+**System thinking:** If the array contained 1 million values, would linear search still be efficient? Why?
+
+## Block 3 — Quant Thinking
+
+- **Problem 1 — Die roll:** P(6) vs P(Even)
+- **Problem 2 — 3 coin tosses:** P(exactly 2 heads)
+- **Problem 3 — Birthday problem**
+
+No calculations — only intuition.
+
+**Career connection:** Probability is one of the foundations of quantitative finance and risk modelling.
+
+## Block 4 — Mathematics
+
+**Watch:** 3Blue1Brown — *Essence of Algebra*, Chapter 2. Pause often. Write:
+- One new intuition learned.
+- One question you still have.
+
+## Block 5 — Python
+
+**Study:** `if` · `else` · loops
+
+**Resource:** Python Official Tutorial
+
+**Write:**
+1. Multiplication Table Generator
+2. Prime Number Checker
+
+**Research habit:** Spend 5 minutes exploring one additional page in the official Python docs.
+
+## Block 6 — Linux
+
+**Learn:** `touch` · `rm` · `cp` · `mv`
+
+**Lab:**
+- Create `test.txt`
+- Copy `test.txt` → `backup.txt`
+- Move `backup.txt` → `notes/`
+- Delete `test.txt`
+
+## Portfolio Building
+
+Create `FoundationToolkit/` and store:
+- `frequency.cpp`
+- `reverse.cpp`
+- `even_sum.cpp`
+
+## Communication Exercise
+
+In 5 lines, explain: *"Why is array indexing O(1) but searching O(n)?"*
+
+## Journal
+
+- What pattern did I notice in arrays?
+- Which quant puzzle surprised me?
+- What took longest to debug?
+- Where might arrays appear in finance or software systems?
+
+## Success Criteria
+
+- ✅ Reverse an array
+- ✅ Explain O(1) vs O(n)
+- ✅ Solve 3 array problems
+- ✅ Derive P(exactly 2 heads)
+- ✅ Write a prime checker
+- ✅ Explain array complexity in your own words
+- ✅ Complete Linux file lab
+"#;
+
 pub const DAYS: &[StrategyDay] = &[
     StrategyDay {
         id: 1,
@@ -277,7 +388,7 @@ pub const DAYS: &[StrategyDay] = &[
         id: 2,
         phase: "Phase 1",
         title: "Array Traversal, Frequency & Search",
-        schedule_md: "",
+        schedule_md: DAY2_SCHEDULE,
         blocks: &[
             StrategyBlock { color: "#7c6fff", title: "Block 1 — C++", time: "45–60 mins", content: r#"<div class="block-content">
         <span class="block-tag tag-task">📚 Continue arrays</span> Array traversal · frequency counting · linear search.<br/><br/>
