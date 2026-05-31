@@ -98,6 +98,10 @@ pub struct StrategyDay {
     pub id: i64,
     pub phase: &'static str,
     pub title: &'static str,
+    /// Authored full-day schedule as Markdown. When non-empty the Strategy view
+    /// renders it as a single page; when empty it falls back to the
+    /// `blocks`/`success` tile breakdown below.
+    pub schedule_md: &'static str,
     pub blocks: &'static [StrategyBlock],
     /// "By the end of the day you should be able to…" checklist items.
     pub success: &'static [&'static str],
@@ -113,11 +117,91 @@ pub fn phase_color(phase: &str) -> (&'static str, &'static str) {
     }
 }
 
+/// Authored Day 1 schedule (from `finaly daily schedule/DAY_1.docx`), as Markdown.
+const DAY1_SCHEDULE: &str = r#"# Day 1 (Today)
+
+## Block 1 — C++
+
+- **Study:** Read [LearnCpp Arrays Fundamentals](https://www.learncpp.com) (chapters on *Arrays*, *Array indexing*, and *Array length*, 45–60 min). *Why:* Arrays let you store collections of elements in contiguous memory; mastering them is foundational for all programming and technical interviews.
+- **Implement:** Without copying or using AI, write these functions from scratch:
+  - Sum of an array.
+  - Largest element in an array.
+  - Smallest element in an array.
+
+  (This builds your coding fluency and problem-solving with arrays.)
+- **Challenge (Break the Code):** Analyze this code snippet:
+
+  ```cpp
+  int arr[5];
+  cout << arr[10];
+  ```
+
+  **Question:** What happens when you run it, and why? *(This tests your understanding of array bounds and memory access.)*
+
+## Block 2 — DSA (Arrays)
+
+- **Problems (Striver A2Z Sheet):** Solve the following using C++:
+  - Largest element in an array.
+  - Second largest element in an array.
+  - Check if an array is sorted.
+
+  *Note:* These problems reinforce array manipulation skills and will appear in coding interviews.
+
+## Block 3 — Quant Thinking (Probability)
+
+- **Puzzle:** (The first two puzzles – locker and coin symmetry – are assumed completed.) Now solve this: You roll two dice. Which outcome is more likely?
+  - A. Sum = 8
+  - B. At least one die shows a 4
+
+  **Instruction:** Think it through before calculating. *Why:* This exercise sharpens probabilistic reasoning and intuitive problem-solving, key skills for quantitative analysis.
+
+## Block 4 — Mathematics (Algebra)
+
+- **Watch:** *3Blue1Brown: Essence of Algebra – Chapter 1* (one video). Pause frequently to understand. *Why:* A strong intuition for algebra will help with algorithmic thinking and data modeling later.
+
+## Block 5 — Python
+
+- **Study:** Go through the *Python Official Tutorial – Introduction* section. *Why:* Python is widely used in software engineering and quantitative fields; early familiarity will pay off.
+- **Practice:** Write two small programs:
+  - A simple calculator (e.g. add/subtract/multiply/divide two numbers).
+  - An even/odd number checker.
+
+  (These exercises build basic Python syntax and problem-solving.)
+
+## Block 6 — Linux / Tools
+
+- **Setup:** Install or open a terminal/command-line interface. **Run Commands:**
+
+  ```
+  pwd
+  ls
+  mkdir test
+  cd test
+  ```
+
+  *Why:* Navigating the filesystem and using the terminal are essential development skills.
+- **Compile & Run:** Create a C++ file named `main.cpp` (even with a simple `int main() { return 0; }`). Then run:
+
+  ```
+  g++ main.cpp
+  ./a.out
+  ```
+
+  *Why:* Compiling and running code in the terminal is a practical skill for coding projects.
+- **Journal:** At the end of the day, write brief reflections:
+  - What clicked today?
+  - What confused me?
+  - What patterns or connections did I notice?
+
+  (Reflecting helps consolidate learning and identify gaps.)
+"#;
+
 pub const DAYS: &[StrategyDay] = &[
     StrategyDay {
         id: 1,
         phase: "Phase 1",
         title: "Arrays Fundamentals",
+        schedule_md: DAY1_SCHEDULE,
         blocks: &[
             StrategyBlock { color: "#7c6fff", title: "Block 1 — C++", time: "45–60 mins", content: r#"<div class="block-content">
         <span class="block-tag tag-resource">📖 Resource</span>
@@ -193,6 +277,7 @@ pub const DAYS: &[StrategyDay] = &[
         id: 2,
         phase: "Phase 1",
         title: "Array Traversal, Frequency & Search",
+        schedule_md: "",
         blocks: &[
             StrategyBlock { color: "#7c6fff", title: "Block 1 — C++", time: "45–60 mins", content: r#"<div class="block-content">
         <span class="block-tag tag-task">📚 Continue arrays</span> Array traversal · frequency counting · linear search.<br/><br/>
@@ -269,6 +354,7 @@ pub const DAYS: &[StrategyDay] = &[
         id: 3,
         phase: "Phase 1",
         title: "STL Vectors, Counting & Patterns",
+        schedule_md: "",
         blocks: &[
             StrategyBlock { color: "#7c6fff", title: "Block 1 — C++", time: "45–60 mins", content: r#"<div class="block-content">
         <span class="block-tag tag-task">📚 Learn</span> What is a vector? Why vector instead of array? · <code>push_back()</code> · <code>size()</code> · indexing.<br/><br/>
@@ -840,3 +926,523 @@ pub fn journal_complete(day_journal: &HashMap<String, String>) -> bool {
         .iter()
         .all(|k| day_journal.get(*k).is_some_and(|v| !v.trim().is_empty()))
 }
+
+// ── Code problem starters + samples (for the in-browser runner) ──
+//
+// Ported from spec.html's QUESTION_BANK. Keyed by problem id (Code-category
+// problems only). `sample_out` containing "..." is a placeholder that can't be
+// auto-checked — those stay manually marked.
+
+pub struct CodeMeta {
+    pub id: &'static str,
+    pub starter_cpp: &'static str,
+    pub starter_py: &'static str,
+    pub sample_in: &'static str,
+    pub sample_out: &'static str,
+}
+
+/// Starter/sample metadata for a code problem, if it has any.
+pub fn code_meta(id: &str) -> Option<&'static CodeMeta> {
+    CODE_META.iter().find(|m| m.id == id)
+}
+
+pub const CODE_META: &[CodeMeta] = &[
+    CodeMeta {
+        id: "q_sum",
+        sample_in: "5\n1 2 3 4 5",
+        sample_out: "15",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  int sum=0;
+  for(int i=0;i<n;i++){
+    int x; cin>>x;
+    sum+=x;
+  }
+  cout<<sum<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+nums=list(map(int,input().split()))
+print(sum(nums))"#,
+    },
+    CodeMeta {
+        id: "q_max",
+        sample_in: "4\n3 9 2 7",
+        sample_out: "9",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  int mx;
+  for(int i=0;i<n;i++){
+    int x; cin>>x;
+    if(i==0||x>mx) mx=x;
+  }
+  cout<<mx<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+nums=list(map(int,input().split()))
+print(max(nums))"#,
+    },
+    CodeMeta {
+        id: "q_min",
+        sample_in: "4\n3 9 2 7",
+        sample_out: "2",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  int mn;
+  for(int i=0;i<n;i++){
+    int x; cin>>x;
+    if(i==0||x<mn) mn=x;
+  }
+  cout<<mn<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+nums=list(map(int,input().split()))
+print(min(nums))"#,
+    },
+    CodeMeta {
+        id: "q_rev",
+        sample_in: "5\n1 2 3 4 5",
+        sample_out: "5 4 3 2 1",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  int a[100];
+  for(int i=0;i<n;i++) cin>>a[i];
+  for(int i=n-1;i>=0;i--){
+    cout<<a[i];
+    if(i>0) cout<<" ";
+  }
+  cout<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+nums=list(map(int,input().split()))
+print(*nums[::-1])"#,
+    },
+    CodeMeta {
+        id: "q_2nd",
+        sample_in: "5\n4 9 9 2 7",
+        sample_out: "7",
+        starter_cpp: r#"#include <iostream>
+#include <set>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  set<int> s;
+  for(int i=0;i<n;i++){ int x; cin>>x; s.insert(x); }
+  auto it=s.rbegin(); ++it;
+  cout<<*it<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+nums=set(map(int,input().split()))
+print(sorted(nums)[-2])"#,
+    },
+    CodeMeta {
+        id: "q_search",
+        sample_in: "5\n10 20 30 40 50\n30",
+        sample_out: "2",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  int a[100];
+  for(int i=0;i<n;i++) cin>>a[i];
+  int t; cin>>t;
+  int idx=-1;
+  for(int i=0;i<n;i++) if(a[i]==t){ idx=i; break; }
+  cout<<idx<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+nums=list(map(int,input().split()))
+t=int(input())
+print(nums.index(t) if t in nums else -1)"#,
+    },
+    CodeMeta {
+        id: "q_evenodd",
+        sample_in: "5\n1 2 3 4 5",
+        sample_out: "2 3",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  int e=0,o=0;
+  for(int i=0;i<n;i++){
+    int x; cin>>x;
+    if(x%2==0) e++; else o++;
+  }
+  cout<<e<<" "<<o<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+nums=list(map(int,input().split()))
+e=sum(1 for x in nums if x%2==0)
+print(e, n-e)"#,
+    },
+    CodeMeta {
+        id: "q_fact",
+        sample_in: "5",
+        sample_out: "120",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+long long fact(int n){
+  if(n<=1) return 1;
+  return n*fact(n-1);
+}
+int main(){
+  int n; cin>>n;
+  cout<<fact(n)<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+f=1
+for i in range(2,n+1): f*=i
+print(f)"#,
+    },
+    CodeMeta {
+        id: "q_fib",
+        sample_in: "7",
+        sample_out: "0 1 1 2 3 5 8",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  long long a=0,b=1;
+  for(int i=0;i<n;i++){
+    cout<<a;
+    if(i<n-1) cout<<" ";
+    long long c=a+b; a=b; b=c;
+  }
+  cout<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+a,b=0,1
+res=[]
+for _ in range(n):
+    res.append(a)
+    a,b=b,a+b
+print(*res)"#,
+    },
+    CodeMeta {
+        id: "q_prime",
+        sample_in: "13",
+        sample_out: "yes",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  bool prime = n>1;
+  for(int i=2;i*i<=n;i++) if(n%i==0){ prime=false; break; }
+  cout<<(prime?"yes":"no")<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+prime = n>1 and all(n%i for i in range(2,int(n**0.5)+1))
+print("yes" if prime else "no")"#,
+    },
+    CodeMeta {
+        id: "q_gcd",
+        sample_in: "48 36",
+        sample_out: "12",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int gcd(int a,int b){ return b==0?a:gcd(b,a%b); }
+int main(){
+  int a,b; cin>>a>>b;
+  cout<<gcd(a,b)<<endl;
+  return 0;
+}"#,
+        starter_py: r#"import math
+a,b=map(int,input().split())
+print(math.gcd(a,b))"#,
+    },
+    CodeMeta {
+        id: "q_digsum",
+        sample_in: "9305",
+        sample_out: "17",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  int s=0;
+  while(n>0){ s+=n%10; n/=10; }
+  cout<<s<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=input().strip()
+print(sum(int(c) for c in n))"#,
+    },
+    CodeMeta {
+        id: "q_revstr",
+        sample_in: "quant",
+        sample_out: "tnauq",
+        starter_cpp: r#"#include <iostream>
+#include <string>
+#include <algorithm>
+using namespace std;
+int main(){
+  string s; getline(cin,s);
+  reverse(s.begin(),s.end());
+  cout<<s<<endl;
+  return 0;
+}"#,
+        starter_py: r#"s=input()
+print(s[::-1])"#,
+    },
+    CodeMeta {
+        id: "q_palin",
+        sample_in: "level",
+        sample_out: "yes",
+        starter_cpp: r#"#include <iostream>
+#include <string>
+using namespace std;
+int main(){
+  string s; getline(cin,s);
+  string r(s.rbegin(),s.rend());
+  cout<<(s==r?"yes":"no")<<endl;
+  return 0;
+}"#,
+        starter_py: r#"s=input()
+print("yes" if s==s[::-1] else "no")"#,
+    },
+    CodeMeta {
+        id: "q_vowels",
+        sample_in: "education",
+        sample_out: "5",
+        starter_cpp: r#"#include <iostream>
+#include <string>
+using namespace std;
+int main(){
+  string s; getline(cin,s);
+  int c=0;
+  for(char ch:s){
+    char l=tolower(ch);
+    if(l=='a'||l=='e'||l=='i'||l=='o'||l=='u') c++;
+  }
+  cout<<c<<endl;
+  return 0;
+}"#,
+        starter_py: r#"s=input().lower()
+print(sum(s.count(v) for v in "aeiou"))"#,
+    },
+    CodeMeta {
+        id: "q_table",
+        sample_in: "3",
+        sample_out: "3 x 1 = 3\n3 x 2 = 6\n... (through x 10)",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  for(int i=1;i<=10;i++)
+    cout<<n<<" x "<<i<<" = "<<n*i<<"\n";
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+for i in range(1,11):
+    print(f"{n} x {i} = {n*i}")"#,
+    },
+    CodeMeta {
+        id: "q_freq",
+        sample_in: "6\n1 2 3 2 5 2\n2",
+        sample_out: "3",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  int a[100];
+  for(int i=0;i<n;i++) cin>>a[i];
+  int t; cin>>t;
+  int cnt=0;
+  for(int i=0;i<n;i++) if(a[i]==t) cnt++;
+  cout<<cnt<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+nums=list(map(int,input().split()))
+t=int(input())
+print(nums.count(t))"#,
+    },
+    CodeMeta {
+        id: "q_sumeven",
+        sample_in: "6\n1 2 3 4 5 6",
+        sample_out: "12",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  int sum=0;
+  for(int i=0;i<n;i++){
+    int x; cin>>x;
+    if(x%2==0) sum+=x;
+  }
+  cout<<sum<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+nums=list(map(int,input().split()))
+print(sum(x for x in nums if x%2==0))"#,
+    },
+    CodeMeta {
+        id: "q_dedup",
+        sample_in: "7\n1 1 2 2 2 3 4",
+        sample_out: "1 2 3 4",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  int prev; bool first=true;
+  for(int i=0;i<n;i++){
+    int x; cin>>x;
+    if(first||x!=prev){
+      if(!first) cout<<" ";
+      cout<<x; prev=x; first=false;
+    }
+  }
+  cout<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+nums=list(map(int,input().split()))
+out=[]
+for x in nums:
+    if not out or out[-1]!=x: out.append(x)
+print(*out)"#,
+    },
+    CodeMeta {
+        id: "q_vec_print",
+        sample_in: "4\n10 20 30 40",
+        sample_out: "10 20 30 40",
+        starter_cpp: r#"#include <iostream>
+#include <vector>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  vector<int> v;
+  for(int i=0;i<n;i++){ int x; cin>>x; v.push_back(x); }
+  for(int i=0;i<(int)v.size();i++){
+    cout<<v[i];
+    if(i<(int)v.size()-1) cout<<" ";
+  }
+  cout<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+v=list(map(int,input().split()))
+print(*v)"#,
+    },
+    CodeMeta {
+        id: "q_vec_max",
+        sample_in: "5\n3 9 2 7 5",
+        sample_out: "9",
+        starter_cpp: r#"#include <iostream>
+#include <vector>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  vector<int> v;
+  for(int i=0;i<n;i++){ int x; cin>>x; v.push_back(x); }
+  int mx=v[0];
+  for(int x:v) if(x>mx) mx=x;
+  cout<<mx<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+v=list(map(int,input().split()))
+print(max(v))"#,
+    },
+    CodeMeta {
+        id: "q_vec_sum",
+        sample_in: "5\n1 2 3 4 5",
+        sample_out: "15",
+        starter_cpp: r#"#include <iostream>
+#include <vector>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  vector<int> v;
+  for(int i=0;i<n;i++){ int x; cin>>x; v.push_back(x); }
+  int sum=0;
+  for(int x:v) sum+=x;
+  cout<<sum<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+v=list(map(int,input().split()))
+print(sum(v))"#,
+    },
+    CodeMeta {
+        id: "q_movezeros",
+        sample_in: "7\n0 1 0 3 12 0 5",
+        sample_out: "1 3 12 5 0 0 0",
+        starter_cpp: r#"#include <iostream>
+#include <vector>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  vector<int> v;
+  for(int i=0;i<n;i++){ int x; cin>>x; v.push_back(x); }
+  vector<int> res;
+  for(int x:v) if(x!=0) res.push_back(x);
+  while((int)res.size()<n) res.push_back(0);
+  for(int i=0;i<n;i++){ cout<<res[i]; if(i<n-1) cout<<" "; }
+  cout<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+v=list(map(int,input().split()))
+nz=[x for x in v if x!=0]
+res=nz+[0]*(n-len(nz))
+print(*res)"#,
+    },
+    CodeMeta {
+        id: "q_rotate1",
+        sample_in: "5\n1 2 3 4 5",
+        sample_out: "2 3 4 5 1",
+        starter_cpp: r#"#include <iostream>
+#include <vector>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  vector<int> v;
+  for(int i=0;i<n;i++){ int x; cin>>x; v.push_back(x); }
+  int first=v[0];
+  for(int i=0;i<n-1;i++) v[i]=v[i+1];
+  v[n-1]=first;
+  for(int i=0;i<n;i++){ cout<<v[i]; if(i<n-1) cout<<" "; }
+  cout<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+v=list(map(int,input().split()))
+v=v[1:]+v[:1]
+print(*v)"#,
+    },
+    CodeMeta {
+        id: "q_missing",
+        sample_in: "5\n1 2 4 5",
+        sample_out: "3",
+        starter_cpp: r#"#include <iostream>
+using namespace std;
+int main(){
+  int n; cin>>n;
+  long long total=(long long)n*(n+1)/2;
+  for(int i=0;i<n-1;i++){ int x; cin>>x; total-=x; }
+  cout<<total<<endl;
+  return 0;
+}"#,
+        starter_py: r#"n=int(input())
+nums=list(map(int,input().split()))
+print(n*(n+1)//2 - sum(nums))"#,
+    },
+];
