@@ -7,6 +7,8 @@
 //! Navigation state lives in local signals; block `content` is injected via
 //! `dangerous_inner_html` (the same HTML spec.html assigns to `innerHTML`).
 
+use std::collections::HashSet;
+
 use dioxus::prelude::*;
 use pulldown_cmark::{html, Options, Parser};
 
@@ -24,6 +26,33 @@ fn md_to_html(md: &str) -> String {
     out
 }
 
+/// Split a day's Markdown into a preamble (everything before the first `## `
+/// heading) and a list of `(heading, body)` sections — one per `## ` block —
+/// so each can be shown as a collapsible panel.
+fn split_sections(md: &str) -> (String, Vec<(String, String)>) {
+    let mut preamble = String::new();
+    let mut sections: Vec<(String, String)> = Vec::new();
+    let mut cur: Option<(String, String)> = None;
+    for line in md.lines() {
+        if let Some(h) = line.strip_prefix("## ") {
+            if let Some(sec) = cur.take() {
+                sections.push(sec);
+            }
+            cur = Some((h.trim().to_string(), String::new()));
+        } else if let Some((_, body)) = cur.as_mut() {
+            body.push_str(line);
+            body.push('\n');
+        } else {
+            preamble.push_str(line);
+            preamble.push('\n');
+        }
+    }
+    if let Some(sec) = cur.take() {
+        sections.push(sec);
+    }
+    (preamble, sections)
+}
+
 /// (label, filter value) for the phase tabs, in display order.
 const PHASE_TABS: [(&str, &str); 5] = [
     ("All", "all"),
@@ -39,6 +68,7 @@ pub fn Strategy() -> Element {
     let phase_filter = use_signal(|| "all".to_string());
     let active_day = use_signal(|| None::<i64>);
     let active_block = use_signal(|| None::<usize>);
+    let open_secs = use_signal(HashSet::<String>::new); // expanded "{day}|{heading}" sections
 
     let day_id = active_day();
     let block_idx = active_block();
@@ -51,7 +81,7 @@ pub fn Strategy() -> Element {
             if let (Some(d), Some(bi)) = (day_id, block_idx) {
                 {block_detail(d, bi, active_day, active_block)}
             } else if let Some(d) = day_id {
-                {day_blocks(d, active_day, active_block)}
+                {day_blocks(d, active_day, active_block, open_secs)}
             } else {
                 {day_list(search, phase_filter, active_day, active_block)}
             }
@@ -159,15 +189,19 @@ fn day_blocks(
     day_id: i64,
     mut active_day: Signal<Option<i64>>,
     mut active_block: Signal<Option<usize>>,
+    open_secs: Signal<HashSet<String>>,
 ) -> Element {
     let Some(d) = DAYS.iter().find(|x| x.id == day_id) else {
         return rsx! {};
     };
     let (pbg, pc) = phase_color(d.phase);
 
-    // Authored days render their Markdown as a single page (no tile drill-down).
+    // Authored days render their Markdown as a page: an intro preamble plus one
+    // collapsible panel per `## ` section (Block 1, Block 2, … collapsed first).
     if !d.schedule_md.is_empty() {
-        let rendered = md_to_html(d.schedule_md);
+        let (preamble, sections) = split_sections(d.schedule_md);
+        let preamble_html = md_to_html(&preamble);
+        let has_preamble = !preamble.trim().is_empty();
         return rsx! {
             div { class: "strat-crumb",
                 span {
@@ -186,8 +220,37 @@ fn day_blocks(
                     "{d.phase}"
                 }
             }
-            div { class: "strat-detail-card",
-                div { class: "schedule-md", dangerous_inner_html: "{rendered}" }
+            if has_preamble {
+                div { class: "schedule-md", style: "margin-bottom:1rem", dangerous_inner_html: "{preamble_html}" }
+            }
+            for (i, (heading, body)) in sections.iter().enumerate() {
+                {
+                    let key = format!("{}|{}", d.id, heading);
+                    let is_open = open_secs.read().contains(&key);
+                    let body_html = if is_open { md_to_html(body) } else { String::new() };
+                    let title = heading.clone();
+                    let mut os = open_secs;
+                    rsx! {
+                        div { key: "{i}", class: "strat-sec",
+                            button {
+                                class: if is_open { "strat-sec-header open" } else { "strat-sec-header" },
+                                onclick: move |_| {
+                                    let mut s = os.write();
+                                    if !s.remove(&key) {
+                                        s.insert(key.clone());
+                                    }
+                                },
+                                span { class: "strat-sec-chevron", if is_open { "▾" } else { "▸" } }
+                                span { class: "strat-sec-title", "{title}" }
+                            }
+                            if is_open {
+                                div { class: "strat-sec-body",
+                                    div { class: "schedule-md", dangerous_inner_html: "{body_html}" }
+                                }
+                            }
+                        }
+                    }
+                }
             }
             button {
                 class: "strat-practice-btn",

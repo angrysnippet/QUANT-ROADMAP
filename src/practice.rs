@@ -43,6 +43,7 @@ pub fn Practice() -> Element {
     let outputs = use_signal(HashMap::<String, (String, String)>::new); // id -> (text, class)
     let running = use_signal(|| None::<String>);
     let revealed = use_signal(HashSet::<String>::new); // id -> solution shown (non-code)
+    let open_cats = use_signal(HashSet::<String>::new); // expanded category labels
 
     let day = app.read().current_day;
     let solved = app.read().solved.clone();
@@ -77,28 +78,49 @@ pub fn Practice() -> Element {
                     if in_cat.is_empty() {
                         rsx! {}
                     } else {
+                        let label = cat.label();
+                        let is_open = open_cats.read().contains(label);
+                        let cat_total = in_cat.len();
+                        let cat_solved = in_cat
+                            .iter()
+                            .filter(|p| solved.get(p.id).copied().unwrap_or(false))
+                            .count();
+                        let mut oc = open_cats;
                         rsx! {
-                            div { class: "section-label", "{cat.label()}" }
-                            div { class: "prac-grid",
-                                for p in in_cat {
-                                    {
-                                        let is_solved = solved.get(p.id).copied().unwrap_or(false);
-                                        let id = p.id;
-                                        let mut sel = selected;
-                                        rsx! {
-                                            div {
-                                                key: "{p.id}",
-                                                class: if is_solved { "prac-card solved" } else { "prac-card" },
-                                                onclick: move |_| sel.set(Some(id.to_string())),
-                                                div { class: "prac-card-top",
-                                                    span { class: "prac-diff diff-{p.diff}", "{p.diff}" }
-                                                    span { class: "quiz-topic", "{p.topic}" }
-                                                    if is_solved {
-                                                        span { class: "prac-card-check", "✓ solved" }
+                            button {
+                                class: if is_open { "prac-cat-header open" } else { "prac-cat-header" },
+                                onclick: move |_| {
+                                    let mut s = oc.write();
+                                    if !s.remove(label) {
+                                        s.insert(label.to_string());
+                                    }
+                                },
+                                span { class: "prac-cat-chevron", if is_open { "▾" } else { "▸" } }
+                                span { class: "prac-cat-name", "{label}" }
+                                span { class: "prac-cat-count", "{cat_solved}/{cat_total} solved" }
+                            }
+                            if is_open {
+                                div { class: "prac-grid",
+                                    for p in in_cat {
+                                        {
+                                            let is_solved = solved.get(p.id).copied().unwrap_or(false);
+                                            let id = p.id;
+                                            let mut sel = selected;
+                                            rsx! {
+                                                div {
+                                                    key: "{p.id}",
+                                                    class: if is_solved { "prac-card solved" } else { "prac-card" },
+                                                    onclick: move |_| sel.set(Some(id.to_string())),
+                                                    div { class: "prac-card-top",
+                                                        span { class: "prac-diff diff-{p.diff}", "{p.diff}" }
+                                                        span { class: "quiz-topic", "{p.topic}" }
+                                                        if is_solved {
+                                                            span { class: "prac-card-check", "✓ solved" }
+                                                        }
                                                     }
+                                                    div { class: "prac-card-title", "{p.title}" }
+                                                    div { class: "prac-card-desc", "{brief(p.prompt, 96)}" }
                                                 }
-                                                div { class: "prac-card-title", "{p.title}" }
-                                                div { class: "prac-card-desc", "{brief(p.prompt, 96)}" }
                                             }
                                         }
                                     }
