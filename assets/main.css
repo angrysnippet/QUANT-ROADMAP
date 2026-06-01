@@ -289,6 +289,15 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit-font
 .schedule-md strong{color:var(--text);font-weight:600}
 .schedule-md em{color:var(--text3)}
 
+/* collapsible day-schedule sections */
+.strat-sec{margin-bottom:.625rem}
+.strat-sec-header{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.8rem 1.125rem;cursor:pointer;font-family:var(--sans);color:var(--text);transition:border-color .15s,background .15s}
+.strat-sec-header:hover{border-color:var(--border2);background:var(--surface2)}
+.strat-sec-header.open{border-color:var(--border2);background:var(--surface2);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.strat-sec-chevron{color:var(--text3);font-size:11px;width:12px;flex-shrink:0}
+.strat-sec-title{font-size:13px;font-weight:600}
+.strat-sec-body{border:1px solid var(--border2);border-top:none;border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:.25rem 1.25rem 1rem;background:var(--surface)}
+
 /* prev/next nav */
 .strat-block-nav{display:flex;align-items:center;justify-content:space-between;gap:1rem}
 .strat-nav-btn{
@@ -492,6 +501,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit-font
 .quiz-hint{font-family:var(--mono);font-size:11px;color:var(--text3);font-style:italic;margin-top:.5rem}
 
 /* practice problem cards + modal */
+.prac-cat-header{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.85rem 1.125rem;margin-bottom:.875rem;cursor:pointer;font-family:var(--sans);color:var(--text);transition:border-color .15s,background .15s}
+.prac-cat-header:hover{border-color:var(--border2);background:var(--surface2)}
+.prac-cat-header.open{border-color:var(--border2);background:var(--surface2)}
+.prac-cat-chevron{color:var(--text3);font-size:11px;width:12px;flex-shrink:0}
+.prac-cat-name{font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;font-family:var(--mono)}
+.prac-cat-count{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--text3)}
 .prac-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.875rem;margin-bottom:1.75rem}
 .prac-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.125rem;cursor:pointer;transition:border-color .15s,background .15s,transform .1s}
 .prac-card:hover{border-color:var(--border2);background:var(--surface2);transform:translateY(-2px)}
