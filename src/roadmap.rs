@@ -307,6 +307,129 @@ In 5 lines, explain: *"Why is array indexing O(1) but searching O(n)?"*
 - ✅ Complete Linux file lab
 "#;
 
+/// Authored Day 3 schedule (from `finaly daily schedule/DAY 3.txt`).
+const DAY3_SCHEDULE: &str = r#"# Day 3
+🌱 Foundation World
+
+**Focus:** STL Vectors · Array Thinking · Counting · Probability
+
+## Previous Day Review (10 min)
+
+- Reverse an array from memory
+- Explain O(1) vs O(n)
+- Re-solve one Day 2 array problem
+
+## Block 1 — C++
+
+**Study** — Learn:
+- What is a vector?
+- Why a vector instead of an array?
+- `push_back()`
+- `size()`
+- indexing
+
+**Why it matters:** Vectors are dynamic arrays. Most modern C++ code uses vectors instead of raw arrays.
+
+**Resource:** LearnCpp — Introduction to std::vector
+
+**Code from scratch:**
+- Problem 1 — Input N numbers into a vector, then print them.
+- Problem 2 — Find the largest element in a vector.
+- Problem 3 — Find the sum of vector elements.
+
+**Concept check:**
+- What is a vector?
+- How is it different from an array?
+- What does `push_back()` do?
+- What does `size()` return?
+- Can vectors grow automatically?
+
+**Thinking question:** Why does `vector.push_back(x)` feel easier than `int arr[100]`? What problem is a vector solving?
+
+**Cross-domain mapping:** Imagine storing stock prices, transaction history, or temperatures. Why might vectors be useful?
+
+## Block 2 — DSA
+
+**Topic:** Basic array patterns.
+
+**Solve:**
+1. Move all zeros to the end
+2. Left-rotate the array by one place
+3. Find the missing number (1 to N)
+
+After every solution write: **Observation**, **Pattern**, **Time complexity**.
+
+**System thinking:** If you had to store 10 million stock prices, would you choose an array or a vector? Why?
+
+## Block 3 — Quant Thinking
+
+**Goal: counting**
+
+- **Problem 1** — How many 3-digit numbers can be formed from 1, 2, 3, 4 without repetition?
+- **Problem 2** — 10 people each shake hands exactly once. How many handshakes?
+- **Problem 3** — A password is 2 letters then 2 digits. How many possibilities?
+
+Build the reasoning. Do not search formulas.
+
+**Reflection:** What changed when repetition was allowed versus not allowed?
+
+**Career connection:** Counting and combinatorics later become the foundation for probability, risk models, and quantitative finance.
+
+## Block 4 — Mathematics
+
+**Watch:** 3Blue1Brown — *Essence of Algebra*, Chapter 3. Focus on variables, relationships, and abstraction. Write one intuition learned and one question remaining.
+
+## Block 5 — Python
+
+**Learn:** Lists · list indexing · loops over lists.
+
+**Resource:** Python Official Tutorial — Data Structures
+
+**Write:**
+1. Largest element in a list
+2. Reverse a list
+
+**Compare:** Python list vs C++ vector.
+
+## Block 6 — Linux
+
+**Learn:** `cat` · `echo` · `nano`
+
+**Lab:**
+- Create a file
+- Write text into it
+- Read it back
+- Edit it
+
+## Portfolio Building
+
+In `FoundationToolkit/vectors/`, store:
+- `largest.cpp`
+- `sum.cpp`
+- `input_output.cpp`
+
+## Communication Exercise
+
+Explain vectors to a beginner in 5 lines.
+
+## Journal
+
+- What is the difference between an array and a vector?
+- What counting pattern appeared repeatedly?
+- Which problem required the most thinking?
+- Where might vectors appear in real software systems?
+
+## Success Criteria
+
+- ✅ Use vectors confidently
+- ✅ Explain vector vs array
+- ✅ Solve 3 DSA problems
+- ✅ Complete the counting exercises
+- ✅ Write the Python list programs
+- ✅ Complete the Linux file lab
+- ✅ Explain vectors in your own words
+"#;
+
 pub const DAYS: &[StrategyDay] = &[
     StrategyDay {
         id: 1,
@@ -465,7 +588,7 @@ pub const DAYS: &[StrategyDay] = &[
         id: 3,
         phase: "Phase 1",
         title: "STL Vectors, Counting & Patterns",
-        schedule_md: "",
+        schedule_md: DAY3_SCHEDULE,
         blocks: &[
             StrategyBlock { color: "#7c6fff", title: "Block 1 — C++", time: "45–60 mins", content: r#"<div class="block-content">
         <span class="block-tag tag-task">📚 Learn</span> What is a vector? Why vector instead of array? · <code>push_back()</code> · <code>size()</code> · indexing.<br/><br/>
