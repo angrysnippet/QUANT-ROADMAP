@@ -1,6 +1,7 @@
 //! The app shell: top bar + sidebar nav, with routed views rendered in the
 //! content outlet. Markup/classes mirror `spec.html`.
 
+use crate::state::AppState;
 use crate::Route;
 use chrono::Local;
 use dioxus::prelude::*;
@@ -8,6 +9,8 @@ use dioxus::prelude::*;
 #[component]
 pub fn AppShell() -> Element {
     let today = Local::now().format("%a, %d %b %Y").to_string();
+    let mut app = use_context::<Signal<AppState>>();
+    let is_dark = app.read().theme != "light";
 
     rsx! {
         div { class: "topbar",
@@ -16,6 +19,15 @@ pub fn AppShell() -> Element {
                 div { class: "topbar-date", "{today}" }
             }
             div { class: "topbar-right",
+                button {
+                    class: "theme-toggle",
+                    title: if is_dark { "Switch to light mode" } else { "Switch to dark mode" },
+                    onclick: move |_| {
+                        let mut st = app.write();
+                        st.theme = if st.theme == "light" { "dark".to_string() } else { "light".to_string() };
+                    },
+                    if is_dark { "☀️" } else { "🌙" }
+                }
                 span { class: "autosave-label", "saved to ", span { "this browser" } }
             }
         }

@@ -28,6 +28,10 @@ fn default_current_day() -> u32 {
     1
 }
 
+fn default_theme() -> String {
+    "dark".to_string()
+}
+
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct AppState {
     #[serde(default = "default_current_day")]
@@ -40,6 +44,9 @@ pub struct AppState {
     pub schedule_start: Option<String>,
     #[serde(default)]
     pub solved: HashMap<String, bool>,
+    /// UI theme: "dark" (default) or "light".
+    #[serde(default = "default_theme")]
+    pub theme: String,
 }
 
 impl Default for AppState {
@@ -50,6 +57,7 @@ impl Default for AppState {
             journal: HashMap::new(),
             schedule_start: None,
             solved: HashMap::new(),
+            theme: default_theme(),
         }
     }
 }

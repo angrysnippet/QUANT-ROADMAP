@@ -133,6 +133,7 @@ pub fn Today() -> Element {
 
             // ── Daily routine checklist ──
             div { class: "section-label", "Daily routine" }
+            div { class: "today-grid",
             for (bi, block) in DAILY_BLOCKS.iter().enumerate() {
                 {
                     let b_done = (0..block.items.len())
@@ -188,6 +189,7 @@ pub fn Today() -> Element {
                         }
                     }
                 }
+            }
             }
         }
     }
