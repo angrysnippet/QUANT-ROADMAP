@@ -8,6 +8,11 @@
   --radius:10px;--radius-sm:7px;--radius-lg:14px;
   --sidebar:220px;--header:56px;
 }
+:root[data-theme="light"]{
+  --bg:#f6f7f9;--surface:#ffffff;--surface2:#eef0f4;--surface3:#e3e6ec;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.16);
+  --text:#161922;--text2:#55607a;--text3:#9298a8;
+}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
@@ -25,6 +30,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit-font
 .topbar-logo span{color:var(--accent)}
 .topbar-date{font-family:var(--mono);font-size:11px;color:var(--text3);padding:3px 10px;background:var(--surface);border:1px solid var(--border);border-radius:20px}
 .topbar-right{display:flex;align-items:center;gap:10px}
+.theme-toggle{font-size:14px;line-height:1;background:var(--surface);border:1px solid var(--border);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .15s,background .15s;padding:0}
+.theme-toggle:hover{border-color:var(--border2);background:var(--surface2)}
 .autosave-label{font-family:var(--mono);font-size:11px;color:var(--text3)}
 .autosave-label span{color:var(--text2)}
 .save-btn{font-family:var(--mono);font-size:11px;color:var(--accent5);background:rgba(6,214,160,0.08);padding:5px 14px;border-radius:20px;border:1px solid rgba(6,214,160,0.2);cursor:pointer;transition:all .2s;white-space:nowrap}
@@ -483,6 +490,30 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit-font
 .quiz-solution .sol-label{font-family:var(--mono);font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px}
 .quiz-solution code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;color:var(--accent4)}
 .quiz-hint{font-family:var(--mono);font-size:11px;color:var(--text3);font-style:italic;margin-top:.5rem}
+
+/* practice problem cards + modal */
+.prac-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.875rem;margin-bottom:1.75rem}
+.prac-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.125rem;cursor:pointer;transition:border-color .15s,background .15s,transform .1s}
+.prac-card:hover{border-color:var(--border2);background:var(--surface2);transform:translateY(-2px)}
+.prac-card.solved{border-color:rgba(6,214,160,0.3);background:rgba(6,214,160,0.04)}
+.prac-card-top{display:flex;align-items:center;gap:8px;margin-bottom:.5rem}
+.prac-card-title{font-size:13px;font-weight:600;color:var(--text)}
+.prac-card-check{margin-left:auto;color:var(--accent5);font-size:12px;font-weight:700}
+.prac-card-desc{font-size:11px;color:var(--text3);line-height:1.55}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.62);display:flex;align-items:flex-start;justify-content:center;padding:3rem 1.5rem;z-index:200;overflow-y:auto;animation:fadeIn .15s ease}
+.modal-panel{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:780px;padding:1.5rem 1.75rem 1.75rem;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.modal-header{display:flex;align-items:center;gap:12px;margin-bottom:1.125rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.modal-back-btn{font-family:var(--mono);font-size:12px;color:var(--accent5);background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.28);border-radius:20px;padding:.45rem .9rem;cursor:pointer;transition:background .15s;white-space:nowrap}
+.modal-back-btn:hover{background:rgba(6,214,160,0.2)}
+.modal-title{font-size:16px;font-weight:600;letter-spacing:-.2px;flex:1}
+.modal-statement{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:.5rem}
+.modal-section-label{font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin:1rem 0 .4rem}
+.modal-answer-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--mono);font-size:13px;padding:.7rem .9rem;outline:none;transition:border-color .15s}
+.modal-answer-input:focus{border-color:var(--accent)}
+.modal-actions{display:flex;gap:10px;align-items:center;margin-top:1.125rem;flex-wrap:wrap}
+.load-sol-btn{font-family:var(--mono);font-size:11px;color:var(--text2);background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:.5rem 1rem;cursor:pointer;transition:border-color .15s}
+.load-sol-btn:hover{border-color:var(--border2);color:var(--text)}
+.modal-spacer{flex:1}
 
 .prac-mode-btn:active{transform:scale(0.98)}
 

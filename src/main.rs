@@ -52,7 +52,15 @@ fn main() {
 #[component]
 fn App() -> Element {
     // Provide shared state + register localStorage autosave.
-    use_app_state();
+    let app = use_app_state();
+
+    // Apply the persisted theme to <html data-theme> after mount and on change.
+    use_effect(move || {
+        let theme = app.read().theme.clone();
+        let _ = document::eval(&format!(
+            "document.documentElement.setAttribute('data-theme','{theme}')"
+        ));
+    });
 
     rsx! {
         document::Link { rel: "icon", href: FAVICON }
