@@ -792,6 +792,11 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 133, phase: "Phase 6", title: "Neural Networks", schedule_md: include_str!("../schedule/DAY_133.md"), blocks: &[], success: &[] },
     StrategyDay { id: 134, phase: "Phase 6", title: "Deep Learning — Why Depth Creates Power", schedule_md: include_str!("../schedule/DAY_134.md"), blocks: &[], success: &[] },
     StrategyDay { id: 135, phase: "Phase 6", title: "Reinforcement Learning", schedule_md: include_str!("../schedule/DAY_135.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 136, phase: "Phase 6", title: "DP & the Bellman Principle", schedule_md: include_str!("../schedule/DAY_136.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 137, phase: "Phase 6", title: "Markov Processes & Regimes", schedule_md: include_str!("../schedule/DAY_137.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 138, phase: "Phase 6", title: "Markov Decision Processes", schedule_md: include_str!("../schedule/DAY_138.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 139, phase: "Phase 6", title: "Monte Carlo Methods", schedule_md: include_str!("../schedule/DAY_139.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 140, phase: "Phase 6", title: "Stochastic Processes — Random Walk → GBM", schedule_md: include_str!("../schedule/DAY_140.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
