@@ -777,6 +777,11 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 118, phase: "Phase 6", title: "Probability, Rigorously", schedule_md: include_str!("../schedule/DAY_118.md"), blocks: &[], success: &[] },
     StrategyDay { id: 119, phase: "Phase 6", title: "Expected Value — The Core of Quant", schedule_md: include_str!("../schedule/DAY_119.md"), blocks: &[], success: &[] },
     StrategyDay { id: 120, phase: "Phase 6", title: "Variance, Risk & Why EV Isn't Enough", schedule_md: include_str!("../schedule/DAY_120.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 121, phase: "Phase 6", title: "Law of Large Numbers & CLT", schedule_md: include_str!("../schedule/DAY_121.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 122, phase: "Phase 6", title: "Bayesian Thinking — Updating Beliefs", schedule_md: include_str!("../schedule/DAY_122.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 123, phase: "Phase 6", title: "Statistics — Learning From Data", schedule_md: include_str!("../schedule/DAY_123.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 124, phase: "Phase 6", title: "Correlation vs Causation", schedule_md: include_str!("../schedule/DAY_124.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 125, phase: "Phase 6", title: "Hypothesis Testing & Multiple-Testing Trap", schedule_md: include_str!("../schedule/DAY_125.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
