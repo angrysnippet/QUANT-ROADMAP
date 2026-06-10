@@ -782,6 +782,11 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 123, phase: "Phase 6", title: "Statistics — Learning From Data", schedule_md: include_str!("../schedule/DAY_123.md"), blocks: &[], success: &[] },
     StrategyDay { id: 124, phase: "Phase 6", title: "Correlation vs Causation", schedule_md: include_str!("../schedule/DAY_124.md"), blocks: &[], success: &[] },
     StrategyDay { id: 125, phase: "Phase 6", title: "Hypothesis Testing & Multiple-Testing Trap", schedule_md: include_str!("../schedule/DAY_125.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 126, phase: "Phase 6", title: "Statistical Power & Sample Size", schedule_md: include_str!("../schedule/DAY_126.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 127, phase: "Phase 6", title: "Overfitting — The Silent Killer", schedule_md: include_str!("../schedule/DAY_127.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 128, phase: "Phase 6", title: "The Bias–Variance Tradeoff", schedule_md: include_str!("../schedule/DAY_128.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 129, phase: "Phase 6", title: "From Statistics to Machine Learning", schedule_md: include_str!("../schedule/DAY_129.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 130, phase: "Phase 6", title: "Linear Regression — The Quant Workhorse", schedule_md: include_str!("../schedule/DAY_130.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
