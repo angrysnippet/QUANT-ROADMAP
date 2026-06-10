@@ -113,6 +113,7 @@ pub fn phase_color(phase: &str) -> (&'static str, &'static str) {
         "Phase 2" => ("rgba(78,205,196,0.12)", "var(--accent2)"),
         "Phase 3" => ("rgba(255,209,102,0.12)", "var(--accent4)"),
         "Phase 4" => ("rgba(255,107,107,0.12)", "var(--accent3)"),
+        "Phase 5" => ("rgba(199,125,255,0.12)", "var(--accent5)"),
         _ => ("rgba(124,111,255,0.12)", "var(--accent)"),
     }
 }
@@ -755,6 +756,11 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 98, phase: "Phase 4", title: "Greedy Proofs & Exchange Arguments", schedule_md: include_str!("../schedule/DAY_98.md"), blocks: &[], success: &[] },
     StrategyDay { id: 99, phase: "Phase 4", title: "Greedy Failures", schedule_md: include_str!("../schedule/DAY_99.md"), blocks: &[], success: &[] },
     StrategyDay { id: 100, phase: "Phase 4", title: "Algorithm Selection Master Checkpoint", schedule_md: include_str!("../schedule/DAY_100.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 101, phase: "Phase 5", title: "Advanced Problem Solving — Combining Algorithms", schedule_md: include_str!("../schedule/DAY_101.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 102, phase: "Phase 5", title: "Binary Search on Answers", schedule_md: include_str!("../schedule/DAY_102.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 103, phase: "Phase 5", title: "Aggressive Cows", schedule_md: include_str!("../schedule/DAY_103.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 104, phase: "Phase 5", title: "Binary Search + Greedy Checkpoint", schedule_md: include_str!("../schedule/DAY_104.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 105, phase: "Phase 5", title: "Advanced Problem Solving Checkpoint I", schedule_md: include_str!("../schedule/DAY_105.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
