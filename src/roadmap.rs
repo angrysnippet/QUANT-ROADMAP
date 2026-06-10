@@ -766,6 +766,11 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 108, phase: "Phase 5", title: "Multi-Pattern III — Shortest Paths + Constraints", schedule_md: include_str!("../schedule/DAY_108.md"), blocks: &[], success: &[] },
     StrategyDay { id: 109, phase: "Phase 5", title: "State Space Modelling", schedule_md: include_str!("../schedule/DAY_109.md"), blocks: &[], success: &[] },
     StrategyDay { id: 110, phase: "Phase 5", title: "State Space Search — BFS/Dijkstra/DP Unified", schedule_md: include_str!("../schedule/DAY_110.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 111, phase: "Phase 5", title: "DP as Shortest Path in a DAG", schedule_md: include_str!("../schedule/DAY_111.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 112, phase: "Phase 5", title: "Unified Optimization — Greedy / DP / Shortest Paths", schedule_md: include_str!("../schedule/DAY_112.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 113, phase: "Phase 5", title: "The Meta-Skill of Algorithm Design", schedule_md: include_str!("../schedule/DAY_113.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 114, phase: "Phase 5", title: "Complexity as a Design Tool", schedule_md: include_str!("../schedule/DAY_114.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 115, phase: "Phase 5", title: "Space Complexity & Engineering Tradeoffs", schedule_md: include_str!("../schedule/DAY_115.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
