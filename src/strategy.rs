@@ -15,6 +15,16 @@ use pulldown_cmark::{html, Options, Parser};
 use crate::roadmap::{phase_color, StrategyDay, DAYS};
 use crate::Route;
 
+/// How many "blocks" to advertise on a day card. Authored (Markdown) days have
+/// no `blocks` array, so count their `## Block …` sections instead.
+fn day_block_count(d: &StrategyDay) -> usize {
+    if d.schedule_md.is_empty() {
+        d.blocks.len()
+    } else {
+        d.schedule_md.lines().filter(|l| l.starts_with("## Block")).count()
+    }
+}
+
 /// Render authored Markdown (a day's schedule) to an HTML string.
 fn md_to_html(md: &str) -> String {
     let mut opts = Options::empty();
@@ -166,7 +176,7 @@ fn day_list(
                                         span { class: "day-title", "{d.title}" }
                                     }
                                     div { style: "display:flex;align-items:center;gap:8px",
-                                        span { class: "strat-block-count", "{d.blocks.len()} blocks" }
+                                        span { class: "strat-block-count", "{day_block_count(d)} blocks" }
                                         span {
                                             class: "day-phase-tag",
                                             style: "background:{pbg};color:{pc}",
