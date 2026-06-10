@@ -761,6 +761,11 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 103, phase: "Phase 5", title: "Aggressive Cows", schedule_md: include_str!("../schedule/DAY_103.md"), blocks: &[], success: &[] },
     StrategyDay { id: 104, phase: "Phase 5", title: "Binary Search + Greedy Checkpoint", schedule_md: include_str!("../schedule/DAY_104.md"), blocks: &[], success: &[] },
     StrategyDay { id: 105, phase: "Phase 5", title: "Advanced Problem Solving Checkpoint I", schedule_md: include_str!("../schedule/DAY_105.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 106, phase: "Phase 5", title: "Multi-Pattern I — Binary Search + Greedy", schedule_md: include_str!("../schedule/DAY_106.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 107, phase: "Phase 5", title: "Multi-Pattern II — Graphs + DP", schedule_md: include_str!("../schedule/DAY_107.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 108, phase: "Phase 5", title: "Multi-Pattern III — Shortest Paths + Constraints", schedule_md: include_str!("../schedule/DAY_108.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 109, phase: "Phase 5", title: "State Space Modelling", schedule_md: include_str!("../schedule/DAY_109.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 110, phase: "Phase 5", title: "State Space Search — BFS/Dijkstra/DP Unified", schedule_md: include_str!("../schedule/DAY_110.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
