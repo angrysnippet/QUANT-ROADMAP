@@ -114,6 +114,7 @@ pub fn phase_color(phase: &str) -> (&'static str, &'static str) {
         "Phase 3" => ("rgba(255,209,102,0.12)", "var(--accent4)"),
         "Phase 4" => ("rgba(255,107,107,0.12)", "var(--accent3)"),
         "Phase 5" => ("rgba(199,125,255,0.12)", "var(--accent5)"),
+        "Phase 6" => ("rgba(46,204,113,0.14)", "#2ecc71"),
         _ => ("rgba(124,111,255,0.12)", "var(--accent)"),
     }
 }
@@ -771,6 +772,11 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 113, phase: "Phase 5", title: "The Meta-Skill of Algorithm Design", schedule_md: include_str!("../schedule/DAY_113.md"), blocks: &[], success: &[] },
     StrategyDay { id: 114, phase: "Phase 5", title: "Complexity as a Design Tool", schedule_md: include_str!("../schedule/DAY_114.md"), blocks: &[], success: &[] },
     StrategyDay { id: 115, phase: "Phase 5", title: "Space Complexity & Engineering Tradeoffs", schedule_md: include_str!("../schedule/DAY_115.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 116, phase: "Phase 5", title: "Caching & Reuse → Bridge to Quant Maths", schedule_md: include_str!("../schedule/DAY_116.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 117, phase: "Phase 6", title: "Information Theory — Reducing Uncertainty", schedule_md: include_str!("../schedule/DAY_117.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 118, phase: "Phase 6", title: "Probability, Rigorously", schedule_md: include_str!("../schedule/DAY_118.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 119, phase: "Phase 6", title: "Expected Value — The Core of Quant", schedule_md: include_str!("../schedule/DAY_119.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 120, phase: "Phase 6", title: "Variance, Risk & Why EV Isn't Enough", schedule_md: include_str!("../schedule/DAY_120.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
