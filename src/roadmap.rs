@@ -120,6 +120,7 @@ pub fn phase_color(phase: &str) -> (&'static str, &'static str) {
         "Phase 9" => ("rgba(232,67,147,0.14)", "#e84393"),
         "Phase 10" => ("rgba(6,182,212,0.14)", "#06b6d4"),
         "Phase 11" => ("rgba(132,204,22,0.14)", "#84cc16"),
+        "Phase 12" => ("rgba(139,92,246,0.14)", "#8b5cf6"),
         _ => ("rgba(124,111,255,0.12)", "var(--accent)"),
     }
 }
@@ -852,6 +853,16 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 188, phase: "Phase 11", title: "Transaction Cost Analysis", schedule_md: include_str!("../schedule/DAY_188.md"), blocks: &[], success: &[] },
     StrategyDay { id: 189, phase: "Phase 11", title: "Fragmentation, Dark Pools & Regulation", schedule_md: include_str!("../schedule/DAY_189.md"), blocks: &[], success: &[] },
     StrategyDay { id: 190, phase: "Phase 11", title: "Microstructure Capstone", schedule_md: include_str!("../schedule/DAY_190.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 191, phase: "Phase 12", title: "Why Finance Breaks Naive ML", schedule_md: include_str!("../schedule/DAY_191.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 192, phase: "Phase 12", title: "Features & Labeling — Triple-Barrier & Frac-Diff", schedule_md: include_str!("../schedule/DAY_192.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 193, phase: "Phase 12", title: "Cross-Validation Pitfalls — Purging & Embargo", schedule_md: include_str!("../schedule/DAY_193.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 194, phase: "Phase 12", title: "Tree Ensembles — Random Forests & Boosting", schedule_md: include_str!("../schedule/DAY_194.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 195, phase: "Phase 12", title: "Feature Importance — MDA, MDI & SHAP", schedule_md: include_str!("../schedule/DAY_195.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 196, phase: "Phase 12", title: "Deep Learning for Finance", schedule_md: include_str!("../schedule/DAY_196.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 197, phase: "Phase 12", title: "NLP & Alternative Data", schedule_md: include_str!("../schedule/DAY_197.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 198, phase: "Phase 12", title: "Reinforcement Learning for Trading", schedule_md: include_str!("../schedule/DAY_198.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 199, phase: "Phase 12", title: "Backtest Overfitting & the Deflated Sharpe", schedule_md: include_str!("../schedule/DAY_199.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 200, phase: "Phase 12", title: "Machine Learning for Finance Capstone", schedule_md: include_str!("../schedule/DAY_200.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured

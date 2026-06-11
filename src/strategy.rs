@@ -64,7 +64,7 @@ fn split_sections(md: &str) -> (String, Vec<(String, String)>) {
 }
 
 /// (label, filter value) for the phase tabs, in display order.
-const PHASE_TABS: [(&str, &str); 12] = [
+const PHASE_TABS: [(&str, &str); 13] = [
     ("All", "all"),
     ("Phase 1", "Phase 1"),
     ("Phase 2", "Phase 2"),
@@ -77,6 +77,7 @@ const PHASE_TABS: [(&str, &str); 12] = [
     ("Phase 9", "Phase 9"),
     ("Phase 10", "Phase 10"),
     ("Phase 11", "Phase 11"),
+    ("Phase 12", "Phase 12"),
 ];
 
 #[component]
