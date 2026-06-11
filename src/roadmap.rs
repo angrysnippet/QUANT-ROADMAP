@@ -119,6 +119,7 @@ pub fn phase_color(phase: &str) -> (&'static str, &'static str) {
         "Phase 8" => ("rgba(77,157,224,0.14)", "#4d9de0"),
         "Phase 9" => ("rgba(232,67,147,0.14)", "#e84393"),
         "Phase 10" => ("rgba(6,182,212,0.14)", "#06b6d4"),
+        "Phase 11" => ("rgba(132,204,22,0.14)", "#84cc16"),
         _ => ("rgba(124,111,255,0.12)", "var(--accent)"),
     }
 }
@@ -841,6 +842,16 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 178, phase: "Phase 10", title: "Risk Management & the Quant Quake", schedule_md: include_str!("../schedule/DAY_178.md"), blocks: &[], success: &[] },
     StrategyDay { id: 179, phase: "Phase 10", title: "Execution & Capacity", schedule_md: include_str!("../schedule/DAY_179.md"), blocks: &[], success: &[] },
     StrategyDay { id: 180, phase: "Phase 10", title: "Statistical Arbitrage Capstone", schedule_md: include_str!("../schedule/DAY_180.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 181, phase: "Phase 11", title: "Order Books & the Bid–Ask Spread", schedule_md: include_str!("../schedule/DAY_181.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 182, phase: "Phase 11", title: "Market Making & Inventory", schedule_md: include_str!("../schedule/DAY_182.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 183, phase: "Phase 11", title: "Adverse Selection — Glosten–Milgrom & Kyle", schedule_md: include_str!("../schedule/DAY_183.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 184, phase: "Phase 11", title: "Price Impact & Order-Book Dynamics", schedule_md: include_str!("../schedule/DAY_184.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 185, phase: "Phase 11", title: "Optimal Execution — Almgren–Chriss", schedule_md: include_str!("../schedule/DAY_185.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 186, phase: "Phase 11", title: "High-Frequency Trading & Latency", schedule_md: include_str!("../schedule/DAY_186.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 187, phase: "Phase 11", title: "Order Types, Queues & Order Flow", schedule_md: include_str!("../schedule/DAY_187.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 188, phase: "Phase 11", title: "Transaction Cost Analysis", schedule_md: include_str!("../schedule/DAY_188.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 189, phase: "Phase 11", title: "Fragmentation, Dark Pools & Regulation", schedule_md: include_str!("../schedule/DAY_189.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 190, phase: "Phase 11", title: "Microstructure Capstone", schedule_md: include_str!("../schedule/DAY_190.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
