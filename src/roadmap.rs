@@ -121,6 +121,7 @@ pub fn phase_color(phase: &str) -> (&'static str, &'static str) {
         "Phase 10" => ("rgba(6,182,212,0.14)", "#06b6d4"),
         "Phase 11" => ("rgba(132,204,22,0.14)", "#84cc16"),
         "Phase 12" => ("rgba(139,92,246,0.14)", "#8b5cf6"),
+        "Phase 13" => ("rgba(245,158,11,0.14)", "#f59e0b"),
         _ => ("rgba(124,111,255,0.12)", "var(--accent)"),
     }
 }
@@ -863,6 +864,16 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 198, phase: "Phase 12", title: "Reinforcement Learning for Trading", schedule_md: include_str!("../schedule/DAY_198.md"), blocks: &[], success: &[] },
     StrategyDay { id: 199, phase: "Phase 12", title: "Backtest Overfitting & the Deflated Sharpe", schedule_md: include_str!("../schedule/DAY_199.md"), blocks: &[], success: &[] },
     StrategyDay { id: 200, phase: "Phase 12", title: "Machine Learning for Finance Capstone", schedule_md: include_str!("../schedule/DAY_200.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 201, phase: "Phase 13", title: "ARIMA & Box–Jenkins", schedule_md: include_str!("../schedule/DAY_201.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 202, phase: "Phase 13", title: "GARCH & Volatility Models", schedule_md: include_str!("../schedule/DAY_202.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 203, phase: "Phase 13", title: "State-Space Models & Kalman", schedule_md: include_str!("../schedule/DAY_203.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 204, phase: "Phase 13", title: "Regime-Switching & Hidden Markov Models", schedule_md: include_str!("../schedule/DAY_204.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 205, phase: "Phase 13", title: "VAR & Granger Causality", schedule_md: include_str!("../schedule/DAY_205.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 206, phase: "Phase 13", title: "Cointegration Systems & VECM", schedule_md: include_str!("../schedule/DAY_206.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 207, phase: "Phase 13", title: "Spectral Analysis & Wavelets", schedule_md: include_str!("../schedule/DAY_207.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 208, phase: "Phase 13", title: "Forecasting & Evaluation", schedule_md: include_str!("../schedule/DAY_208.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 209, phase: "Phase 13", title: "Nowcasting & High-Dimensional Time Series", schedule_md: include_str!("../schedule/DAY_209.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 210, phase: "Phase 13", title: "Advanced Time Series Capstone", schedule_md: include_str!("../schedule/DAY_210.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
