@@ -117,6 +117,7 @@ pub fn phase_color(phase: &str) -> (&'static str, &'static str) {
         "Phase 6" => ("rgba(46,204,113,0.14)", "#2ecc71"),
         "Phase 7" => ("rgba(255,140,66,0.14)", "#ff8c42"),
         "Phase 8" => ("rgba(77,157,224,0.14)", "#4d9de0"),
+        "Phase 9" => ("rgba(232,67,147,0.14)", "#e84393"),
         _ => ("rgba(124,111,255,0.12)", "var(--accent)"),
     }
 }
@@ -819,6 +820,16 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 158, phase: "Phase 8", title: "Exotics & Path-Dependence", schedule_md: include_str!("../schedule/DAY_158.md"), blocks: &[], success: &[] },
     StrategyDay { id: 159, phase: "Phase 8", title: "Volatility as an Asset — Variance Swaps & VIX", schedule_md: include_str!("../schedule/DAY_159.md"), blocks: &[], success: &[] },
     StrategyDay { id: 160, phase: "Phase 8", title: "Derivatives & Pricing Capstone", schedule_md: include_str!("../schedule/DAY_160.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 161, phase: "Phase 9", title: "Time Value of Money & Bond Pricing", schedule_md: include_str!("../schedule/DAY_161.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 162, phase: "Phase 9", title: "Duration & DV01", schedule_md: include_str!("../schedule/DAY_162.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 163, phase: "Phase 9", title: "Convexity", schedule_md: include_str!("../schedule/DAY_163.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 164, phase: "Phase 9", title: "The Yield Curve — Spot, Forward & Bootstrapping", schedule_md: include_str!("../schedule/DAY_164.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 165, phase: "Phase 9", title: "Term-Structure Theories & Carry", schedule_md: include_str!("../schedule/DAY_165.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 166, phase: "Phase 9", title: "Interest-Rate Risk Management & Immunization", schedule_md: include_str!("../schedule/DAY_166.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 167, phase: "Phase 9", title: "Credit Risk & the Merton Model", schedule_md: include_str!("../schedule/DAY_167.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 168, phase: "Phase 9", title: "Short-Rate Models — Vasicek & CIR", schedule_md: include_str!("../schedule/DAY_168.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 169, phase: "Phase 9", title: "Interest-Rate Derivatives — Swaps, Caps, Swaptions", schedule_md: include_str!("../schedule/DAY_169.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 170, phase: "Phase 9", title: "Fixed Income Capstone", schedule_md: include_str!("../schedule/DAY_170.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
