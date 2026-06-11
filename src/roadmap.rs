@@ -118,6 +118,7 @@ pub fn phase_color(phase: &str) -> (&'static str, &'static str) {
         "Phase 7" => ("rgba(255,140,66,0.14)", "#ff8c42"),
         "Phase 8" => ("rgba(77,157,224,0.14)", "#4d9de0"),
         "Phase 9" => ("rgba(232,67,147,0.14)", "#e84393"),
+        "Phase 10" => ("rgba(6,182,212,0.14)", "#06b6d4"),
         _ => ("rgba(124,111,255,0.12)", "var(--accent)"),
     }
 }
@@ -830,6 +831,16 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 168, phase: "Phase 9", title: "Short-Rate Models — Vasicek & CIR", schedule_md: include_str!("../schedule/DAY_168.md"), blocks: &[], success: &[] },
     StrategyDay { id: 169, phase: "Phase 9", title: "Interest-Rate Derivatives — Swaps, Caps, Swaptions", schedule_md: include_str!("../schedule/DAY_169.md"), blocks: &[], success: &[] },
     StrategyDay { id: 170, phase: "Phase 9", title: "Fixed Income Capstone", schedule_md: include_str!("../schedule/DAY_170.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 171, phase: "Phase 10", title: "Statistical Arbitrage I — Mean Reversion & Pairs", schedule_md: include_str!("../schedule/DAY_171.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 172, phase: "Phase 10", title: "Cointegration & the Spread", schedule_md: include_str!("../schedule/DAY_172.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 173, phase: "Phase 10", title: "Ornstein–Uhlenbeck & Half-Life", schedule_md: include_str!("../schedule/DAY_173.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 174, phase: "Phase 10", title: "Building & Backtesting a Pairs Strategy", schedule_md: include_str!("../schedule/DAY_174.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 175, phase: "Phase 10", title: "The Kalman Filter — Dynamic Hedge Ratio", schedule_md: include_str!("../schedule/DAY_175.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 176, phase: "Phase 10", title: "Cross-Sectional Statistical Arbitrage", schedule_md: include_str!("../schedule/DAY_176.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 177, phase: "Phase 10", title: "Signal Construction & Alpha Combination", schedule_md: include_str!("../schedule/DAY_177.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 178, phase: "Phase 10", title: "Risk Management & the Quant Quake", schedule_md: include_str!("../schedule/DAY_178.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 179, phase: "Phase 10", title: "Execution & Capacity", schedule_md: include_str!("../schedule/DAY_179.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 180, phase: "Phase 10", title: "Statistical Arbitrage Capstone", schedule_md: include_str!("../schedule/DAY_180.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
