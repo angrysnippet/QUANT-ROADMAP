@@ -123,6 +123,7 @@ pub fn phase_color(phase: &str) -> (&'static str, &'static str) {
         "Phase 12" => ("rgba(139,92,246,0.14)", "#8b5cf6"),
         "Phase 13" => ("rgba(245,158,11,0.14)", "#f59e0b"),
         "Phase 14" => ("rgba(20,184,166,0.14)", "#14b8a6"),
+        "Phase 15" => ("rgba(99,102,241,0.14)", "#6366f1"),
         _ => ("rgba(124,111,255,0.12)", "var(--accent)"),
     }
 }
@@ -885,6 +886,16 @@ pub const DAYS: &[StrategyDay] = &[
     StrategyDay { id: 218, phase: "Phase 14", title: "Robust Portfolio Optimization", schedule_md: include_str!("../schedule/DAY_218.md"), blocks: &[], success: &[] },
     StrategyDay { id: 219, phase: "Phase 14", title: "Performance Attribution", schedule_md: include_str!("../schedule/DAY_219.md"), blocks: &[], success: &[] },
     StrategyDay { id: 220, phase: "Phase 14", title: "Advanced Portfolio & Risk Capstone", schedule_md: include_str!("../schedule/DAY_220.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 221, phase: "Phase 15", title: "C++ for Quants — Why & Performance Fundamentals", schedule_md: include_str!("../schedule/DAY_221.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 222, phase: "Phase 15", title: "Memory, Cache & Data-Oriented Design", schedule_md: include_str!("../schedule/DAY_222.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 223, phase: "Phase 15", title: "Templates & Generic Programming", schedule_md: include_str!("../schedule/DAY_223.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 224, phase: "Phase 15", title: "RAII, Move Semantics & Smart Pointers", schedule_md: include_str!("../schedule/DAY_224.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 225, phase: "Phase 15", title: "Concurrency & Lock-Free Programming", schedule_md: include_str!("../schedule/DAY_225.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 226, phase: "Phase 15", title: "Low-Latency Techniques", schedule_md: include_str!("../schedule/DAY_226.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 227, phase: "Phase 15", title: "Numerical Computing & SIMD", schedule_md: include_str!("../schedule/DAY_227.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 228, phase: "Phase 15", title: "Building a Trading System — Architecture", schedule_md: include_str!("../schedule/DAY_228.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 229, phase: "Phase 15", title: "Testing, Profiling & Debugging", schedule_md: include_str!("../schedule/DAY_229.md"), blocks: &[], success: &[] },
+    StrategyDay { id: 230, phase: "Phase 15", title: "C++ & Systems Capstone", schedule_md: include_str!("../schedule/DAY_230.md"), blocks: &[], success: &[] },
 ];
 
 /// The strategy day that falls on a given date key, given the configured
