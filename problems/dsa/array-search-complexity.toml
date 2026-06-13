@@ -1,0 +1,29 @@
+# Sample problem (numeric). Public section is client-safe; [server] is stripped
+# by the seeder and never sent to the client before grading.
+
+id = "array-search-complexity"
+track = "dsa"
+world = 1
+day = 2
+difficulty = 1
+type = "numeric"
+statement = """
+Unsorted array of n distinct integers. In the worst case, how many element
+comparisons does a linear search perform to determine an element is absent?
+Answer as a function of n by giving the coefficient k in the worst-case count
+k * n (e.g. if the answer is exactly n comparisons, enter 1).
+"""
+tags = ["dsa", "arrays", "complexity", "linear-search"]
+time_limit_seconds = 90
+
+[server]
+# Worst case scans all n elements -> exactly n comparisons -> k = 1.
+answer = 1
+tolerance = 0
+solution_explanation = """
+A linear search compares the target against each element until it finds a match
+or exhausts the array. When the element is absent, every one of the n elements
+is compared exactly once, giving n comparisons in the worst case, i.e. k = 1
+(O(n)). Indexing arr[i] is O(1), but search is O(n) because there is no
+structure to exploit in an unsorted array.
+"""

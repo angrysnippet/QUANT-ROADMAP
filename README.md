@@ -1,25 +1,28 @@
 # QUANT ROADMAP
 
-## A 548-Day Quantitative Developer & Software Engineering Journey
+## A 548-Day Journey from Programming Foundations to Job-Ready Quant
 
-A structured, long-term roadmap designed to transform a beginner into a strong candidate for software engineering internships, quantitative development roles, quantitative research preparation, and technical interviews.
+A structured, long-term roadmap that takes a beginner all the way from first principles of programming to genuine readiness for **quantitative research, quantitative development, and quant-trading roles** at competitive firms — plus software-engineering internships and technical interviews along the way.
 
 This roadmap is not a collection of random tutorials or courses.
 
-It is a carefully sequenced learning system that develops:
+It is a carefully sequenced, day-by-day learning system that builds a coherent skill stack:
 
-* C++
-* Problem Solving
-* Mathematics
-* Probability
-* Statistics
-* Python
-* Linux
-* Software Engineering
-* Systems Thinking
-* Research Ability
-* Portfolio Development
-* Interview Readiness
+* C++ & low-latency systems engineering
+* Problem solving & data structures / algorithms
+* Mathematics, probability & statistics
+* Stochastic processes & quantitative finance theory
+* Derivatives pricing, fixed income & rates
+* Statistical arbitrage & systematic trading
+* Market microstructure & execution
+* Machine learning for finance
+* Time-series analysis & forecasting
+* Portfolio construction & risk management
+* Python research workflows (NumPy / pandas / scikit-learn)
+* Linux, Git & professional engineering practice
+* Systems thinking, research ability & interview readiness
+
+Each day is a self-contained, richly-written lesson with study material, *why-it-matters* context, runnable code (Python for research, C++ for systems), worked interview-style problems, cross-domain connections, and a milestone check.
 
 ---
 
@@ -35,396 +38,120 @@ Common problems include:
 * Tutorial dependency
 * Lack of projects
 * No measurable progress
+* Theory that never reaches deployable, real-world skill
 
-This roadmap solves those problems by providing a structured day-by-day learning journey that compounds over time.
+This roadmap solves those problems by providing a structured day-by-day learning journey that compounds over time — and, crucially, that does not stop at toy examples. After the computer-science foundations, it builds **real quantitative-finance depth** (the kind asked about in quant interviews and used on real desks) and then the **systems engineering** to actually deploy it.
 
 The objective is simple:
 
-> Become someone who can think like an engineer, solve problems like a competitive programmer, reason under uncertainty like a quant, and build systems like a software developer.
+> Become someone who can think like an engineer, solve problems like a competitive programmer, reason under uncertainty like a quant, price and hedge like a derivatives desk, and build fast, correct systems like a low-latency developer.
 
 ---
 
 # Final Target Profile
 
-By Day 548, you should possess competence in the following domains.
+By Day 548, you should possess competence across the following domains.
 
-## 1. C++ Programming
+## 1. C++ & Systems Engineering
 
-You should comfortably understand:
+* Modern C++ (RAII, smart pointers, move semantics, templates / generic programming)
+* The performance mindset — memory hierarchy, cache-friendly / data-oriented design
+* Concurrency & lock-free programming; the memory model
+* Low-latency techniques (kernel bypass, zero-allocation hot paths, tail-latency measurement)
+* Numerical computing & SIMD; floating-point correctness and stability
+* Trading-system architecture (event-driven design, research-to-production parity)
+* Testing, profiling & debugging (sanitizers, Amdahl's law, *verify-don't-hope*)
 
-### Core Concepts
+## 2. Problem Solving, Data Structures & Algorithms
 
-* Variables
-* Data Types
-* Operators
-* Input / Output
-* Functions
-* Arrays
-* Strings
-* Recursion
+* Arrays, strings, hashing, stacks, queues, linked lists, trees, heaps, graphs
+* Recursion, binary search, greedy, dynamic programming, shortest paths
+* Pattern recognition, decomposition, optimization, complexity analysis
+* CSES / Codeforces / LeetCode-style problem solving
 
-### STL
+## 3. Mathematics, Probability & Statistics
 
-* Vector
-* Pair
-* Set
-* Map
-* Unordered Map
-* Stack
-* Queue
-* Priority Queue
+* Algebra, functions, sequences, calculus and linear-algebra foundations
+* Random variables, expectation, variance, conditional probability, Bayes
+* Distributions, the Law of Large Numbers and Central Limit Theorem
+* Estimation, hypothesis testing, regression — and the multiple-testing / overfitting traps
 
-### Intermediate Concepts
+## 4. Stochastic Processes & Quant Mathematics
 
-* Pointers
-* References
-* Memory
-* OOP
-* Templates
-* Debugging
-* Complexity Analysis
+* Random walks, martingales, Brownian motion, geometric Brownian motion, Itô intuition
+* Markov chains, Markov decision processes, Monte-Carlo methods
+* Information theory, fat tails, and the mathematics of risk
 
-### Expected Ability
+## 5. Quantitative Finance
 
-* Write clean code
-* Debug independently
-* Implement common algorithms
-* Solve medium-level DSA problems
+* **Portfolio theory & CAPM** — diversification, the efficient frontier, alpha vs beta, market efficiency
+* **Derivatives & pricing** — options, put–call parity, Black–Scholes, the Greeks, delta-hedging, implied vol, binomial trees, exotics, volatility as an asset
+* **Fixed income & rates** — bonds, duration / convexity, the yield curve, credit & the Merton model, short-rate models, swaps & swaptions
+* **Statistical arbitrage** — mean reversion, cointegration, the Kalman filter, cross-sectional signals, alpha combination, crowding & capacity
+* **Market microstructure** — the order book, market making, adverse selection, price impact, optimal execution, HFT, transaction-cost analysis
+* **Machine learning for finance** — done *honestly*: labeling, purged cross-validation, feature importance, the deflated Sharpe ratio, and the limits of ML in markets
+* **Time-series analysis** — ARIMA, GARCH, state-space / Kalman, regime-switching, VAR / cointegration, forecasting & nowcasting
+* **Advanced portfolio & risk** — factor models, Black–Litterman, the Kelly criterion, risk parity, VaR / CVaR, extreme value theory, drawdown control, robust optimization, performance attribution
 
----
+## 6. Python for Research
 
-## 2. Problem Solving
+* Core Python, NumPy, pandas, scikit-learn
+* Data manipulation, backtesting, and reproducible research workflows
+* Prototyping ideas quickly and validating them rigorously
 
-Develop strong algorithmic thinking through:
+## 7. Linux & Professional Tooling
 
-* Pattern Recognition
-* Decomposition
-* Optimization
-* Complexity Analysis
+* Command line, file systems, processes, Bash scripting
+* Git / GitHub, documentation, clean code, testing fundamentals
+* Industry-level development workflow competence
 
-Platforms used:
+## 8. Systems & Research Thinking
 
-* CSES
-* Codeforces
-* LeetCode
-
-Expected ability:
-
-* Solve unseen problems
-* Identify patterns quickly
-* Translate ideas into code
-
----
-
-## 3. Mathematics
-
-Build foundations in:
-
-* Algebra
-* Functions
-* Logarithms
-* Sequences
-* Basic Calculus
-* Linear Algebra Foundations
-
-Expected ability:
-
-* Mathematical modeling
-* Analytical thinking
-* Quantitative reasoning
-
----
-
-## 4. Probability
-
-Topics include:
-
-* Random Variables
-* Conditional Probability
-* Bayes Theorem
-* Discrete Distributions
-* Continuous Distributions
-* Expectation
-* Variance
-
-Expected ability:
-
-* Understand uncertainty
-* Build probabilistic intuition
-* Prepare for quant interviews
-
----
-
-## 5. Statistics
-
-Topics include:
-
-* Descriptive Statistics
-* Sampling
-* Hypothesis Testing
-* Confidence Intervals
-* Correlation
-* Regression
-
-Expected ability:
-
-* Analyze data
-* Interpret results
-* Think statistically
-
----
-
-## 6. Python
-
-Topics include:
-
-* Core Python
-* NumPy
-* Pandas
-* Data Manipulation
-* Research Workflows
-
-Expected ability:
-
-* Analyze datasets
-* Prototype ideas quickly
-* Conduct quantitative research
-
----
-
-## 7. Linux
-
-Topics include:
-
-* Command Line
-* File Systems
-* Permissions
-* Processes
-* Bash Scripting
-
-Expected ability:
-
-* Work comfortably in development environments
-* Automate tasks
-* Manage projects efficiently
-
----
-
-## 8. Software Engineering
-
-Topics include:
-
-* Git
-* GitHub
-* Documentation
-* Clean Code
-* Debugging
-* Testing Fundamentals
-
-Expected ability:
-
-* Build maintainable projects
-* Collaborate effectively
-* Follow professional workflows
-
----
-
-## 9. Systems Thinking
-
-Topics include:
-
-* Memory Awareness
-* Performance Awareness
-* Computational Tradeoffs
-* Architecture Fundamentals
-
-Expected ability:
-
-* Think beyond code
-* Understand how software behaves at scale
+* Memory / performance awareness and computational trade-offs
+* Architecture fundamentals and thinking beyond code
+* Research ability — forming, testing, and *honestly evaluating* hypotheses
+* Interview readiness — brainteasers, mental math, and clear technical communication
 
 ---
 
 # Roadmap Structure
 
-The roadmap is divided into progressive phases.
+The roadmap progresses through tightly-sequenced **modules** (shown as Phases in the companion website). Each builds on the last, moving from foundations to genuine quant depth to deployable engineering and, finally, to interview readiness. Approximate day ranges:
 
----
+## Foundations — Programming, Data Structures & Algorithms (Days 1–115)
 
-## Phase 1 — Foundation Building
+* **Phase 1 (Days 1–14)** — Foundation World: C++ basics, arrays, vectors, hashing, binary search, recursion, pointers & references
+* **Phase 2 (Days 15–41)** — OOP & Data Structures: classes, linked lists, stacks, queues, graphs, BFS/DFS, topological sort
+* **Phase 3 (Days 42–66)** — Dynamic Programming & Trees: memoization/tabulation, trees, BSTs, heaps, hashing, DSU, MST
+* **Phase 4 (Days 67–100)** — Algorithms: shortest paths, advanced graph & DP techniques, problem-solving patterns
+* **Phase 5 (Days 101–115)** — Advanced Problem Solving: combining techniques, state-space modelling, the meta-skill of algorithm design
 
-### Goal
+## Quantitative Foundations (Days 116–143)
 
-Build programming confidence.
+* **Phase 6 — Quant Mathematics Core:** probability & statistics with real depth, expected value, variance & risk, the LLN/CLT, Bayes, hypothesis testing, regression, an honest ML intro, dynamic programming & Bellman, Markov processes & MDPs, Monte-Carlo methods, and stochastic processes (random walk → martingale → Brownian motion → GBM → Itô)
 
-### Topics
+## Quantitative Finance (Days 144–220)
 
-* Variables
-* Loops
-* Functions
-* Arrays
-* Strings
-* Basic STL
+* **Phase 7 (Days 144–150)** — Finance & Portfolio Theory: return vs risk, the Sharpe ratio, correlation & diversification, MPT, CAPM, alpha, market efficiency
+* **Phase 8 (Days 151–160)** — Derivatives & Pricing: optionality, put–call parity, Black–Scholes, the Greeks, delta-hedging, implied vol & the smile, binomial trees, exotics, volatility as an asset
+* **Phase 9 (Days 161–170)** — Fixed Income & Rates: bonds, duration & convexity, the yield curve, carry, immunization, credit & Merton, short-rate models, interest-rate derivatives
+* **Phase 10 (Days 171–180)** — Statistical Arbitrage: mean reversion, cointegration, Ornstein–Uhlenbeck, the Kalman filter, cross-sectional signals, alpha combination, crowding & capacity
+* **Phase 11 (Days 181–190)** — Market Microstructure: order books, market making, adverse selection, price impact, optimal execution (Almgren–Chriss), HFT, transaction-cost analysis, market structure
+* **Phase 12 (Days 191–200)** — Machine Learning for Finance: why finance breaks naive ML, labeling & features, purged cross-validation, tree ensembles, feature importance, deep learning & NLP/alt-data, RL, and backtest overfitting / the deflated Sharpe
+* **Phase 13 (Days 201–210)** — Advanced Time Series: ARIMA, GARCH, state-space & Kalman, regime-switching/HMM, VAR & Granger causality, cointegration systems, spectral analysis, forecasting & nowcasting
+* **Phase 14 (Days 211–220)** — Advanced Portfolio & Risk: factor models, Black–Litterman, the Kelly criterion, risk parity, VaR/CVaR, extreme value theory, drawdown control, robust optimization, performance attribution
 
-### Outcome
+## Engineering & Deployment (Days 221–230)
 
-Ability to implement simple programs independently.
+* **Phase 15 — C++, Software Engineering & Systems:** why C++ rules low-latency finance, memory/cache & data-oriented design, templates, RAII & smart pointers, concurrency & lock-free programming, low-latency techniques, numerical computing & SIMD, trading-system architecture, and testing/profiling/debugging — *the engineering that turns validated theory into deployable, money-making systems*
 
----
+## Mastery & Interview Readiness (Days 231–548)
 
-## Phase 2 — Problem Solving Core
+* Quant brainteasers & interview preparation (probability, combinatorics, Bayes, game theory, estimation, mental math, behavioral/fit)
+* Portfolio projects that combine the full stack
+* Revision, consolidation, and job-application strategy
 
-### Goal
-
-Develop computational thinking.
-
-### Topics
-
-* Searching
-* Sorting
-* Prefix Sums
-* Two Pointers
-* Sliding Window
-
-### Outcome
-
-Ability to solve beginner and lower-intermediate algorithmic problems.
-
----
-
-## Phase 3 — Data Structures
-
-### Goal
-
-Understand efficient data organization.
-
-### Topics
-
-* Stack
-* Queue
-* Linked List
-* Trees
-* Heaps
-* Hashing
-
-### Outcome
-
-Ability to choose appropriate data structures.
-
----
-
-## Phase 4 — Algorithms
-
-### Goal
-
-Learn efficient problem solving.
-
-### Topics
-
-* Binary Search
-* Greedy Algorithms
-* Graph Algorithms
-* Dynamic Programming
-
-### Outcome
-
-Ability to solve complex coding problems.
-
----
-
-## Phase 5 — Quant Mathematics
-
-### Goal
-
-Build quantitative reasoning.
-
-### Topics
-
-* Probability
-* Statistics
-* Mathematical Thinking
-* Analytical Modeling
-
-### Outcome
-
-Strong quant foundation.
-
----
-
-## Phase 6 — Python for Research
-
-### Goal
-
-Develop practical research skills.
-
-### Topics
-
-* Python
-* NumPy
-* Pandas
-* Data Analysis
-
-### Outcome
-
-Ability to analyze and manipulate data effectively.
-
----
-
-## Phase 7 — Linux & Engineering Tools
-
-### Goal
-
-Become comfortable in professional environments.
-
-### Topics
-
-* Linux
-* Git
-* Bash
-* Terminal Workflow
-
-### Outcome
-
-Industry-level development workflow competence.
-
----
-
-## Phase 8 — Projects
-
-### Goal
-
-Transform knowledge into capability.
-
-### Projects Include
-
-* Software Engineering Projects
-* Data Analysis Projects
-* Quant-Oriented Projects
-* Research Projects
-
-### Outcome
-
-A strong portfolio demonstrating practical skills.
-
----
-
-## Phase 9 — Interview Preparation
-
-### Goal
-
-Consolidate everything learned.
-
-### Topics
-
-* DSA Revision
-* Probability Revision
-* Statistics Revision
-* Mock Interviews
-* Resume Preparation
-
-### Outcome
-
-Placement and internship readiness.
+> The day ranges are approximate and the later phases continue to evolve. The throughline never changes: **each day teaches one substantial concept with depth, code, and an interview-grade problem — and they compound.**
 
 ---
 
@@ -444,6 +171,8 @@ Always ask:
 * How does this work?
 * When should I use this?
 
+Every lesson is built around *why-it-matters* and cross-domain connections, not rote facts.
+
 ---
 
 ## Practice Driven Learning
@@ -451,6 +180,8 @@ Always ask:
 Learning Cycle:
 
 Learn → Implement → Practice → Review → Repeat
+
+Each day includes runnable code and a worked problem so you *build*, not just read.
 
 ---
 
@@ -464,7 +195,13 @@ Recommended revision schedule:
 * Day 21
 * Day 60
 
-Knowledge that is not revised is eventually forgotten.
+Knowledge that is not revised is eventually forgotten. (Each day opens with a short *Previous Day Review* for exactly this reason.)
+
+---
+
+## Intellectual Honesty
+
+A recurring theme across the quant modules: **don't fool yourself.** Validate edges out-of-sample, deflate for the number of trials, respect estimation error and fat tails, and verify code by measurement — not hope. The single most valuable quant skill is judging whether a result is *real*.
 
 ---
 
@@ -523,13 +260,13 @@ Improvements For Tomorrow:
 
 This roadmap is suitable for:
 
-* Computer Science Students
-* Engineering Students
-* Self-Learners
-* Quant Aspirants
-* Software Engineering Aspirants
-* Internship Seekers
-* Placement Preparation Candidates
+* Quant aspirants (research, development, trading)
+* Computer Science & Engineering students
+* Self-learners building a serious, coherent skill stack
+* Software Engineering & internship seekers
+* Placement & technical-interview candidates
+
+It assumes only basic comfort with a computer and a willingness to show up daily.
 
 ---
 
@@ -537,25 +274,25 @@ This roadmap is suitable for:
 
 Upon successful completion, you should have:
 
-✅ Strong C++ Fundamentals
+✅ Strong C++ fundamentals and low-latency systems awareness
 
-✅ Good Problem Solving Ability
+✅ Solid data-structures & algorithms problem-solving
 
-✅ Quantitative Thinking Skills
+✅ Probability, statistics & stochastic-process fluency
 
-✅ Python Research Skills
+✅ Genuine quantitative-finance knowledge — derivatives, fixed income, stat-arb, microstructure, portfolio & risk
 
-✅ Statistics Foundations
+✅ Machine-learning-for-finance done honestly
 
-✅ Probability Foundations
+✅ Time-series & forecasting skills
 
-✅ Linux Competency
+✅ Python research and Linux / Git engineering competence
 
-✅ Engineering Workflow Knowledge
+✅ The ability to take a strategy from research idea to deployed, tested system
 
-✅ Multiple Portfolio Projects
+✅ Multiple portfolio projects
 
-✅ Interview Readiness
+✅ Interview readiness — brainteasers, mental math, and clear communication
 
 ---
 
@@ -570,6 +307,21 @@ https://angrysnippet.github.io/QUANT-ROADMAP/
 # Disclaimer
 
 This roadmap is a long-term skill development system.
+
+## AI study planner
+
+The `/planner` route embeds the separately deployed AI Study Platform. During
+local development it defaults to `http://localhost:5173`. For production, build
+the Quant Roadmap frontend with the planner client URL set at compile time:
+
+```powershell
+$env:AI_STUDY_PLATFORM_URL='https://your-planner.vercel.app'
+dx build --release
+```
+
+The planner API remains a separate Railway or Render service. Configure its
+`CLIENT_URL` and the planner client's `VITE_API_URL` as described in the AI
+Study Platform deployment guide.
 
 The goal is not speed.
 
@@ -594,4 +346,3 @@ One improvement.
 Repeated consistently for 548 days.
 
 Trust the process.
-

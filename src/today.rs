@@ -12,6 +12,9 @@ use crate::roadmap::{
     total_daily_items, BLOCK_TOPIC_MAP, DAILY_BLOCKS, DAYS,
 };
 use crate::state::AppState;
+use crate::api::MeSummary;
+use crate::auth::use_token;
+use crate::sync;
 use crate::Route;
 
 /// Display name for a topic id (for the "⚡ links →" line); empty if unknown.
@@ -35,6 +38,22 @@ fn linked_label(block_idx: usize) -> String {
 #[component]
 pub fn Today() -> Element {
     let mut app = use_context::<Signal<AppState>>();
+
+    // Server-auth token + the server summary (None when offline / signed out).
+    let mut token = use_token();
+    let mut me = use_signal(|| Option::<MeSummary>::None);
+    let mut sync_msg = use_signal(String::new);
+
+    // Pull the server summary whenever a token is present.
+    use_effect(move || {
+        if let Some(tok) = token() {
+            spawn(async move {
+                if let Ok(s) = sync::me_summary(tok).await {
+                    me.set(Some(s));
+                }
+            });
+        }
+    });
 
     let day = app.read().current_day;
     let day_key = day.to_string();
@@ -93,6 +112,54 @@ pub fn Today() -> Element {
                 }
             }
 
+            // ── Sync / account panel ──
+            div { class: "strat-success", style: "margin-bottom:1rem",
+                if let Some(s) = me() {
+                    div { class: "strat-success-title",
+                        "☁ Synced as {s.handle} — Lv {s.level} · {s.xp} XP · 🔥 {s.streak_current}"
+                    }
+                    button {
+                        class: "cal-sched-open-btn",
+                        onclick: move |_| {
+                            let cur = app.read().current_day as i64;
+                            if let Some(tok) = token() {
+                                spawn(async move {
+                                    match sync::import_local_progress(tok, cur).await {
+                                        Ok(s) => {
+                                            me.set(Some(s));
+                                            sync_msg.set("Imported local progress.".to_string());
+                                        }
+                                        Err(e) => sync_msg.set(e),
+                                    }
+                                });
+                            }
+                        },
+                        "Import local progress (one-time)"
+                    }
+                    button {
+                        class: "cal-sched-open-btn",
+                        style: "margin-left:.5rem",
+                        onclick: move |_| {
+                            spawn(async move {
+                                crate::auth::sign_out().await;
+                                token.set(None);
+                                me.set(None);
+                            });
+                        },
+                        "Sign out"
+                    }
+                    Link { to: Route::Bank {}, class: "cal-sched-open-btn", style: "margin-left:.5rem", "Problem Bank ›" }
+                } else if token().is_some() {
+                    div { class: "strat-success-title", "☁ Signing in…" }
+                } else {
+                    div { class: "strat-success-title", "Offline mode — progress saved on this device only." }
+                    Link { to: Route::Login {}, class: "cal-sched-open-btn", "Sign in to sync ›" }
+                }
+                if !sync_msg().is_empty() {
+                    div { style: "font-size:12px;color:var(--text3);margin-top:.4rem", "{sync_msg}" }
+                }
+            }
+
             // ── Gate panel ──
             div { class: "strat-success",
                 div { class: "strat-success-title", "🔓 Complete all three to unlock Day {day + 1}:" }
@@ -119,8 +186,28 @@ pub fn Today() -> Element {
                     disabled: !all_ok,
                     style: if all_ok { "" } else { "opacity:.45;cursor:not-allowed" },
                     onclick: move |_| {
-                        if all_ok {
-                            app.write().current_day += 1;
+                        if !all_ok {
+                            return;
+                        }
+                        match token() {
+                            // Authenticated: the server is authoritative. It awards
+                            // XP idempotently and returns the fresh summary; we mirror
+                            // current_day locally as an offline cache.
+                            Some(tok) => {
+                                spawn(async move {
+                                    match sync::complete_day(tok, day as i64).await {
+                                        Ok(s) => {
+                                            app.write().current_day = s.current_day as u32;
+                                            me.set(Some(s));
+                                        }
+                                        Err(e) => sync_msg.set(format!("Sync failed: {e}")),
+                                    }
+                                });
+                            }
+                            // Offline / signed out: local-only advance (legacy behaviour).
+                            None => {
+                                app.write().current_day += 1;
+                            }
                         }
                     },
                     if all_ok {
