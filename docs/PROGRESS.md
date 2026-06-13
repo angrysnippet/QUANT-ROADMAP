@@ -211,3 +211,25 @@ server-render under fullstack SSR (fixing the empty-HTML-shell problem, CLAUDE.m
 3); on the static build they inject client-side. `og:url`/`og:image` point at the
 current host - update on the Fly deploy, and swap og:image for a designed social
 card (user-supplied art). Compiles web/fullstack/server + wasm; clippy clean.
+
+---
+
+## Phase 1 - LIVE VERIFIED (engine complete)
+
+The user ran the fullstack stack against a Supabase project and confirmed it
+works end to end (Supabase-backed auth + server-authoritative game engine).
+This satisfies the one path CI can't cover (the live DB round-trip), so the
+Phase 1 single-player engine is functionally complete and verified.
+
+**Verified working (live):** sign-in, server-authoritative XP/streak/progress,
+server-side grading (code + numeric), problem bank + Practice (Days 1-3), the
+shell chips/rail, and the one-shot legacy import - all persisting in Postgres.
+
+**Only remaining Phase 1 step (operational, user-side):** deploy the fullstack
+server to Fly.io (Dockerfile/fly.toml/.env.example/docs/DEPLOY.md are ready),
+then retire or repoint the GitHub Pages workflow and update og:url to the Fly
+domain. Must NOT retire Pages until the Fly deploy is confirmed live (do not
+break the working app).
+
+**Next phase:** Phase 2 - World Map UI & Three-View Navigation (new session,
+per CLAUDE.md 0.2 one-phase-per-session).
