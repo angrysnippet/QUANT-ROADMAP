@@ -200,3 +200,14 @@ graded with XP; reload -> solved persists from the server.
 numeric) and `day3.toml` (6 code + 6 numeric), same pattern, legacy ids. All of
 Days 1-3 (the only days with legacy practice content) are now server-gradeable;
 the seeder pre-flight test validates all 59 problem files parse/derive/unique.
+
+---
+
+## Phase 1 - SSR landing + OpenGraph meta
+
+Added title + meta/OpenGraph/Twitter tags in `main.rs`'s `App` (via
+`document::Title` / `document::Meta`) so link previews and SEO work. They
+server-render under fullstack SSR (fixing the empty-HTML-shell problem, CLAUDE.md
+3); on the static build they inject client-side. `og:url`/`og:image` point at the
+current host - update on the Fly deploy, and swap og:image for a designed social
+card (user-supplied art). Compiles web/fullstack/server + wasm; clippy clean.
