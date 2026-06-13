@@ -8,3 +8,8 @@
 
 # Local build/serve logs
 *.log
+
+# Secrets (Phase 1). Never commit; the example template is .env.example.
+.env
+.env.*
+!.env.example

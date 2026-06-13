@@ -54,17 +54,52 @@ run in CI yet due to the toolchain note above.)
 To prove the default build is untouched, build without the feature - the
 `server_fns` module and probe are cfg'd out entirely.
 
-## Phase 1 placeholders (not used yet)
+## Phase 1 - fullstack dev (Supabase + server functions)
 
-Phase 1 introduces Supabase + secrets. When it lands:
+Slice 1 adds auth, profiles, the XP/streak engine, and the legacy import,
+talking to Supabase from server functions via `sqlx`.
 
-- Create a `.env` (gitignored) in `quant-roadmap/` with, e.g.:
-  ```
-  SUPABASE_URL=...
-  SUPABASE_SERVICE_ROLE_KEY=...   # server-only; never compiled into WASM
-  SUPABASE_ANON_KEY=...
-  ```
-- Use Supabase local (`supabase start`) or a dev project. Migrations live in
-  `supabase/migrations/` (empty in Phase 0).
+### 1. Supabase dev project
 
-Do not commit secrets. `cargo audit` runs in CI (`.github/workflows/ci.yml`).
+Create a hosted Supabase project (recommended over local Docker on Windows).
+Apply the schema:
+```sh
+supabase link --project-ref YOUR-REF
+supabase db push          # supabase/migrations/0001_init.sql
+```
+Enable Email + Google + GitHub providers (Authentication > Providers); set the
+local redirect to `http://localhost:8080/`. Full steps: docs/DEPLOY.md.
+
+### 2. Environment
+
+Copy `.env.example` to `.env` (gitignored) and fill in. The two `SUPABASE_URL`
+/ `SUPABASE_ANON_KEY` values are public and baked into the client at build time;
+`DATABASE_URL` and `SUPABASE_JWT_SECRET` are server-only.
+
+```sh
+# client build env (public):
+export SUPABASE_URL=https://YOUR-PROJECT.supabase.co
+export SUPABASE_ANON_KEY=YOUR-ANON-KEY
+# server runtime env (secret):
+export DATABASE_URL='postgres://postgres:PASSWORD@db.YOUR-PROJECT.supabase.co:5432/postgres'
+export SUPABASE_JWT_SECRET=YOUR-JWT-SECRET
+```
+
+### 3. Run fullstack locally
+
+```sh
+cd quant-roadmap
+dx serve --features server      # client (web+fullstack) + Axum server
+```
+Then sign up at `/login`, complete a day, and confirm XP/streak persist across a
+reload. Without the env set, the app still runs offline: `today.rs` falls back to
+the local `current_day` increment and the account panel shows "Offline mode".
+
+### Notes
+
+- `sqlx` uses runtime-checked queries, so no live DB is needed to compile. To
+  switch to compile-time-checked `query!` later, run `cargo sqlx prepare` against
+  the dev DB.
+- Server-only deps (`sqlx`, `jsonwebtoken`, `uuid`, `tokio`) are gated behind the
+  `server` feature and never compiled into the WASM client.
+- Do not commit secrets; `.env` is gitignored. `cargo audit` runs in CI.

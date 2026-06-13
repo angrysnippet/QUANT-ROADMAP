@@ -1,0 +1,22 @@
+# Fly.io config for the Quant Arena fullstack server (Phase 1).
+# Run `fly launch --no-deploy` once to claim an app name + region, then adjust.
+
+app = "quant-arena"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+
+# Secrets (DATABASE_URL, SUPABASE_JWT_SECRET, SUPABASE_URL, SUPABASE_ANON_KEY)
+# are set with `fly secrets set ...`, never committed. See docs/DEPLOY.md.

@@ -1,29 +1,80 @@
-//! Phase 0 fullstack proof: a single hello-world server function plus a tiny
-//! probe component that calls it.
+//! Server functions: the typed client <-> server API, plus the shared
+//! request/response structs that compile on both sides.
 //!
-//! This whole module is compiled only under the `fullstack` feature, so the
-//! default `web` static build (and the GitHub Pages deploy) is byte-for-byte
-//! unchanged. Per AGENTS.md (authoritative Dioxus 0.7 reference): the `#[get]`
-//! macro turns this into an API endpoint on the server and an HTTP-calling stub
-//! on the client; `use_server_future` runs it on the server during SSR and
-//! ships the result to the client for a hydration-safe first render.
-//!
-//! There is intentionally no real logic here. It exists only to prove the
-//! server feature can be enabled and exercised end to end. Real server
-//! functions (auth, XP, grading) arrive in Phase 1.
+//! Compiled under the `fullstack` feature. The `#[get]`/`#[post]` macros emit a
+//! real implementation on the server (where the `server` module's DB + auth are
+//! available) and an HTTP-calling stub on the client. Authenticated endpoints
+//! take the Supabase access `token` as an explicit argument and verify it
+//! server-side (CLAUDE.md 4.1); the WASM client never holds DB or service keys.
 
 use dioxus::prelude::*;
 
-/// Returns a greeting from the server. Server-only body; the client gets a
-/// generated stub that calls the `/api/hello` endpoint.
+use crate::api::MeSummary;
+
+/// Phase 0 hello-world server function (kept as a liveness probe).
 #[get("/api/hello")]
 pub async fn hello_server() -> Result<String, ServerFnError> {
     Ok("Hello from the Quant Arena server".to_string())
 }
 
-/// A minimal, visually-hidden probe that calls `hello_server` once. Rendered
-/// from the app root only under the `fullstack` feature so we can confirm the
-/// round trip works during `dx serve` without touching any real UI.
+/// Create the caller's profile (and streak row) on first login if absent, then
+/// return the fresh summary. `handle` is validated/sanitised server-side.
+#[post("/api/ensure_profile")]
+pub async fn ensure_profile(
+    token: String,
+    handle: String,
+    timezone: String,
+) -> Result<MeSummary, ServerFnError> {
+    let uid = crate::server::authed(&token).map_err(ServerFnError::new)?;
+    crate::server::ensure_profile(uid, &handle, &timezone)
+        .await
+        .map_err(ServerFnError::new)?;
+    crate::server::me_summary(uid)
+        .await
+        .map_err(ServerFnError::new)
+}
+
+/// Mark `day` complete for the caller (idempotent +35 XP) and return the fresh
+/// summary. Replaces the client-side `current_day += 1` in `today.rs`.
+#[post("/api/complete_day")]
+pub async fn complete_day(token: String, day: i64) -> Result<MeSummary, ServerFnError> {
+    let uid = crate::server::authed(&token).map_err(ServerFnError::new)?;
+    crate::server::complete_day(uid, day)
+        .await
+        .map_err(ServerFnError::new)?;
+    crate::server::me_summary(uid)
+        .await
+        .map_err(ServerFnError::new)
+}
+
+/// Return the caller's current summary.
+#[post("/api/me_summary")]
+pub async fn me_summary(token: String) -> Result<MeSummary, ServerFnError> {
+    let uid = crate::server::authed(&token).map_err(ServerFnError::new)?;
+    crate::server::me_summary(uid)
+        .await
+        .map_err(ServerFnError::new)
+}
+
+/// One-shot import of the legacy browser `qrt_state`. `current_day` is the
+/// legacy "current day" (completed = current_day - 1). Replay-proof: the server
+/// rejects a second call once the profile is marked migrated.
+#[post("/api/import_local_progress")]
+pub async fn import_local_progress(
+    token: String,
+    current_day: i64,
+) -> Result<MeSummary, ServerFnError> {
+    let uid = crate::server::authed(&token).map_err(ServerFnError::new)?;
+    crate::server::import_local_progress(uid, current_day)
+        .await
+        .map_err(ServerFnError::new)?;
+    crate::server::me_summary(uid)
+        .await
+        .map_err(ServerFnError::new)
+}
+
+/// A minimal, visually-hidden probe that calls `hello_server` once (Phase 0
+/// liveness check). Rendered from the app root only under `fullstack`.
 #[component]
 pub fn HelloProbe() -> Element {
     let greeting = use_server_future(hello_server)?;
@@ -36,7 +87,6 @@ pub fn HelloProbe() -> Element {
 
     rsx! {
         div {
-            // Hidden: this is a build/round-trip proof, not real UI.
             style: "display:none",
             "data-hello-probe": "{text}",
         }

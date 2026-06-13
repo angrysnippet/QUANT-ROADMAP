@@ -14,6 +14,14 @@ gloo-storage = "0.3"
 chrono = { version = "0.4", default-features = false, features = ["clock", "std", "wasmbind"] }
 pulldown-cmark = { version = "0.12", default-features = false, features = ["html"] }
 
+# Server-only dependencies (Phase 1). All optional + gated behind the `server`
+# feature so the default `web` WASM client never pulls them and the service-role
+# key / DB driver are never compiled into the browser bundle (CLAUDE.md 4.8).
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros"], optional = true }
+jsonwebtoken = { version = "9", optional = true }
+uuid = { version = "1", features = ["v4", "serde"], optional = true }
+tokio = { version = "1", features = ["sync"], optional = true }
+
 [features]
 default = ["web"]
 web = ["dioxus/web"]
@@ -25,4 +33,4 @@ mobile = ["dioxus/mobile"]
 # client stubs; `server` additionally selects the server platform for the
 # Axum-backed server binary. See docs/DEV_SETUP.md for how to run it locally.
 fullstack = ["dioxus/fullstack"]
-server = ["dioxus/server", "fullstack"]
+server = ["dioxus/server", "fullstack", "dep:sqlx", "dep:jsonwebtoken", "dep:uuid", "dep:tokio"]

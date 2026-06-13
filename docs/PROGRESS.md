@@ -48,3 +48,51 @@ PATH wasm issue; no Supabase project, tables, auth, or real server functions yet
 hosting is still GitHub Pages. All of this is Phase 1.
 
 **Next phase:** Phase 1 - Auth, Profiles & Single-Player Game Engine (server-side).
+
+---
+
+## Phase 1 - Slice 1 (in progress; vertical slice complete)
+
+Phase 1 is being delivered as vertical slices. **Slice 1** is the deployable
+end-to-end path: auth + profiles + complete_day + me_summary + legacy import.
+Branch: `feat/phase-1-backend`.
+
+**What was built:**
+- `supabase/migrations/0001_init.sql` - `profiles`, `progress`, `xp_ledger`
+  (append-only, idempotent via `unique(user_id, reason, ref_id)`), `streaks`,
+  enums, RLS (own-row read; no client write policies so only the service role
+  writes), leaderboard view stub.
+- `src/server.rs` (server-only) - sqlx Postgres pool, Supabase JWT (HS256)
+  verification, and transactional DB logic: `ensure_profile`, `complete_day`
+  (+35 idempotent), `import_local_progress` (one-shot, replay-proof),
+  `me_summary`, pure helpers (`level_for_xp`, `streak_after`,
+  `completed_days_from_legacy`).
+- `src/server_fns.rs` - the four `#[post]` server functions (token-authed) +
+  the Phase 0 probe.
+- `src/api.rs` - shared `MeSummary` (always compiled).
+- `src/sync.rs` - client wrappers with an offline fallback so the non-fullstack
+  `web` build still compiles/runs (local-only).
+- `src/auth.rs` - Supabase Auth interop (email + Google + GitHub) via JS, the
+  `/login` page, token provider.
+- `src/today.rs` - "complete day" now calls the server when signed in (offline
+  fallback otherwise); account/sync panel (summary, one-time import, sign out).
+- Deploy: `Dockerfile`, `fly.toml`, `.env.example`, `.dockerignore`,
+  `docs/DEPLOY.md`; `docs/DEV_SETUP.md` updated; `.env` gitignored.
+- Cargo: optional `sqlx`/`jsonwebtoken`/`uuid`/`tokio` behind the `server`
+  feature.
+
+**How to verify:**
+- Compiles on all paths: `cargo check` (web), `--features fullstack` (client),
+  `--no-default-features --features server` (server) - all pass.
+- `cargo test --no-default-features --features server` -> 4 pass (level curve,
+  handle validation, streak transitions, legacy-import cap).
+- `cargo clippy -D warnings` clean on default and server.
+- Live: set Supabase env (docs/DEV_SETUP.md), `dx serve --features server`, sign
+  up, complete a day, confirm XP/streak persist; `fly deploy` per docs/DEPLOY.md.
+
+**Known gaps -> Slice 2+ (still Phase 1):** `submit_problem` + grading +
+`submissions`/`problems` tables; streak-freeze logic + profile-timezone (slice 1
+uses UTC); the problem seeder; full practice-write rewiring; top bar/right rail
+fed by me_summary; retire GitHub Pages after a green Fly deploy. DB-level tests
+(XP idempotency, import replay, RLS denial) are written as DB integration checks
+to run against the dev project (cannot run in this environment).
