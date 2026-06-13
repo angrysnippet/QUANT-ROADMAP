@@ -79,9 +79,19 @@ pub async fn import_local_progress(
 pub async fn list_problems(
     token: String,
     track: Option<String>,
+    day: Option<i64>,
 ) -> Result<Vec<BankProblem>, ServerFnError> {
     crate::server::authed(&token).map_err(ServerFnError::new)?;
-    crate::server::list_problems(track.as_deref())
+    crate::server::list_problems(track.as_deref(), day)
+        .await
+        .map_err(ServerFnError::new)
+}
+
+/// Problem ids the caller has already solved (correct submission).
+#[post("/api/solved_problem_ids")]
+pub async fn solved_problem_ids(token: String) -> Result<Vec<String>, ServerFnError> {
+    let uid = crate::server::authed(&token).map_err(ServerFnError::new)?;
+    crate::server::solved_problem_ids(uid)
         .await
         .map_err(ServerFnError::new)
 }

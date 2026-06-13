@@ -21,7 +21,7 @@ pub fn Bank() -> Element {
     use_effect(move || {
         if let Some(tok) = token() {
             spawn(async move {
-                match sync::list_problems(tok, None).await {
+                match sync::list_problems(tok, None, None).await {
                     Ok(ps) => problems.set(ps),
                     Err(e) => status.set(e),
                 }

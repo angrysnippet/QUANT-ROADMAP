@@ -1,0 +1,519 @@
+# Day 1 practice problems migrated from the legacy in-app bank (roadmap.rs).
+# Gradeable subset only: Code (graded by program output) + numeric Math/Quant
+# (graded by value within tolerance). Open-ended quant + Linux stay self-marked
+# in the Practice UI. Ids match the legacy ids so progress lines up.
+
+# ---- Code (track dsa, graded by stdout) ----
+
+[[problems]]
+id = "q_sum"
+track = "dsa"
+world = 1
+day = 1
+difficulty = 1
+type = "code"
+tags = ["cpp", "arrays"]
+time_limit_seconds = 300
+statement = """
+Read N, then N integers. Print their sum.
+
+Run your solution on this input, then submit the program's output:
+```
+5
+1 2 3 4 5
+```
+"""
+[problems.server]
+answer = "15"
+solution_explanation = "Accumulate a running total while reading the N values, then print it."
+
+[[problems]]
+id = "q_max"
+track = "dsa"
+world = 1
+day = 1
+difficulty = 1
+type = "code"
+tags = ["cpp", "arrays"]
+time_limit_seconds = 300
+statement = """
+Read N, then N integers. Print the largest.
+
+Input:
+```
+4
+3 9 2 7
+```
+"""
+[problems.server]
+answer = "9"
+solution_explanation = "Track a running maximum across the values."
+
+[[problems]]
+id = "q_min"
+track = "dsa"
+world = 1
+day = 1
+difficulty = 1
+type = "code"
+tags = ["cpp", "arrays"]
+time_limit_seconds = 300
+statement = """
+Read N, then N integers. Print the smallest.
+
+Input:
+```
+4
+3 9 2 7
+```
+"""
+[problems.server]
+answer = "2"
+solution_explanation = "Track a running minimum across the values."
+
+[[problems]]
+id = "q_rev"
+track = "dsa"
+world = 1
+day = 1
+difficulty = 1
+type = "code"
+tags = ["cpp", "arrays"]
+time_limit_seconds = 300
+statement = """
+Read N, then N integers. Print them in reverse order, space-separated.
+
+Input:
+```
+5
+1 2 3 4 5
+```
+"""
+[problems.server]
+answer = "5 4 3 2 1"
+solution_explanation = "Store the values, then print from the last index to the first."
+
+[[problems]]
+id = "q_evenodd"
+track = "dsa"
+world = 1
+day = 1
+difficulty = 1
+type = "code"
+tags = ["cpp", "arrays"]
+time_limit_seconds = 300
+statement = """
+Read N, then N integers. Print the count of evens and the count of odds, as "<evens> <odds>".
+
+Input:
+```
+5
+1 2 3 4 5
+```
+"""
+[problems.server]
+answer = "2 3"
+solution_explanation = "Count values where x % 2 == 0 (evens) vs the rest (odds)."
+
+[[problems]]
+id = "q_fib"
+track = "dsa"
+world = 1
+day = 1
+difficulty = 1
+type = "code"
+tags = ["cpp", "loops"]
+time_limit_seconds = 300
+statement = """
+Read N. Print the first N Fibonacci numbers (starting 0 1), space-separated.
+
+Input:
+```
+7
+```
+"""
+[problems.server]
+answer = "0 1 1 2 3 5 8"
+solution_explanation = "Start with 0, 1 and repeatedly append the sum of the last two."
+
+[[problems]]
+id = "q_fact"
+track = "dsa"
+world = 1
+day = 1
+difficulty = 1
+type = "code"
+tags = ["cpp", "recursion"]
+time_limit_seconds = 300
+statement = """
+Read N. Print N! (factorial).
+
+Input:
+```
+5
+```
+"""
+[problems.server]
+answer = "120"
+solution_explanation = "Multiply 1 * 2 * ... * N."
+
+[[problems]]
+id = "q_digsum"
+track = "dsa"
+world = 1
+day = 1
+difficulty = 1
+type = "code"
+tags = ["cpp", "math"]
+time_limit_seconds = 300
+statement = """
+Read an integer N. Print the sum of its digits.
+
+Input:
+```
+9305
+```
+"""
+[problems.server]
+answer = "17"
+solution_explanation = "Repeatedly take N % 10 and divide N by 10 until zero."
+
+[[problems]]
+id = "q_revstr"
+track = "dsa"
+world = 1
+day = 1
+difficulty = 1
+type = "code"
+tags = ["cpp", "strings"]
+time_limit_seconds = 300
+statement = """
+Read a string (one line). Print it reversed.
+
+Input:
+```
+quant
+```
+"""
+[problems.server]
+answer = "tnauq"
+solution_explanation = "Print the characters from last to first."
+
+# ---- Math (numeric) ----
+
+[[problems]]
+id = "m_dice8"
+track = "probability"
+world = 1
+day = 1
+difficulty = 1
+type = "numeric"
+tags = ["probability"]
+time_limit_seconds = 120
+statement = "Roll two fair dice. What is the probability the sum equals 8? Enter as a decimal (e.g. 0.139)."
+[problems.server]
+answer = 0.139
+tolerance = 0.01
+solution_explanation = "5 favourable pairs out of 36 = 5/36 ~= 0.139."
+
+[[problems]]
+id = "m_atleast4"
+track = "probability"
+world = 1
+day = 1
+difficulty = 3
+type = "numeric"
+tags = ["probability"]
+time_limit_seconds = 120
+statement = "Roll two fair dice. Probability that at least one die shows a 4? Enter as a decimal."
+[problems.server]
+answer = 0.306
+tolerance = 0.01
+solution_explanation = "1 - (5/6)^2 = 11/36 ~= 0.306."
+
+[[problems]]
+id = "m_ace"
+track = "probability"
+world = 1
+day = 1
+difficulty = 1
+type = "numeric"
+tags = ["probability"]
+time_limit_seconds = 120
+statement = "Probability of drawing an Ace from a standard 52-card deck? Enter as a decimal."
+[problems.server]
+answer = 0.077
+tolerance = 0.01
+solution_explanation = "4/52 = 1/13 ~= 0.077."
+
+[[problems]]
+id = "m_comb"
+track = "probability"
+world = 1
+day = 1
+difficulty = 3
+type = "numeric"
+tags = ["combinatorics"]
+time_limit_seconds = 120
+statement = "How many ways to choose 2 items from 5 distinct items (C(5,2))?"
+[problems.server]
+answer = 10
+tolerance = 0
+solution_explanation = "5! / (2! * 3!) = 10."
+
+[[problems]]
+id = "m_linear"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 1
+type = "numeric"
+tags = ["algebra"]
+time_limit_seconds = 120
+statement = "Solve for x:  2x + 3 = 11.  x = ?"
+[problems.server]
+answer = 4
+tolerance = 0
+solution_explanation = "2x = 8, so x = 4."
+
+[[problems]]
+id = "m_log"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 1
+type = "numeric"
+tags = ["algebra"]
+time_limit_seconds = 120
+statement = "Evaluate:  log2(8) = ?"
+[problems.server]
+answer = 3
+tolerance = 0
+solution_explanation = "2^3 = 8, so log2(8) = 3."
+
+[[problems]]
+id = "m_func"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 1
+type = "numeric"
+tags = ["algebra"]
+time_limit_seconds = 120
+statement = "If f(x) = x^2, what is f(5)?"
+[problems.server]
+answer = 25
+tolerance = 0
+solution_explanation = "5^2 = 25."
+
+[[problems]]
+id = "m_seq"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 1
+type = "numeric"
+tags = ["sequences"]
+time_limit_seconds = 120
+statement = "Next term in the sequence: 2, 4, 8, 16, ... ?"
+[problems.server]
+answer = 32
+tolerance = 0
+solution_explanation = "Each term doubles, so 16 * 2 = 32."
+
+[[problems]]
+id = "m_ev_die"
+track = "probability"
+world = 1
+day = 1
+difficulty = 1
+type = "numeric"
+tags = ["statistics"]
+time_limit_seconds = 120
+statement = "Expected value of a single roll of a fair six-sided die? Enter as a decimal."
+[problems.server]
+answer = 3.5
+tolerance = 0.01
+solution_explanation = "(1+2+3+4+5+6)/6 = 3.5."
+
+# ---- Quant (numeric) ----
+
+[[problems]]
+id = "q_batball"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 1
+type = "numeric"
+tags = ["reasoning"]
+time_limit_seconds = 120
+statement = "A bat and a ball cost $1.10 together. The bat costs $1.00 more than the ball. How much is the ball, in cents?"
+[problems.server]
+answer = 5
+tolerance = 0
+solution_explanation = "b + (b + 1.00) = 1.10 -> b = 0.05 = 5 cents."
+
+[[problems]]
+id = "q_widgets"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 1
+type = "numeric"
+tags = ["reasoning"]
+time_limit_seconds = 120
+statement = "If 5 machines make 5 widgets in 5 minutes, how many minutes for 100 machines to make 100 widgets?"
+[problems.server]
+answer = 5
+tolerance = 0
+solution_explanation = "Each machine makes 1 widget in 5 minutes; 100 machines work in parallel -> 5 minutes."
+
+[[problems]]
+id = "q_squares"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 3
+type = "numeric"
+tags = ["counting"]
+time_limit_seconds = 120
+statement = "How many squares (of all sizes) are on a standard 8x8 chessboard?"
+[problems.server]
+answer = 204
+tolerance = 0
+solution_explanation = "8^2 + 7^2 + ... + 1^2 = 204."
+
+[[problems]]
+id = "q_eggs"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 5
+type = "numeric"
+tags = ["optimization"]
+time_limit_seconds = 120
+statement = "Two identical eggs, a 100-floor building. Minimum number of drops to guarantee finding the highest safe floor (worst case)?"
+[problems.server]
+answer = 14
+tolerance = 0
+solution_explanation = "Smallest x with x(x+1)/2 >= 100 is x = 14."
+
+[[problems]]
+id = "q_socks"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 1
+type = "numeric"
+tags = ["pigeonhole"]
+time_limit_seconds = 120
+statement = "A drawer has 10 black and 10 white socks (unsorted, in the dark). How many socks must you pull to guarantee a matching pair?"
+[problems.server]
+answer = 3
+tolerance = 0
+solution_explanation = "Two colours, so by pigeonhole 3 socks guarantee a pair."
+
+[[problems]]
+id = "q_clock"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 3
+type = "numeric"
+tags = ["reasoning"]
+time_limit_seconds = 120
+statement = "How many times do the hour and minute hands of a clock overlap in 12 hours?"
+[problems.server]
+answer = 11
+tolerance = 0
+solution_explanation = "The hands align every 12/11 hours -> 11 overlaps in 12 hours."
+
+[[problems]]
+id = "q_monty"
+track = "probability"
+world = 1
+day = 1
+difficulty = 3
+type = "numeric"
+tags = ["probability"]
+time_limit_seconds = 120
+statement = "Monty Hall: 3 doors, you pick one, the host opens a goat door, you switch. Probability you win the car? Enter as a decimal."
+[problems.server]
+answer = 0.667
+tolerance = 0.01
+solution_explanation = "Switching wins whenever your first pick was wrong = 2/3 ~= 0.667."
+
+[[problems]]
+id = "q_lookandsay"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 3
+type = "numeric"
+tags = ["sequences"]
+time_limit_seconds = 120
+statement = "Next term in the look-and-say sequence: 1, 11, 21, 1211, 111221, ... ? Enter the digits as a number."
+[problems.server]
+answer = 312211
+tolerance = 0
+solution_explanation = "111221 read aloud is 'three 1s, two 2s, one 1' -> 312211."
+
+[[problems]]
+id = "q_bt_ropes"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 5
+type = "numeric"
+tags = ["brainteaser"]
+time_limit_seconds = 120
+statement = "Two ropes each burn end-to-end in 60 minutes (unevenly). Light rope A at both ends and rope B at one end at the same time; when A finishes, light B's other end. How many total minutes elapse when B finishes?"
+[problems.server]
+answer = 45
+tolerance = 0
+solution_explanation = "A burns out in 30 min; B then has 30 min of single-flame left, which two flames finish in 15. 30 + 15 = 45."
+
+[[problems]]
+id = "q_bt_bridge"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 3
+type = "numeric"
+tags = ["brainteaser", "optimization"]
+time_limit_seconds = 120
+statement = "Four people cross a bridge at night with one flashlight; at most two cross at a time and a pair moves at the slower pace. Their times are 1, 2, 7, 10 minutes. Minimum total minutes for all four to cross?"
+[problems.server]
+answer = 17
+tolerance = 0
+solution_explanation = "1&2 (2), 1 back (1), 7&10 (10), 2 back (2), 1&2 (2) = 17."
+
+[[problems]]
+id = "q_bt_doors"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 3
+type = "numeric"
+tags = ["brainteaser"]
+time_limit_seconds = 120
+statement = "100 closed doors, 100 passes; on pass k you toggle every k-th door. How many doors are open after 100 passes?"
+[problems.server]
+answer = 10
+tolerance = 0
+solution_explanation = "Only perfect squares (1,4,...,100) end open -> 10."
+
+[[problems]]
+id = "q_bt_jugs"
+track = "mentalmath"
+world = 1
+day = 1
+difficulty = 3
+type = "numeric"
+tags = ["brainteaser"]
+time_limit_seconds = 120
+statement = "With a 3-litre jug, a 5-litre jug, and unlimited water (no markings), the classic procedure leaves exactly how many litres in the 5-litre jug?"
+[problems.server]
+answer = 4
+tolerance = 0
+solution_explanation = "Fill 5, pour into 3 (2 left), empty 3, move the 2 in, refill 5, top up 3 (needs 1) -> 4 left."

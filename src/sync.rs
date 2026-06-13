@@ -53,12 +53,30 @@ pub async fn import_local_progress(_t: String, _d: i64) -> Result<MeSummary, Str
 }
 
 #[cfg(feature = "fullstack")]
-pub async fn list_problems(token: String, track: Option<String>) -> Result<Vec<BankProblem>, String> {
-    crate::server_fns::list_problems(token, track).await.map_err(|e| e.to_string())
+pub async fn list_problems(
+    token: String,
+    track: Option<String>,
+    day: Option<i64>,
+) -> Result<Vec<BankProblem>, String> {
+    crate::server_fns::list_problems(token, track, day).await.map_err(|e| e.to_string())
 }
 
 #[cfg(not(feature = "fullstack"))]
-pub async fn list_problems(_t: String, _track: Option<String>) -> Result<Vec<BankProblem>, String> {
+pub async fn list_problems(
+    _t: String,
+    _track: Option<String>,
+    _day: Option<i64>,
+) -> Result<Vec<BankProblem>, String> {
+    Err("sync unavailable in this build".to_string())
+}
+
+#[cfg(feature = "fullstack")]
+pub async fn solved_problem_ids(token: String) -> Result<Vec<String>, String> {
+    crate::server_fns::solved_problem_ids(token).await.map_err(|e| e.to_string())
+}
+
+#[cfg(not(feature = "fullstack"))]
+pub async fn solved_problem_ids(_t: String) -> Result<Vec<String>, String> {
     Err("sync unavailable in this build".to_string())
 }
 
