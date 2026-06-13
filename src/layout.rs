@@ -41,6 +41,7 @@ pub fn AppShell() -> Element {
                 NavItem { to: Route::Strategy {}, icon: "📅", label: "Strategy" }
                 NavItem { to: Route::Practice {}, icon: "⌨️", label: "Practice" }
                 NavItem { to: Route::Journal {}, icon: "📓", label: "Journal" }
+                NavItem { to: Route::Planner {}, icon: "✦", label: "AI Planner" }
 
                 div { class: "sidebar-divider" }
                 div { class: "sidebar-section-label", "Phases" }
