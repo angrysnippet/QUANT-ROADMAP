@@ -9,9 +9,12 @@ use std::collections::{HashMap, HashSet};
 
 use dioxus::prelude::*;
 
+use crate::api::MeSummary;
+use crate::auth::{use_me, use_token};
 use crate::roadmap::{code_meta, practice_problems_for_day, PracticeCategory, PracticeProblem};
 use crate::runner::{normalize_out, run_code, RunResult};
 use crate::state::AppState;
+use crate::sync;
 
 // Display order requested for Day 1.
 const CATEGORIES: [PracticeCategory; 4] = [
@@ -33,7 +36,7 @@ fn brief(s: &str, n: usize) -> String {
 
 #[component]
 pub fn Practice() -> Element {
-    let app = use_context::<Signal<AppState>>();
+    let mut app = use_context::<Signal<AppState>>();
     let selected = use_signal(|| None::<String>); // open problem id (modal)
 
     // Modal session state (all start empty — no pre-fill).
@@ -45,7 +48,30 @@ pub fn Practice() -> Element {
     let revealed = use_signal(HashSet::<String>::new); // id -> solution shown (non-code)
     let open_cats = use_signal(HashSet::<String>::new); // expanded category labels
 
+    // Server grading: token, shared summary, and the set of server-gradeable
+    // problem ids for this day. Solved ids are cached into local state so the
+    // cards + the Today practice gate reflect server truth.
+    let token = use_token();
+    let me = use_me();
+    let mut gradeable = use_signal(HashSet::<String>::new);
+
     let day = app.read().current_day;
+    use_effect(move || {
+        if let Some(tok) = token() {
+            spawn(async move {
+                if let Ok(ids) = sync::solved_problem_ids(tok.clone()).await {
+                    let mut st = app.write();
+                    for id in ids {
+                        st.solved.insert(id, true);
+                    }
+                }
+                if let Ok(ps) = sync::list_problems(tok, None, Some(day as i64)).await {
+                    gradeable.set(ps.into_iter().map(|p| p.id).collect());
+                }
+            });
+        }
+    });
+
     let solved = app.read().solved.clone();
 
     let problems: Vec<&'static PracticeProblem> = practice_problems_for_day(day).collect();
@@ -139,7 +165,7 @@ pub fn Practice() -> Element {
                         let is_solved = solved.get(p.id).copied().unwrap_or(false);
                         problem_modal(
                             p, is_solved, app, selected, lang, code_buf, input_buf, outputs,
-                            running, revealed,
+                            running, revealed, token, me, gradeable,
                         )
                     }
                     None => rsx! {},
@@ -162,6 +188,9 @@ fn problem_modal(
     outputs: Signal<HashMap<String, (String, String)>>,
     running: Signal<Option<String>>,
     revealed: Signal<HashSet<String>>,
+    token: Signal<Option<String>>,
+    me: Signal<Option<MeSummary>>,
+    gradeable: Signal<HashSet<String>>,
 ) -> Element {
     let is_code = p.category == PracticeCategory::Code;
 
@@ -187,9 +216,9 @@ fn problem_modal(
                 div { class: "modal-statement", "{p.prompt}" }
 
                 if is_code {
-                    {code_body(p, is_solved, app, lang, code_buf, input_buf, outputs, running)}
+                    {code_body(p, is_solved, app, lang, code_buf, input_buf, outputs, running, token, me, gradeable)}
                 } else {
-                    {answer_body(p, is_solved, app, input_buf, revealed)}
+                    {answer_body(p, is_solved, app, input_buf, revealed, outputs, token, me, gradeable)}
                 }
             }
         }
@@ -207,6 +236,9 @@ fn code_body(
     mut input_buf: Signal<HashMap<String, String>>,
     mut outputs: Signal<HashMap<String, (String, String)>>,
     mut running: Signal<Option<String>>,
+    token: Signal<Option<String>>,
+    mut me: Signal<Option<MeSummary>>,
+    gradeable: Signal<HashSet<String>>,
 ) -> Element {
     let id = p.id;
     let lng = lang();
@@ -256,6 +288,22 @@ fn code_body(
                         let res = run_code(&lng2, code2, stdin2).await;
                         let (t, c) = build_output(&res, expected, &id_s, app);
                         outputs.write().insert(id_s.clone(), (t, c));
+                        // Server grading for migrated code problems: submit the
+                        // program output; the server grades and awards XP.
+                        // Bind owned values first so no signal Read guard is held
+                        // across the await.
+                        let is_grad = gradeable.peek().contains(&id_s);
+                        let tok_opt = token.peek().clone();
+                        if is_grad {
+                            if let Some(tok) = tok_opt {
+                                if let Ok(r) = sync::submit_problem(tok, id_s.clone(), res.output.clone()).await {
+                                    if r.correct {
+                                        app.write().solved.insert(id_s.clone(), true);
+                                    }
+                                    me.set(Some(r.summary));
+                                }
+                            }
+                        }
                         running.set(None);
                     });
                 },
@@ -317,13 +365,20 @@ fn code_body(
     }
 }
 
-/// Linux / Quant / Math body: an answer field + load-solution reveal.
+/// Linux / Quant / Math body: an answer field + load-solution reveal. For
+/// server-gradeable numeric problems (signed in), the action submits to the
+/// server for grading; otherwise it falls back to a local self-mark.
+#[allow(clippy::too_many_arguments)]
 fn answer_body(
     p: &'static PracticeProblem,
     is_solved: bool,
     mut app: Signal<AppState>,
     mut input_buf: Signal<HashMap<String, String>>,
     mut revealed: Signal<HashSet<String>>,
+    mut outputs: Signal<HashMap<String, (String, String)>>,
+    token: Signal<Option<String>>,
+    mut me: Signal<Option<MeSummary>>,
+    gradeable: Signal<HashSet<String>>,
 ) -> Element {
     let id = p.id;
     let answer = input_buf.read().get(id).cloned().unwrap_or_default();
@@ -364,14 +419,49 @@ fn answer_body(
                 div { dangerous_inner_html: "{p.solution}" }
             }
         }
+        // Server grading feedback (numeric problems).
+        if let Some((t, c)) = outputs.read().get(id).cloned() {
+            div { class: "prac-output {c}", style: "margin-top:.6rem", "{t}" }
+        }
         div { class: "modal-actions",
-            button {
-                class: "quiz-check-btn",
-                onclick: move |_| {
-                    let cur = app.read().solved.get(id).copied().unwrap_or(false);
-                    app.write().solved.insert(id.to_string(), !cur);
-                },
-                if is_solved { "✓ Solved — undo" } else { "Mark solved" }
+            if gradeable().contains(id) && token().is_some() {
+                button {
+                    class: "quiz-check-btn",
+                    onclick: move |_| {
+                        let ans = input_buf.peek().get(id).cloned().unwrap_or_default();
+                        if let Some(tok) = token.peek().clone() {
+                            spawn(async move {
+                                match sync::submit_problem(tok, id.to_string(), ans).await {
+                                    Ok(r) => {
+                                        if r.correct {
+                                            app.write().solved.insert(id.to_string(), true);
+                                        }
+                                        me.set(Some(r.summary.clone()));
+                                        let (msg, cls) = if r.correct {
+                                            (format!("✓ Correct — +{} XP", r.xp_awarded), "ok")
+                                        } else {
+                                            ("✗ Not quite — try again".to_string(), "err")
+                                        };
+                                        outputs.write().insert(id.to_string(), (msg, cls.to_string()));
+                                    }
+                                    Err(e) => {
+                                        outputs.write().insert(id.to_string(), (e, "err".to_string()));
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    "Submit answer"
+                }
+            } else {
+                button {
+                    class: "quiz-check-btn",
+                    onclick: move |_| {
+                        let cur = app.read().solved.get(id).copied().unwrap_or(false);
+                        app.write().solved.insert(id.to_string(), !cur);
+                    },
+                    if is_solved { "✓ Solved — undo" } else { "Mark solved" }
+                }
             }
         }
     }

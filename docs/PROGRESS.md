@@ -164,3 +164,34 @@ the top-bar chips + rail show live server XP/streak/progress and update after
 completing a day or solving a problem; signed out shows derived progress with
 XP/streak dashed. Full Section 5 visuals (world map, achievements, quote) remain
 Phase 2.
+
+---
+
+## Phase 1 - Practice rewire (Day 1; code + numeric server-graded)
+
+Made the Practice page's solved state server-authoritative for gradeable
+problems, replacing the gloo-storage `solved` writes for those. Scope: code
+(graded by output) + numeric math/quant (graded by value). Open-ended quant +
+Linux stay self-marked. Bounded to Days 1-3 (only days with legacy content);
+**Day 1 migrated this batch**, Days 2-3 follow.
+
+**What was built:**
+- `server.rs` / `server_fns.rs` / `sync.rs`: `list_problems` gained a `day`
+  filter; new `solved_problem_ids` (distinct correct submissions).
+- `src/bin/seed.rs`: now also accepts a `[[problems]]` multi-problem file.
+- `problems/migrated/day1.toml`: 30 Day-1 problems (9 code via `code_meta`
+  sample I/O; 9 math + 12 quant as numeric with authored answers + tolerances),
+  reusing legacy ids.
+- `practice.rs`: signed in, the day's gradeable problems grade server-side - code
+  via the in-browser runner -> `submit_problem`; numeric via a "Submit answer"
+  button. Solved ids load from `solved_problem_ids` and cache into local state so
+  the cards + Today practice-gate reflect server truth; shared `me` updates live.
+  Non-migrated (Linux, conceptual quant) + offline keep local self-mark.
+
+**How to verify:** compiles web/fullstack/server + wasm; clippy clean; 5 server
+tests pass. After seeding (`cargo run --bin seed ...`), sign in and on Day 1:
+run a code problem to a matching output -> server XP; submit a numeric answer ->
+graded with XP; reload -> solved persists from the server.
+
+**Deferred:** Days 2-3 content (same pattern); Linux + conceptual quant stay
+self-mark; Phase 3 practice engine (filters, revision queue, daily quests).

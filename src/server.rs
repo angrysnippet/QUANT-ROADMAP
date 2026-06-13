@@ -380,25 +380,20 @@ fn streak_next(
 // Problem bank
 // ---------------------------------------------------------------------------
 
-/// List sealed problems (optionally filtered by track). Selects public columns
-/// only - answers never leave the server (CLAUDE.md 4.4).
-pub async fn list_problems(track: Option<&str>) -> R<Vec<crate::api::BankProblem>> {
+/// List sealed problems, optionally filtered by track and/or day. Selects
+/// public columns only - answers never leave the server (CLAUDE.md 4.4).
+pub async fn list_problems(track: Option<&str>, day: Option<i64>) -> R<Vec<crate::api::BankProblem>> {
     let pool = pool().await?;
-    let base = "select id, track, world, difficulty, kind, statement, choices, tags, \
-                time_limit_seconds from problems";
-    let rows = match track {
-        Some(t) => {
-            sqlx::query(&format!("{base} where track = $1 order by difficulty, id"))
-                .bind(t)
-                .fetch_all(pool)
-                .await
-        }
-        None => {
-            sqlx::query(&format!("{base} order by difficulty, id"))
-                .fetch_all(pool)
-                .await
-        }
-    }
+    let rows = sqlx::query(
+        "select id, track, world, difficulty, kind, statement, choices, tags, \
+         time_limit_seconds from problems \
+         where ($1::text is null or track = $1) and ($2::int is null or day = $2) \
+         order by difficulty, id",
+    )
+    .bind(track)
+    .bind(day.map(|d| d as i32))
+    .fetch_all(pool)
+    .await
     .map_err(|e| e.to_string())?;
 
     Ok(rows
@@ -415,6 +410,19 @@ pub async fn list_problems(track: Option<&str>) -> R<Vec<crate::api::BankProblem
             time_limit_seconds: r.get::<i32, _>("time_limit_seconds") as i64,
         })
         .collect())
+}
+
+/// Distinct problem ids the user has solved (a correct submission exists). Used
+/// by the client to mark solved state and satisfy the Today practice gate.
+pub async fn solved_problem_ids(uid: Uuid) -> R<Vec<String>> {
+    let pool = pool().await?;
+    sqlx::query_scalar::<_, String>(
+        "select distinct problem_id from submissions where user_id = $1 and correct = true",
+    )
+    .bind(uid)
+    .fetch_all(pool)
+    .await
+    .map_err(|e| e.to_string())
 }
 
 /// Grade a submission server-side, record it (append-only, server-timestamped),
