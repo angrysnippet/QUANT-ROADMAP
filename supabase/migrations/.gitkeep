@@ -1,0 +1,2 @@
+# Supabase migrations live here. Empty in Phase 0 - no tables yet.
+# Phase 1 adds: profiles, progress, xp_ledger, streaks (with RLS).

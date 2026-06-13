@@ -11,6 +11,10 @@ mod calendar;
 mod strategy;
 mod practice;
 mod journal;
+// Fullstack proof (Phase 0). Compiled only with the `fullstack` feature so the
+// default web build is untouched. See src/server_fns.rs.
+#[cfg(feature = "fullstack")]
+mod server_fns;
 
 use landing::Landing;
 use layout::AppShell;
@@ -49,6 +53,19 @@ fn main() {
     dioxus::launch(App);
 }
 
+/// Phase 0 fullstack probe. Renders a hidden component that exercises one
+/// hello-world server function under the `fullstack` feature; a no-op empty
+/// node otherwise, so the default `web` build emits identical output.
+#[cfg(feature = "fullstack")]
+fn hello_probe() -> Element {
+    rsx! { server_fns::HelloProbe {} }
+}
+
+#[cfg(not(feature = "fullstack"))]
+fn hello_probe() -> Element {
+    rsx! {}
+}
+
 #[component]
 fn App() -> Element {
     // Provide shared state + register localStorage autosave.
@@ -71,5 +88,6 @@ fn App() -> Element {
             href: "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap",
         }
         Router::<Route> {}
+        {hello_probe()}
     }
 }

@@ -19,3 +19,10 @@ default = ["web"]
 web = ["dioxus/web"]
 desktop = ["dioxus/desktop"]
 mobile = ["dioxus/mobile"]
+# Phase 0 fullstack proof. Non-default on purpose: the default `web` build and
+# the GitHub Pages deploy (.github/workflows/deploy.yml) stay byte-for-byte
+# unchanged until Phase 1. `fullstack` pulls the server-function machinery and
+# client stubs; `server` additionally selects the server platform for the
+# Axum-backed server binary. See docs/DEV_SETUP.md for how to run it locally.
+fullstack = ["dioxus/fullstack"]
+server = ["dioxus/server", "fullstack"]

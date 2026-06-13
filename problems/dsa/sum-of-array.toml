@@ -1,0 +1,37 @@
+# Sample problem (code). Public section is client-safe; [server] is stripped by
+# the seeder and never sent to the client before grading. Phase 0 code grading
+# is a placeholder: normalized stdout compared to `server.answer` (full sandbox
+# execution is a later phase - see docs/BACKLOG.md).
+
+id = "sum-of-array"
+track = "dsa"
+world = 1
+day = 1
+difficulty = 1
+type = "code"
+statement = """
+Read an integer n, then n integers, and print their sum.
+
+Input:
+```
+5
+1 2 3 4 5
+```
+Expected output:
+```
+15
+```
+Write the program from scratch (no copying). Any language whose stdout matches
+the expected output passes.
+"""
+tags = ["dsa", "arrays", "io", "basics"]
+time_limit_seconds = 300
+
+[server]
+# Expected normalized stdout for the sample input above.
+answer = "15"
+solution_explanation = """
+Accumulate a running total while reading the n values, then print it. In C++:
+read n, loop n times reading x and adding to sum, print sum. Time O(n), space
+O(1) (no need to store the array to total it).
+"""

@@ -1,0 +1,65 @@
+name: CI
+
+# Build, test, lint and security-audit on every push/PR. This does NOT deploy;
+# the static GitHub Pages deploy stays in deploy.yml and is untouched.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust (stable + clippy + wasm target)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo build
+        uses: Swatinem/rust-cache@v2
+
+      # Default features = ["web"]; this is the production build path.
+      - name: Build (default web features)
+        run: cargo build --verbose
+
+      - name: Test
+        run: cargo test --verbose
+
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install cargo-audit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: cargo binstall cargo-audit --no-confirm
+
+      # Ensure a lockfile exists for the advisory scan.
+      - name: Generate lockfile
+        run: cargo generate-lockfile
+
+      - name: Security audit
+        run: cargo audit
