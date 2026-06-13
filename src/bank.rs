@@ -7,7 +7,7 @@
 use dioxus::prelude::*;
 
 use crate::api::{BankProblem, GradeResult};
-use crate::auth::use_token;
+use crate::auth::{use_me, use_token};
 use crate::sync;
 use crate::Route;
 
@@ -61,6 +61,7 @@ fn ProblemCard(p: BankProblem, token: Signal<Option<String>>) -> Element {
     let mut answer = use_signal(String::new);
     let mut result = use_signal(|| None::<GradeResult>);
     let mut err = use_signal(String::new);
+    let mut me = use_me();
 
     let problem_id = p.id.clone();
     let submit = move |_| {
@@ -74,7 +75,11 @@ fn ProblemCard(p: BankProblem, token: Signal<Option<String>>) -> Element {
         if let Some(tok) = token() {
             spawn(async move {
                 match sync::submit_problem(tok, pid, ans).await {
-                    Ok(r) => result.set(Some(r)),
+                    Ok(r) => {
+                        // Update the shared summary so the shell reflects new XP.
+                        me.set(Some(r.summary.clone()));
+                        result.set(Some(r));
+                    }
                     Err(e) => err.set(e),
                 }
             });

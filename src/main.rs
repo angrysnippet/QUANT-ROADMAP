@@ -99,6 +99,21 @@ fn App() -> Element {
         });
     });
 
+    // Shared server summary (XP/level/streak/progress), provided to the shell
+    // and every page. Refetched whenever the auth token changes; pages update it
+    // after complete_day / submit_problem so the shell reflects changes live.
+    let mut me = use_context_provider(|| Signal::new(Option::<api::MeSummary>::None));
+    use_effect(move || match token() {
+        Some(tok) => {
+            spawn(async move {
+                if let Ok(s) = sync::me_summary(tok).await {
+                    me.set(Some(s));
+                }
+            });
+        }
+        None => me.set(None),
+    });
+
     // Apply the persisted theme to <html data-theme> after mount and on change.
     use_effect(move || {
         let theme = app.read().theme.clone();

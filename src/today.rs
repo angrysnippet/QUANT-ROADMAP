@@ -12,8 +12,7 @@ use crate::roadmap::{
     total_daily_items, BLOCK_TOPIC_MAP, DAILY_BLOCKS, DAYS,
 };
 use crate::state::AppState;
-use crate::api::MeSummary;
-use crate::auth::use_token;
+use crate::auth::{use_me, use_token};
 use crate::sync;
 use crate::Route;
 
@@ -39,21 +38,12 @@ fn linked_label(block_idx: usize) -> String {
 pub fn Today() -> Element {
     let mut app = use_context::<Signal<AppState>>();
 
-    // Server-auth token + the server summary (None when offline / signed out).
+    // Server-auth token + the shared server summary (fetched at the app root;
+    // None when offline / signed out). We write it after a server action so the
+    // shell's chips/rail update live.
     let mut token = use_token();
-    let mut me = use_signal(|| Option::<MeSummary>::None);
+    let mut me = use_me();
     let mut sync_msg = use_signal(String::new);
-
-    // Pull the server summary whenever a token is present.
-    use_effect(move || {
-        if let Some(tok) = token() {
-            spawn(async move {
-                if let Ok(s) = sync::me_summary(tok).await {
-                    me.set(Some(s));
-                }
-            });
-        }
-    });
 
     let day = app.read().current_day;
     let day_key = day.to_string();
