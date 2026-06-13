@@ -193,5 +193,10 @@ tests pass. After seeding (`cargo run --bin seed ...`), sign in and on Day 1:
 run a code problem to a matching output -> server XP; submit a numeric answer ->
 graded with XP; reload -> solved persists from the server.
 
-**Deferred:** Days 2-3 content (same pattern); Linux + conceptual quant stay
-self-mark; Phase 3 practice engine (filters, revision queue, daily quests).
+**Deferred:** Linux + conceptual quant stay self-mark; Phase 3 practice engine
+(filters, revision queue, daily quests).
+
+**Update:** Days 2-3 migrated too - `problems/migrated/day2.toml` (9 code + 5
+numeric) and `day3.toml` (6 code + 6 numeric), same pattern, legacy ids. All of
+Days 1-3 (the only days with legacy practice content) are now server-gradeable;
+the seeder pre-flight test validates all 59 problem files parse/derive/unique.
