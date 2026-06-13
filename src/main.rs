@@ -130,6 +130,34 @@ fn App() -> Element {
             rel: "stylesheet",
             href: "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap",
         }
+
+        // Title + meta/OpenGraph for SEO and link previews. These server-render
+        // under fullstack SSR (fixing the empty-HTML-shell problem, CLAUDE.md 3);
+        // on the static build they are injected client-side. `og:url`/`og:image`
+        // point at the current host - update them when deploying to Fly, and swap
+        // og:image for a designed social card (a user-supplied art asset).
+        document::Title { "Quant Arena - gamified quant-finance learning" }
+        document::Meta {
+            name: "description",
+            content: "Learn C++, DSA, probability and quant finance through a 548-day gamified curriculum: daily lessons, server-graded practice, XP, streaks and duels.",
+        }
+        document::Meta { property: "og:title", content: "Quant Arena" }
+        document::Meta {
+            property: "og:description",
+            content: "A gamified 548-day quant-finance learning world: learn, practice, compete, rank up.",
+        }
+        document::Meta { property: "og:type", content: "website" }
+        document::Meta { property: "og:site_name", content: "Quant Arena" }
+        document::Meta { property: "og:url", content: "https://angrysnippet.github.io/QUANT-ROADMAP" }
+        document::Meta { property: "og:image", content: "{FAVICON}" }
+        document::Meta { name: "twitter:card", content: "summary" }
+        document::Meta { name: "twitter:title", content: "Quant Arena" }
+        document::Meta {
+            name: "twitter:description",
+            content: "A gamified 548-day quant-finance learning world.",
+        }
+        document::Meta { name: "twitter:image", content: "{FAVICON}" }
+
         Router::<Route> {}
         {hello_probe()}
     }
