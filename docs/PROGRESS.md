@@ -233,3 +233,31 @@ break the working app).
 
 **Next phase:** Phase 2 - World Map UI & Three-View Navigation (new session,
 per CLAUDE.md 0.2 one-phase-per-session).
+
+---
+
+## Phase 2 - Slice 1: World Map (additive view)
+
+Started Phase 2 (user explicitly authorized starting it). Delivered as slices;
+Slice 1 = the World Map level. Additive: existing Strategy/Progress untouched.
+
+**What was built:**
+- `roadmap.rs`: `MAP_WORLDS` - the 9 worlds keyed by DAY range (Section 5:
+  Foundation 1-60 ... Interview Prep 481-548) with Section-5 accent colors, plus
+  `MapWorld::{days,done,state}` + a `WorldState` enum.
+- `src/worldmap.rs` + `/map` route + a "World Map" sidebar item: renders the 9
+  worlds on a glowing dashed path with per-world progress and node state
+  (completed / current "YOU ARE HERE" / locked), driven by `me_summary`
+  completed_days when signed in, else local `current_day`. Gradient placeholder
+  for world art (real illustrations are user-supplied). Unlocked world click ->
+  existing Strategy view (interim; Chapter Zoom replaces it in Slice 2).
+- `assets/main.css`: world-map styles; collapses to a vertical list < 768px.
+
+**How to verify:** compiles web/fullstack/server + wasm; clippy clean. Open
+/map (or the "World Map" sidebar item): worlds reflect progress, the current
+world pulses with "YOU ARE HERE", future worlds are locked; resize < 768px for
+the vertical fallback.
+
+**Slices 2-3 (next):** Chapter Zoom (day-nodes winding path + boss banner
+"N days to unlock"); Day Detail (title/tags/est time/progress ring/XP + TODAY'S
+PLAN checklist -> complete_day) + right-rail Recent Achievements + quote card.

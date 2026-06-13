@@ -1259,6 +1259,63 @@ pub const WORLDS: &[World] = &[
     World { name: "Trading World",    emoji: "🚀", color: "#06d6a0", lo: 75, hi: 100, desc: "DP · Backtest · Deploy" },
 ];
 
+// ── World Map (CLAUDE.md Section 5): the 9 worlds keyed by DAY range (mirrors
+// the roadmap phases), each with its Section-5 accent color. Distinct from the
+// 4 percentage-based `WORLDS` above, which drive the Progress page. ──
+
+pub struct MapWorld {
+    pub n: u32,
+    pub name: &'static str,
+    pub emoji: &'static str,
+    pub color: &'static str,
+    pub lo: u32, // first day, inclusive
+    pub hi: u32, // last day, inclusive
+    pub desc: &'static str,
+}
+
+pub const MAP_WORLDS: &[MapWorld] = &[
+    MapWorld { n: 1, name: "Foundation",      emoji: "🌱", color: "#A855F7", lo: 1,   hi: 60,  desc: "C++ · Basics · Algebra" },
+    MapWorld { n: 2, name: "DSA Core",        emoji: "⚙️", color: "#2DD4BF", lo: 61,  hi: 120, desc: "Arrays · Lists · Stacks" },
+    MapWorld { n: 3, name: "Data Structures", emoji: "🧱", color: "#84CC16", lo: 121, hi: 180, desc: "Trees · Graphs · Heaps" },
+    MapWorld { n: 4, name: "Algorithms",      emoji: "🧠", color: "#F59E0B", lo: 181, hi: 240, desc: "DP · Greedy · Search" },
+    MapWorld { n: 5, name: "Quant Math",      emoji: "📊", color: "#3B82F6", lo: 241, hi: 300, desc: "Probability · Stats" },
+    MapWorld { n: 6, name: "Python & Data",   emoji: "🐍", color: "#8B5CF6", lo: 301, hi: 360, desc: "NumPy · Pandas · ML" },
+    MapWorld { n: 7, name: "Linux & Tools",   emoji: "🐧", color: "#6366F1", lo: 361, hi: 400, desc: "Shell · Git · Build" },
+    MapWorld { n: 8, name: "Projects",        emoji: "🚀", color: "#EC4899", lo: 401, hi: 480, desc: "Backtest · Systems" },
+    MapWorld { n: 9, name: "Interview Prep",  emoji: "🎯", color: "#F97316", lo: 481, hi: 548, desc: "Mock · Review · Polish" },
+];
+
+/// Node state for a world given the user's current day (1-based).
+#[derive(Clone, Copy, PartialEq)]
+pub enum WorldState {
+    Completed,
+    Current,
+    Locked,
+}
+
+impl MapWorld {
+    /// Number of days in this world.
+    pub fn days(&self) -> u32 {
+        self.hi - self.lo + 1
+    }
+
+    /// Days completed within this world, given total completed days (current-1).
+    pub fn done(&self, completed_days: u32) -> u32 {
+        completed_days.saturating_sub(self.lo - 1).min(self.days())
+    }
+
+    /// World state from the current day (= completed_days + 1).
+    pub fn state(&self, current_day: u32) -> WorldState {
+        if current_day > self.hi {
+            WorldState::Completed
+        } else if current_day >= self.lo {
+            WorldState::Current
+        } else {
+            WorldState::Locked
+        }
+    }
+}
+
 // ── Practice problems + daily-loop gates ──
 //
 // A minimal port of spec.html's QUESTION_BANK / MATH_BANK / QUANT_BANK /

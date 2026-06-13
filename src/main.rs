@@ -16,6 +16,7 @@ mod auth;
 mod api;
 mod sync;
 mod bank;
+mod worldmap;
 // Server functions (Phase 1). The fullstack feature compiles the function
 // signatures + client stubs; the server feature additionally compiles the
 // server-only `server` module (DB + auth) that the bodies call into.
@@ -35,6 +36,7 @@ use journal::Journal;
 use planner::Planner;
 use auth::Login;
 use bank::Bank;
+use worldmap::WorldMap;
 use state::use_app_state;
 
 #[derive(Debug, Clone, Routable, PartialEq)]
@@ -45,6 +47,8 @@ pub enum Route {
     #[route("/login")]
     Login {},
     #[layout(AppShell)]
+        #[route("/map")]
+        WorldMap {},
         #[route("/progress")]
         Progress {},
         #[route("/today")]
