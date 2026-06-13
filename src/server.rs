@@ -239,31 +239,33 @@ pub async fn me_summary(uid: Uuid) -> R<MeSummary> {
 // Helpers
 // ---------------------------------------------------------------------------
 
-/// Append an idempotent XP award inside a transaction.
+/// Append an idempotent XP award inside a transaction. Returns the number of
+/// rows inserted (1 = newly awarded, 0 = already had it) so callers can tell
+/// whether XP was actually granted.
 async fn award_xp(
     tx: &mut Transaction<'_, Postgres>,
     uid: Uuid,
     amount: i32,
     reason: &str,
     ref_id: &str,
-) -> R<()> {
+) -> R<u64> {
     // `reason` is a fixed enum literal chosen by the caller, not user input.
     let sql = format!(
         "insert into xp_ledger (user_id, amount, reason, ref_id) \
          values ($1, $2, '{reason}', $3) on conflict (user_id, reason, ref_id) do nothing"
     );
-    sqlx::query(&sql)
+    let res = sqlx::query(&sql)
         .bind(uid)
         .bind(amount)
         .bind(ref_id)
         .execute(&mut **tx)
         .await
         .map_err(|e| e.to_string())?;
-    Ok(())
+    Ok(res.rows_affected())
 }
 
-/// Bump the streak for "any qualifying activity today" (UTC for slice 1;
-/// profile-timezone awareness and freeze auto-apply land in a later slice).
+/// Bump the streak for "any qualifying activity today" in the profile's
+/// timezone, applying/earning freezes per `streak_next`.
 async fn update_streak(tx: &mut Transaction<'_, Postgres>, uid: Uuid) -> R<()> {
     sqlx::query("insert into streaks (user_id) values ($1) on conflict (user_id) do nothing")
         .bind(uid)
@@ -271,8 +273,16 @@ async fn update_streak(tx: &mut Transaction<'_, Postgres>, uid: Uuid) -> R<()> {
         .await
         .map_err(|e| e.to_string())?;
 
+    let tz: Option<String> = sqlx::query_scalar("select timezone from profiles where id = $1")
+        .bind(uid)
+        .fetch_optional(&mut **tx)
+        .await
+        .map_err(|e| e.to_string())?;
+    let today = today_in_tz(tz.as_deref().unwrap_or("UTC"));
+
     let row = sqlx::query(
-        "select current, longest, last_active_date from streaks where user_id = $1 for update",
+        "select current, longest, last_active_date, freezes_banked \
+         from streaks where user_id = $1 for update",
     )
     .bind(uid)
     .fetch_one(&mut **tx)
@@ -281,22 +291,29 @@ async fn update_streak(tx: &mut Transaction<'_, Postgres>, uid: Uuid) -> R<()> {
     let current: i32 = row.get("current");
     let longest: i32 = row.get("longest");
     let last: Option<NaiveDate> = row.get("last_active_date");
+    let freezes: i32 = row.get("freezes_banked");
 
-    let today = Utc::now().date_naive();
-    let new_current = streak_after(last, today, current);
-    let new_longest = longest.max(new_current);
+    let out = streak_next(current, longest, freezes, last, today);
 
     sqlx::query(
-        "update streaks set current = $1, longest = $2, last_active_date = $3 where user_id = $4",
+        "update streaks set current = $1, longest = $2, freezes_banked = $3, \
+         last_active_date = $4 where user_id = $5",
     )
-    .bind(new_current)
-    .bind(new_longest)
-    .bind(today)
+    .bind(out.current)
+    .bind(out.longest)
+    .bind(out.freezes)
+    .bind(out.last)
     .bind(uid)
     .execute(&mut **tx)
     .await
     .map_err(|e| e.to_string())?;
     Ok(())
+}
+
+/// Current local date in an IANA timezone (e.g. "Asia/Kolkata"), or UTC.
+fn today_in_tz(tz: &str) -> NaiveDate {
+    let zone: chrono_tz::Tz = tz.parse().unwrap_or(chrono_tz::UTC);
+    Utc::now().with_timezone(&zone).date_naive()
 }
 
 /// XP -> level. Level 1 at 0 XP, level 2 at 100, then ~100*level^1.6 cumulative
@@ -325,14 +342,168 @@ fn completed_days_from_legacy(current_day: i64) -> i64 {
     (current_day - 1).clamp(0, 548)
 }
 
-/// Next streak value given the last active date, today, and the current streak.
-/// Same day -> unchanged; consecutive day -> +1; any gap (or first ever) -> 1.
-/// Pure (no DB / no clock) so the timezone-agnostic edges are unit-testable.
-fn streak_after(last: Option<NaiveDate>, today: NaiveDate, current: i32) -> i32 {
-    match last {
-        Some(d) if d == today => current,
-        Some(d) if d == today - Duration::days(1) => current + 1,
-        _ => 1,
+/// Resulting streak row after a qualifying activity.
+struct StreakOutcome {
+    current: i32,
+    longest: i32,
+    freezes: i32,
+    last: NaiveDate,
+}
+
+/// Next streak state, applying and earning freezes (CLAUDE.md 6). Same day ->
+/// unchanged; consecutive day -> +1; a single missed day covered by a banked
+/// freeze -> +1 and consume the freeze; any larger gap (or first ever) -> reset
+/// to 1. Earn 1 freeze each time the streak hits a multiple of 7, capped at 2.
+/// Pure (no DB / no clock) so all edges are unit-testable.
+fn streak_next(
+    current: i32,
+    longest: i32,
+    freezes: i32,
+    last: Option<NaiveDate>,
+    today: NaiveDate,
+) -> StreakOutcome {
+    if last == Some(today) {
+        return StreakOutcome { current, longest, freezes, last: today };
+    }
+    let (cur, mut frz) = match last {
+        Some(d) if d == today - Duration::days(1) => (current + 1, freezes),
+        Some(d) if d == today - Duration::days(2) && freezes > 0 => (current + 1, freezes - 1),
+        _ => (1, freezes),
+    };
+    if cur % 7 == 0 && frz < 2 {
+        frz += 1;
+    }
+    StreakOutcome { current: cur, longest: longest.max(cur), freezes: frz, last: today }
+}
+
+// ---------------------------------------------------------------------------
+// Problem bank
+// ---------------------------------------------------------------------------
+
+/// List sealed problems (optionally filtered by track). Selects public columns
+/// only - answers never leave the server (CLAUDE.md 4.4).
+pub async fn list_problems(track: Option<&str>) -> R<Vec<crate::api::BankProblem>> {
+    let pool = pool().await?;
+    let base = "select id, track, world, difficulty, kind, statement, choices, tags, \
+                time_limit_seconds from problems";
+    let rows = match track {
+        Some(t) => {
+            sqlx::query(&format!("{base} where track = $1 order by difficulty, id"))
+                .bind(t)
+                .fetch_all(pool)
+                .await
+        }
+        None => {
+            sqlx::query(&format!("{base} order by difficulty, id"))
+                .fetch_all(pool)
+                .await
+        }
+    }
+    .map_err(|e| e.to_string())?;
+
+    Ok(rows
+        .into_iter()
+        .map(|r| crate::api::BankProblem {
+            id: r.get("id"),
+            track: r.get("track"),
+            world: r.get::<i32, _>("world") as i64,
+            difficulty: r.get::<i32, _>("difficulty") as i64,
+            kind: r.get("kind"),
+            statement: r.get("statement"),
+            choices: r.get::<Vec<String>, _>("choices"),
+            tags: r.get::<Vec<String>, _>("tags"),
+            time_limit_seconds: r.get::<i32, _>("time_limit_seconds") as i64,
+        })
+        .collect())
+}
+
+/// Grade a submission server-side, record it (append-only, server-timestamped),
+/// award idempotent XP by difficulty (10/20/30/40/50) on a correct first solve,
+/// and return the result with the solution revealed.
+pub async fn submit_problem(uid: Uuid, problem_id: &str, answer: &str) -> R<crate::api::GradeResult> {
+    let pool = pool().await?;
+    let row = sqlx::query(
+        "select kind, difficulty, answer_idx, answer_num, answer_tol, answer_text, \
+         solution_explanation from problems where id = $1",
+    )
+    .bind(problem_id)
+    .fetch_optional(pool)
+    .await
+    .map_err(|e| e.to_string())?;
+    let Some(row) = row else {
+        return Err("problem not found".to_string());
+    };
+    let kind: String = row.get("kind");
+    let difficulty: i32 = row.get("difficulty");
+    let solution_explanation: String = row.get("solution_explanation");
+
+    let correct = grade_value(
+        &kind,
+        answer,
+        row.get::<Option<i32>, _>("answer_idx"),
+        row.get::<Option<f64>, _>("answer_num"),
+        row.get::<Option<f64>, _>("answer_tol"),
+        row.get::<Option<String>, _>("answer_text").as_deref(),
+    )?;
+    let submitted: String = answer.chars().take(2000).collect();
+
+    let mut tx = pool.begin().await.map_err(|e| e.to_string())?;
+    sqlx::query(
+        "insert into submissions (user_id, problem_id, submitted, correct) values ($1, $2, $3, $4)",
+    )
+    .bind(uid)
+    .bind(problem_id)
+    .bind(&submitted)
+    .bind(correct)
+    .execute(&mut *tx)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    let mut xp_awarded = 0i64;
+    if correct {
+        let amount = difficulty * 10;
+        let inserted = award_xp(&mut tx, uid, amount, "problem_solved", &format!("problem:{problem_id}")).await?;
+        if inserted > 0 {
+            xp_awarded = amount as i64;
+        }
+        update_streak(&mut tx, uid).await?;
+    }
+    tx.commit().await.map_err(|e| e.to_string())?;
+
+    let summary = me_summary(uid).await?;
+    Ok(crate::api::GradeResult { correct, xp_awarded, solution_explanation, summary })
+}
+
+/// Normalise program output for comparison: trim trailing whitespace per line,
+/// then trim the whole block.
+fn normalize_output(s: &str) -> String {
+    s.lines().map(|l| l.trim_end()).collect::<Vec<_>>().join("\n").trim().to_string()
+}
+
+/// Pure grading by problem kind. Separated from the DB row so it is unit-testable.
+fn grade_value(
+    kind: &str,
+    answer: &str,
+    answer_idx: Option<i32>,
+    answer_num: Option<f64>,
+    answer_tol: Option<f64>,
+    answer_text: Option<&str>,
+) -> R<bool> {
+    match kind {
+        "mcq" => {
+            let idx = answer_idx.ok_or("problem missing answer")?;
+            Ok(answer.trim().parse::<i32>().map(|a| a == idx).unwrap_or(false))
+        }
+        "numeric" => {
+            let num = answer_num.ok_or("problem missing answer")?;
+            let tol = answer_tol.unwrap_or(0.0);
+            Ok(answer.trim().parse::<f64>().map(|a| (a - num).abs() <= tol).unwrap_or(false))
+        }
+        "code" => {
+            let exp = answer_text.ok_or("problem missing answer")?;
+            Ok(normalize_output(answer) == normalize_output(exp))
+        }
+        _ => Err("unknown problem kind".to_string()),
     }
 }
 
@@ -365,18 +536,48 @@ mod tests {
     }
 
     #[test]
-    fn streak_transitions() {
+    fn streak_transitions_and_freezes() {
         let today = NaiveDate::from_ymd_opt(2026, 6, 13).unwrap();
-        let yesterday = today - Duration::days(1);
-        let week_ago = today - Duration::days(7);
+        let d = |n| today - Duration::days(n);
+
         // First ever activity.
-        assert_eq!(streak_after(None, today, 0), 1);
+        let o = streak_next(0, 0, 0, None, today);
+        assert_eq!((o.current, o.freezes), (1, 0));
         // Already counted today -> unchanged.
-        assert_eq!(streak_after(Some(today), today, 5), 5);
-        // Consecutive day -> increment.
-        assert_eq!(streak_after(Some(yesterday), today, 5), 6);
-        // Gap -> reset to 1.
-        assert_eq!(streak_after(Some(week_ago), today, 5), 1);
+        let o = streak_next(5, 9, 1, Some(today), today);
+        assert_eq!((o.current, o.freezes), (5, 1));
+        // Consecutive day -> +1.
+        let o = streak_next(5, 5, 0, Some(d(1)), today);
+        assert_eq!(o.current, 6);
+        // One missed day + a banked freeze -> continue, consume freeze.
+        let o = streak_next(5, 5, 1, Some(d(2)), today);
+        assert_eq!((o.current, o.freezes), (6, 0));
+        // One missed day, no freeze -> reset.
+        let o = streak_next(5, 9, 0, Some(d(2)), today);
+        assert_eq!(o.current, 1);
+        // Larger gap -> reset even with a freeze (freeze covers one day only).
+        let o = streak_next(5, 9, 1, Some(d(5)), today);
+        assert_eq!((o.current, o.freezes), (1, 1));
+        // Hitting 7 earns a freeze (capped at 2).
+        let o = streak_next(6, 6, 0, Some(d(1)), today);
+        assert_eq!((o.current, o.freezes), (7, 1));
+        let o = streak_next(13, 13, 2, Some(d(1)), today);
+        assert_eq!((o.current, o.freezes), (14, 2)); // capped, not 3
+    }
+
+    #[test]
+    fn grading_by_kind() {
+        // mcq: index match.
+        assert_eq!(grade_value("mcq", "1", Some(1), None, None, None), Ok(true));
+        assert_eq!(grade_value("mcq", "0", Some(1), None, None, None), Ok(false));
+        assert_eq!(grade_value("mcq", "x", Some(1), None, None, None), Ok(false));
+        // numeric: within tolerance.
+        assert_eq!(grade_value("numeric", "1.0", None, Some(1.0), Some(0.0), None), Ok(true));
+        assert_eq!(grade_value("numeric", "1.05", None, Some(1.0), Some(0.1), None), Ok(true));
+        assert_eq!(grade_value("numeric", "2", None, Some(1.0), Some(0.1), None), Ok(false));
+        // code: normalized output match.
+        assert_eq!(grade_value("code", " 15 \n", None, None, None, Some("15")), Ok(true));
+        assert_eq!(grade_value("code", "16", None, None, None, Some("15")), Ok(false));
     }
 
     #[test]

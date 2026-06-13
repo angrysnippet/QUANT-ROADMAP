@@ -14,6 +14,7 @@ mod journal;
 mod auth;
 mod api;
 mod sync;
+mod bank;
 // Server functions (Phase 1). The fullstack feature compiles the function
 // signatures + client stubs; the server feature additionally compiles the
 // server-only `server` module (DB + auth) that the bodies call into.
@@ -31,6 +32,7 @@ use strategy::Strategy;
 use practice::Practice;
 use journal::Journal;
 use auth::Login;
+use bank::Bank;
 use state::use_app_state;
 
 #[derive(Debug, Clone, Routable, PartialEq)]
@@ -51,6 +53,8 @@ pub enum Route {
         Strategy {},
         #[route("/practice")]
         Practice {},
+        #[route("/bank")]
+        Bank {},
         #[route("/journal")]
         Journal {},
 }

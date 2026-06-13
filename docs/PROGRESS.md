@@ -96,3 +96,48 @@ uses UTC); the problem seeder; full practice-write rewiring; top bar/right rail
 fed by me_summary; retire GitHub Pages after a green Fly deploy. DB-level tests
 (XP idempotency, import replay, RLS denial) are written as DB integration checks
 to run against the dev project (cannot run in this environment).
+
+---
+
+## Phase 1 - Slice 2 (problem bank + grading; in progress)
+
+Adds the server-graded problem bank and refines streaks. Branch:
+`feat/phase-1-backend`.
+
+**What was built:**
+- `supabase/migrations/0002_problems.sql` - `problems` (public cols + SEALED
+  answer cols; RLS on with NO client policy so the table is unreadable from the
+  browser) and `submissions` (append-only, server-timestamped; own-row read).
+- `src/server.rs` - `list_problems` (sealed, answers never selected for the
+  client), `submit_problem` (server-side grading, append-only submission,
+  idempotent XP by difficulty 10-50, streak bump); pure `grade_value` (mcq /
+  numeric-tolerance / code-normalized-output) and freeze-aware `streak_next`
+  (earn 1 freeze/7-day streak, max 2; a banked freeze covers a single missed
+  day) + profile-timezone (`today_in_tz`). `award_xp` now reports rows affected.
+- `src/server_fns.rs` + `src/sync.rs` - `list_problems` / `submit_problem`
+  endpoints + offline-fallback wrappers.
+- `src/api.rs` - `BankProblem` (sealed) and `GradeResult`.
+- `src/bin/seed.rs` - seeder: parses `problems/**/*.toml`, validates, upserts
+  into `problems` with answers in sealed columns. Built only with `--features
+  server`.
+- `src/bank.rs` + `/bank` route + a link from the Today panel - minimal UI to
+  fetch sealed problems, answer, and submit for grading (solution revealed only
+  in the result). Legacy Practice page untouched.
+- Cargo: optional `toml` + `chrono-tz` under the server feature; `tokio` gains
+  rt/macros for the seeder; `[[bin]] seed` gated by `required-features`.
+
+**How to verify:**
+- Compiles web / fullstack / server; wasm fullstack client builds.
+- `cargo test --features server` -> 5 pass (adds `grading_by_kind`,
+  `streak_transitions_and_freezes`). `cargo clippy -D warnings` clean (default +
+  server).
+- Live: apply `0002_problems.sql`, run the seeder
+  (`DATABASE_URL=... cargo run --bin seed --no-default-features --features server`),
+  then `/bank`: answer the seeded problems, confirm server grading, XP by
+  difficulty, idempotency (re-solve grants 0), and that the solution appears only
+  after submitting.
+
+**Known gaps -> later (still Phase 1):** full rewire of the legacy Practice page
+onto the problems table (needs content migration); top bar/right rail fed by
+me_summary; retire GitHub Pages after a green Fly deploy. Authoring the 40-problem
+bank is Phase 3. DB-level idempotency/RLS checks run against the dev project.

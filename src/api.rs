@@ -20,3 +20,29 @@ pub struct MeSummary {
     pub progress_pct: f64,
     pub est_completion: Option<String>,
 }
+
+/// A problem as shown to the client: SEALED - it carries no answer, tolerance,
+/// or solution. Grading happens server-side; the solution is only returned in a
+/// `GradeResult` after a submission (CLAUDE.md 4.4).
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct BankProblem {
+    pub id: String,
+    pub track: String,
+    pub world: i64,
+    pub difficulty: i64,
+    pub kind: String, // "mcq" | "numeric" | "code"
+    pub statement: String,
+    pub choices: Vec<String>, // empty unless kind == "mcq"
+    pub tags: Vec<String>,
+    pub time_limit_seconds: i64,
+}
+
+/// Result of grading a submission. The solution is revealed only here, after the
+/// attempt has been graded server-side.
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub struct GradeResult {
+    pub correct: bool,
+    pub xp_awarded: i64, // 0 if incorrect or already solved
+    pub solution_explanation: String,
+    pub summary: MeSummary,
+}

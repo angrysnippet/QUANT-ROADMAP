@@ -20,7 +20,9 @@ pulldown-cmark = { version = "0.12", default-features = false, features = ["html
 sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros"], optional = true }
 jsonwebtoken = { version = "9", optional = true }
 uuid = { version = "1", features = ["v4", "serde"], optional = true }
-tokio = { version = "1", features = ["sync"], optional = true }
+tokio = { version = "1", features = ["sync", "rt-multi-thread", "macros"], optional = true }
+chrono-tz = { version = "0.10", optional = true }
+toml = { version = "0.8", optional = true }
 
 [features]
 default = ["web"]
@@ -33,4 +35,11 @@ mobile = ["dioxus/mobile"]
 # client stubs; `server` additionally selects the server platform for the
 # Axum-backed server binary. See docs/DEV_SETUP.md for how to run it locally.
 fullstack = ["dioxus/fullstack"]
-server = ["dioxus/server", "fullstack", "dep:sqlx", "dep:jsonwebtoken", "dep:uuid", "dep:tokio"]
+server = ["dioxus/server", "fullstack", "dep:sqlx", "dep:jsonwebtoken", "dep:uuid", "dep:tokio", "dep:chrono-tz", "dep:toml"]
+
+# The problem seeder binary (src/bin/seed.rs) only builds with the server
+# feature, so the default `web`/`cargo build` skips it.
+[[bin]]
+name = "seed"
+path = "src/bin/seed.rs"
+required-features = ["server"]

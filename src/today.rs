@@ -148,6 +148,7 @@ pub fn Today() -> Element {
                         },
                         "Sign out"
                     }
+                    Link { to: Route::Bank {}, class: "cal-sched-open-btn", style: "margin-left:.5rem", "Problem Bank ›" }
                 } else if token().is_some() {
                     div { class: "strat-success-title", "☁ Signing in…" }
                 } else {

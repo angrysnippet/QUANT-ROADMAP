@@ -14,13 +14,16 @@ until a green Fly deploy is confirmed; only then do we retire/repoint it.
    - API: `Project URL` (SUPABASE_URL), `anon public` key (SUPABASE_ANON_KEY),
      `JWT Secret` (SUPABASE_JWT_SECRET).
    - Database: the `URI` connection string (DATABASE_URL).
-2. Apply migrations:
+2. Apply migrations + seed the problem bank:
    ```sh
    # with the Supabase CLI, linked to your project:
    supabase link --project-ref YOUR-REF
-   supabase db push        # applies supabase/migrations/0001_init.sql
+   supabase db push        # applies 0001_init.sql + 0002_problems.sql
+   # seed problems (answers go into the sealed server-only columns):
+   DATABASE_URL='postgres://...' cargo run --bin seed --no-default-features --features server
    ```
-   (Or paste `supabase/migrations/0001_init.sql` into the SQL editor.)
+   (Or paste the `supabase/migrations/*.sql` files into the SQL editor; then run
+   the seeder.)
 3. Enable auth providers (Authentication > Providers): Email, Google, GitHub.
    For Google/GitHub create OAuth apps and paste their client id/secret; set the
    redirect URL to `https://<your-domain>/` (and `http://localhost:8080/` for

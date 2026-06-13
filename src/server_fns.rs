@@ -9,7 +9,7 @@
 
 use dioxus::prelude::*;
 
-use crate::api::MeSummary;
+use crate::api::{BankProblem, GradeResult, MeSummary};
 
 /// Phase 0 hello-world server function (kept as a liveness probe).
 #[get("/api/hello")]
@@ -69,6 +69,33 @@ pub async fn import_local_progress(
         .await
         .map_err(ServerFnError::new)?;
     crate::server::me_summary(uid)
+        .await
+        .map_err(ServerFnError::new)
+}
+
+/// List sealed problems (optionally filtered by track). Answers are never
+/// included in the payload.
+#[post("/api/list_problems")]
+pub async fn list_problems(
+    token: String,
+    track: Option<String>,
+) -> Result<Vec<BankProblem>, ServerFnError> {
+    crate::server::authed(&token).map_err(ServerFnError::new)?;
+    crate::server::list_problems(track.as_deref())
+        .await
+        .map_err(ServerFnError::new)
+}
+
+/// Submit an answer for server-side grading. Returns correctness, XP awarded,
+/// the now-revealed solution, and the fresh summary.
+#[post("/api/submit_problem")]
+pub async fn submit_problem(
+    token: String,
+    problem_id: String,
+    answer: String,
+) -> Result<GradeResult, ServerFnError> {
+    let uid = crate::server::authed(&token).map_err(ServerFnError::new)?;
+    crate::server::submit_problem(uid, &problem_id, &answer)
         .await
         .map_err(ServerFnError::new)
 }
