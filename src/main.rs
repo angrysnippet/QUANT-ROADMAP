@@ -11,6 +11,7 @@ mod calendar;
 mod strategy;
 mod practice;
 mod journal;
+mod planner;
 mod auth;
 mod api;
 mod sync;
@@ -31,6 +32,7 @@ use calendar::Calendar;
 use strategy::Strategy;
 use practice::Practice;
 use journal::Journal;
+use planner::Planner;
 use auth::Login;
 use bank::Bank;
 use state::use_app_state;
@@ -57,6 +59,8 @@ pub enum Route {
         Bank {},
         #[route("/journal")]
         Journal {},
+        #[route("/planner")]
+        Planner {},
 }
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
