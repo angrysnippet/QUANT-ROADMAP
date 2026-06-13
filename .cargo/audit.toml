@@ -1,0 +1,10 @@
+# cargo-audit configuration.
+#
+# RUSTSEC-2023-0071 (rsa "Marvin Attack" timing side-channel) is pulled ONLY by
+# sqlx-mysql, which this project never compiles (sqlx is postgres-only, with
+# default-features disabled). sqlx-mysql is an optional dependency of the sqlx
+# meta-crate, so it appears in Cargo.lock and `cargo audit` flags it even though
+# the vulnerable code is never built. There is no fixed `rsa` release upstream.
+# Revisit if we ever enable the MySQL driver.
+[advisories]
+ignore = ["RUSTSEC-2023-0071"]
