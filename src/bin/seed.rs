@@ -102,39 +102,7 @@ async fn upsert_problem(
     src: &str,
     p: &ProblemFile,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    if !["dsa", "probability", "quantfin", "mentalmath"].contains(&p.track.as_str()) {
-        return Err(format!("{src}: bad track '{}' ({})", p.track, p.id).into());
-    }
-    if !["mcq", "numeric", "code"].contains(&p.kind.as_str()) {
-        return Err(format!("{src}: bad type '{}' ({})", p.kind, p.id).into());
-    }
-    if !(1..=5).contains(&p.difficulty) {
-        return Err(format!("{src}: difficulty out of range ({})", p.id).into());
-    }
-
-    // Derive sealed answer columns from the [server] section by kind.
-    let (answer_idx, answer_num, answer_tol, answer_text) = match p.kind.as_str() {
-        "mcq" => (p.server.answer.as_integer().map(|i| i as i32), None, None, None),
-        "numeric" => {
-            let num = p
-                .server
-                .answer
-                .as_float()
-                .or_else(|| p.server.answer.as_integer().map(|i| i as f64));
-            (None, num, Some(p.server.tolerance.unwrap_or(0.0)), None)
-        }
-        "code" => (None, None, None, p.server.answer.as_str().map(str::to_string)),
-        _ => unreachable!(),
-    };
-    if p.kind == "mcq" && (answer_idx.is_none() || p.choices.is_empty()) {
-        return Err(format!("{src}: mcq needs choices + an integer answer ({})", p.id).into());
-    }
-    if p.kind == "numeric" && answer_num.is_none() {
-        return Err(format!("{src}: numeric needs a numeric answer ({})", p.id).into());
-    }
-    if p.kind == "code" && answer_text.is_none() {
-        return Err(format!("{src}: code needs a string answer ({})", p.id).into());
-    }
+    let (answer_idx, answer_num, answer_tol, answer_text) = derive_answers(src, p)?;
 
     sqlx::query(
         "insert into problems \
@@ -170,4 +138,83 @@ async fn upsert_problem(
     .await?;
     println!("seeded {}", p.id);
     Ok(())
+}
+
+type DerivedAnswers = (Option<i32>, Option<f64>, Option<f64>, Option<String>);
+
+/// Validate a problem and derive its sealed answer columns by kind. Pure (no
+/// DB) so it can be unit-tested against the committed problem files.
+fn derive_answers(src: &str, p: &ProblemFile) -> Result<DerivedAnswers, String> {
+    if !["dsa", "probability", "quantfin", "mentalmath"].contains(&p.track.as_str()) {
+        return Err(format!("{src}: bad track '{}' ({})", p.track, p.id));
+    }
+    if !["mcq", "numeric", "code"].contains(&p.kind.as_str()) {
+        return Err(format!("{src}: bad type '{}' ({})", p.kind, p.id));
+    }
+    if !(1..=5).contains(&p.difficulty) {
+        return Err(format!("{src}: difficulty out of range ({})", p.id));
+    }
+    let derived: DerivedAnswers = match p.kind.as_str() {
+        "mcq" => (p.server.answer.as_integer().map(|i| i as i32), None, None, None),
+        "numeric" => {
+            let num = p
+                .server
+                .answer
+                .as_float()
+                .or_else(|| p.server.answer.as_integer().map(|i| i as f64));
+            (None, num, Some(p.server.tolerance.unwrap_or(0.0)), None)
+        }
+        "code" => (None, None, None, p.server.answer.as_str().map(str::to_string)),
+        _ => unreachable!(),
+    };
+    if p.kind == "mcq" && (derived.0.is_none() || p.choices.is_empty()) {
+        return Err(format!("{src}: mcq needs choices + an integer answer ({})", p.id));
+    }
+    if p.kind == "numeric" && derived.1.is_none() {
+        return Err(format!("{src}: numeric needs a numeric answer ({})", p.id));
+    }
+    if p.kind == "code" && derived.3.is_none() {
+        return Err(format!("{src}: code needs a string answer ({})", p.id));
+    }
+    Ok(derived)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashSet;
+
+    fn parse(text: &str) -> Vec<ProblemFile> {
+        let has_array = toml::from_str::<toml::Value>(text)
+            .expect("valid toml")
+            .get("problems")
+            .is_some();
+        if has_array {
+            toml::from_str::<MultiFile>(text).expect("valid [[problems]]").problems
+        } else {
+            vec![toml::from_str::<ProblemFile>(text).expect("valid problem")]
+        }
+    }
+
+    /// Pre-flight: every committed problem file parses, derives a valid answer,
+    /// and has a unique id - so the live seeder won't choke on content.
+    #[test]
+    fn all_problem_files_parse_and_derive() {
+        let mut files = Vec::new();
+        collect_toml(Path::new("problems"), &mut files);
+        assert!(!files.is_empty(), "no problem files found under problems/");
+
+        let mut ids = HashSet::new();
+        let mut count = 0;
+        for f in &files {
+            let src = f.display().to_string();
+            let text = std::fs::read_to_string(f).unwrap();
+            for p in parse(&text) {
+                derive_answers(&src, &p).unwrap_or_else(|e| panic!("{e}"));
+                assert!(ids.insert(p.id.clone()), "duplicate problem id: {}", p.id);
+                count += 1;
+            }
+        }
+        assert!(count >= 30, "expected at least 30 problems, found {count}");
+    }
 }
