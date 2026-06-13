@@ -1,0 +1,278 @@
+# Day 2 practice problems migrated from the legacy in-app bank (roadmap.rs).
+# Code (graded by stdout) + numeric math/quant (graded by value). Ids match the
+# legacy ids. q_table is omitted (its sample output is a "..." placeholder).
+
+# ---- Code (track dsa) ----
+
+[[problems]]
+id = "q_search"
+track = "dsa"
+world = 1
+day = 2
+difficulty = 1
+type = "code"
+tags = ["cpp", "arrays", "search"]
+time_limit_seconds = 300
+statement = """
+Read N, then N integers, then a target T. Print the 0-based index of T, or -1 if absent.
+
+Input:
+```
+5
+10 20 30 40 50
+30
+```
+"""
+[problems.server]
+answer = "2"
+solution_explanation = "Scan left to right; print the first index whose value equals T, else -1."
+
+[[problems]]
+id = "q_2nd"
+track = "dsa"
+world = 1
+day = 2
+difficulty = 3
+type = "code"
+tags = ["cpp", "arrays"]
+time_limit_seconds = 300
+statement = """
+Read N, then N integers. Print the second-largest distinct value.
+
+Input:
+```
+5
+4 9 9 2 7
+```
+"""
+[problems.server]
+answer = "7"
+solution_explanation = "Track the largest and second-largest distinct values in one pass."
+
+[[problems]]
+id = "q_freq"
+track = "dsa"
+world = 1
+day = 2
+difficulty = 1
+type = "code"
+tags = ["cpp", "arrays"]
+time_limit_seconds = 300
+statement = """
+Read N, then N integers, then a target T. Print how many times T appears.
+
+Input:
+```
+6
+1 2 3 2 5 2
+2
+```
+"""
+[problems.server]
+answer = "3"
+solution_explanation = "Count the values equal to T."
+
+[[problems]]
+id = "q_sumeven"
+track = "dsa"
+world = 1
+day = 2
+difficulty = 1
+type = "code"
+tags = ["cpp", "arrays"]
+time_limit_seconds = 300
+statement = """
+Read N, then N integers. Print the sum of only the even numbers.
+
+Input:
+```
+6
+1 2 3 4 5 6
+```
+"""
+[problems.server]
+answer = "12"
+solution_explanation = "Add x only when x % 2 == 0 (2 + 4 + 6 = 12)."
+
+[[problems]]
+id = "q_dedup"
+track = "dsa"
+world = 1
+day = 2
+difficulty = 3
+type = "code"
+tags = ["cpp", "arrays"]
+time_limit_seconds = 300
+statement = """
+Read N, then N integers in non-decreasing order. Print the unique values in order, space-separated.
+
+Input:
+```
+7
+1 1 2 2 2 3 4
+```
+"""
+[problems.server]
+answer = "1 2 3 4"
+solution_explanation = "Print a value only when it differs from the previous one."
+
+[[problems]]
+id = "q_prime"
+track = "dsa"
+world = 1
+day = 2
+difficulty = 1
+type = "code"
+tags = ["cpp", "math"]
+time_limit_seconds = 300
+statement = """
+Read N. Print "yes" if N is prime, else "no".
+
+Input:
+```
+13
+```
+"""
+[problems.server]
+answer = "yes"
+solution_explanation = "Check divisibility by 2..sqrt(N); 13 has no divisors so it is prime."
+
+[[problems]]
+id = "q_gcd"
+track = "dsa"
+world = 1
+day = 2
+difficulty = 1
+type = "code"
+tags = ["cpp", "math", "recursion"]
+time_limit_seconds = 300
+statement = """
+Read two integers A and B. Print their GCD.
+
+Input:
+```
+48 36
+```
+"""
+[problems.server]
+answer = "12"
+solution_explanation = "Euclid's algorithm: gcd(48,36)=gcd(36,12)=gcd(12,0)=12."
+
+[[problems]]
+id = "q_palin"
+track = "dsa"
+world = 1
+day = 2
+difficulty = 1
+type = "code"
+tags = ["cpp", "strings"]
+time_limit_seconds = 300
+statement = """
+Read a string. Print "yes" if it reads the same backwards, else "no".
+
+Input:
+```
+level
+```
+"""
+[problems.server]
+answer = "yes"
+solution_explanation = "Compare characters from both ends moving inward."
+
+[[problems]]
+id = "q_vowels"
+track = "dsa"
+world = 1
+day = 2
+difficulty = 1
+type = "code"
+tags = ["cpp", "strings"]
+time_limit_seconds = 300
+statement = """
+Read a string. Print the number of vowels (a, e, i, o, u).
+
+Input:
+```
+education
+```
+"""
+[problems.server]
+answer = "5"
+solution_explanation = "Count characters in {a,e,i,o,u}: e,u,a,i,o = 5."
+
+# ---- Math / Quant (numeric) ----
+
+[[problems]]
+id = "m_2heads"
+track = "probability"
+world = 1
+day = 2
+difficulty = 1
+type = "numeric"
+tags = ["probability"]
+time_limit_seconds = 120
+statement = "Flip a fair coin 3 times. Probability of exactly 2 heads? Enter as a decimal."
+[problems.server]
+answer = 0.375
+tolerance = 0.01
+solution_explanation = "C(3,2) / 2^3 = 3/8 = 0.375."
+
+[[problems]]
+id = "q_die6even"
+track = "probability"
+world = 1
+day = 2
+difficulty = 1
+type = "numeric"
+tags = ["probability"]
+time_limit_seconds = 120
+statement = "Roll one fair die. What is the probability the number is even? Enter as a decimal."
+[problems.server]
+answer = 0.5
+tolerance = 0.01
+solution_explanation = "Even faces {2,4,6} -> 3/6 = 0.5."
+
+[[problems]]
+id = "q_bt_ants"
+track = "probability"
+world = 1
+day = 2
+difficulty = 3
+type = "numeric"
+tags = ["probability", "brainteaser"]
+time_limit_seconds = 120
+statement = "Three ants sit at the corners of a triangle; each picks a direction (CW/CCW) at random and walks. Probability none collide? Enter as a decimal."
+[problems.server]
+answer = 0.25
+tolerance = 0.01
+solution_explanation = "No collision only if all go the same way: 2/8 = 1/4 = 0.25."
+
+[[problems]]
+id = "q_bt_horses"
+track = "mentalmath"
+world = 1
+day = 2
+difficulty = 5
+type = "numeric"
+tags = ["brainteaser", "optimization"]
+time_limit_seconds = 120
+statement = "25 horses, a track that races 5 at a time, no timer (you only see finishing order). Minimum number of races to find the 3 fastest?"
+[problems.server]
+answer = 7
+tolerance = 0
+solution_explanation = "5 group races + 1 race of winners + 1 final among the 5 still-eligible = 7."
+
+[[problems]]
+id = "q_bt_poison"
+track = "mentalmath"
+world = 1
+day = 2
+difficulty = 5
+type = "numeric"
+tags = ["brainteaser"]
+time_limit_seconds = 120
+statement = "1000 bottles, exactly one poisoned; test strips report positive after 24 hours. Minimum strips to find the poisoned bottle in a single 24-hour round?"
+[problems.server]
+answer = 10
+tolerance = 0
+solution_explanation = "Binary-encode the bottle index across strips; 2^10 = 1024 >= 1000, so 10 strips."
