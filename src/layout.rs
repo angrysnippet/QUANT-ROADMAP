@@ -1,6 +1,8 @@
 //! The app shell: top bar + sidebar nav, with routed views rendered in the
 //! content outlet. Markup/classes mirror `spec.html`.
 
+use crate::auth::use_me;
+use crate::roadmap::overall_pct;
 use crate::state::AppState;
 use crate::Route;
 use chrono::Local;
@@ -12,6 +14,23 @@ pub fn AppShell() -> Element {
     let mut app = use_context::<Signal<AppState>>();
     let is_dark = app.read().theme != "light";
 
+    // Server-authoritative summary when signed in; otherwise derive what we can
+    // from local state (XP/streak are server-only, shown as "—" offline).
+    let me = use_me();
+    let m = me.read().clone();
+    let completed_local = app.read().current_day.saturating_sub(1);
+    let pct = m
+        .as_ref()
+        .map(|x| x.progress_pct)
+        .unwrap_or_else(|| overall_pct(completed_local) as f64);
+    let pct_display = format!("{pct:.0}");
+    let completed_days = m.as_ref().map(|x| x.completed_days).unwrap_or(completed_local as i64);
+    let current_day = m.as_ref().map(|x| x.current_day).unwrap_or(app.read().current_day as i64);
+    let xp_display = m.as_ref().map(|x| x.xp.to_string()).unwrap_or_else(|| "—".to_string());
+    let level_display = m.as_ref().map(|x| x.level.to_string()).unwrap_or_else(|| "—".to_string());
+    let streak_display = m.as_ref().map(|x| x.streak_current.to_string()).unwrap_or_else(|| "—".to_string());
+    let est_display = m.as_ref().and_then(|x| x.est_completion.clone()).unwrap_or_else(|| "—".to_string());
+
     rsx! {
         div { class: "topbar",
             div { class: "topbar-left",
@@ -19,6 +38,11 @@ pub fn AppShell() -> Element {
                 div { class: "topbar-date", "{today}" }
             }
             div { class: "topbar-right",
+                div { class: "topbar-chips",
+                    span { class: "tb-chip", "⭐ ", span { "{xp_display}" } }
+                    span { class: "tb-chip", "🔥 ", span { "{streak_display}" } }
+                    span { class: "tb-chip", "📊 ", span { "{pct_display}%" } }
+                }
                 button {
                     class: "theme-toggle",
                     title: if is_dark { "Switch to light mode" } else { "Switch to dark mode" },
@@ -64,6 +88,28 @@ pub fn AppShell() -> Element {
             div { class: "content",
                 Outlet::<Route> {}
             }
+
+            aside { class: "rightrail",
+                div { class: "rail-card",
+                    div { class: "rail-title", "Journey Stats" }
+                    RailStat { label: "Progress", value: "{pct_display}%" }
+                    RailStat { label: "Days done", value: "{completed_days}/548" }
+                    RailStat { label: "XP", value: "{xp_display}" }
+                    RailStat { label: "Level", value: "{level_display}" }
+                    RailStat { label: "Current day", value: "{current_day}" }
+                    RailStat { label: "Est. finish", value: "{est_display}" }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn RailStat(label: String, value: String) -> Element {
+    rsx! {
+        div { class: "rail-stat",
+            span { class: "rail-stat-label", "{label}" }
+            span { class: "rail-stat-value", "{value}" }
         }
     }
 }

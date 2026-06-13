@@ -24,6 +24,13 @@ pub fn use_token() -> Signal<Option<String>> {
     use_context::<Signal<Option<String>>>()
 }
 
+/// Shared server-summary signal, provided at the app root. `None` = not loaded
+/// (signed out or still fetching). Pages may write it after a server action so
+/// the shell reflects the change immediately.
+pub fn use_me() -> Signal<Option<crate::api::MeSummary>> {
+    use_context::<Signal<Option<crate::api::MeSummary>>>()
+}
+
 /// Serialize a Rust string as a safe JS string literal.
 fn js_str(s: &str) -> String {
     serde_json::to_string(s).unwrap_or_else(|_| "\"\"".to_string())

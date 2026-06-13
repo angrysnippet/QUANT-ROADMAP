@@ -138,6 +138,29 @@ Adds the server-graded problem bank and refines streaks. Branch:
   after submitting.
 
 **Known gaps -> later (still Phase 1):** full rewire of the legacy Practice page
-onto the problems table (needs content migration); top bar/right rail fed by
-me_summary; retire GitHub Pages after a green Fly deploy. Authoring the 40-problem
-bank is Phase 3. DB-level idempotency/RLS checks run against the dev project.
+onto the problems table (needs content migration); retire GitHub Pages after a
+green Fly deploy. Authoring the 40-problem bank is Phase 3. DB-level
+idempotency/RLS checks run against the dev project.
+
+---
+
+## Phase 1 - shell wired to me_summary
+
+Surfaced the server-authoritative summary in the persistent shell (was only on
+the Today account panel).
+
+**What was built:**
+- `main.rs`: shared `Signal<Option<MeSummary>>` context, refetched on token change;
+  `auth::use_me()` hook.
+- `layout.rs`: top-bar chips (XP / streak / progress %) + a "Journey Stats" right
+  rail (progress, days x/548, XP, level, current day, est finish); offline
+  fallback derives progress/days from local state (XP/streak show "-").
+- `assets/main.css`: chip + right-rail styles; rail hidden < 1100px, chips < 640px.
+- `today.rs` / `bank.rs`: write the shared summary after complete_day /
+  submit_problem so the shell updates live; removed today.rs's duplicate fetch.
+
+**How to verify:** compiles web/fullstack/server + wasm; clippy clean; signed in,
+the top-bar chips + rail show live server XP/streak/progress and update after
+completing a day or solving a problem; signed out shows derived progress with
+XP/streak dashed. Full Section 5 visuals (world map, achievements, quote) remain
+Phase 2.
