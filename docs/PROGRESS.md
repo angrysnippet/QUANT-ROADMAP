@@ -277,3 +277,23 @@ PLAN checklist -> complete_day) + right-rail Recent Achievements + quote card.
 
 Compiles web/fullstack/server + wasm; clippy clean. Slice 3 (Day Detail +
 right-rail) next.
+
+---
+
+## Phase 2 - World Map art upgrade (user-supplied castles + background)
+
+The user supplied the §5 art: a painted background with the glowing winding path
+baked in (`assets/background/image.png`, ~2.7 MB) and 9 transparent isometric
+castle tiles (`assets/worlds/world1..9.png`, mapped to worlds 1-9 by color).
+
+- `worldmap.rs`: `WorldMap` now renders the background as the scene and overlays
+  each world's castle at a `WORLD_POS` (top%, left%) along the painted path, with
+  node state (completed ✓ / current "YOU ARE HERE" pulse / locked greyed + 🔒),
+  progress, and click -> Chapter. `castle(n)` maps world -> asset; `BG` + `W1..W9`
+  asset consts; emoji in the label, desc as tooltip.
+- `assets/main.css`: scene/marker/castle styles (absolute % positioning,
+  drop-shadow, current-world pulse) replacing the old dashed-path layout.
+
+Compiles web/fullstack/server + wasm; clippy -D warnings clean. NOTE: castle
+positions (`WORLD_POS`) are first-pass estimates and need eyeballing against the
+live render. Images total ~16 MB; downscale to WebP as a follow-up for load speed.

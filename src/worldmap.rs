@@ -23,6 +23,48 @@ fn completed_days(me: &Signal<Option<crate::api::MeSummary>>, app: &Signal<AppSt
         .unwrap_or_else(|| app.read().current_day.saturating_sub(1))
 }
 
+const BG: Asset = asset!("/assets/background/image.png");
+
+const W1: Asset = asset!("/assets/worlds/world1.png");
+const W2: Asset = asset!("/assets/worlds/world2.png");
+const W3: Asset = asset!("/assets/worlds/world3.png");
+const W4: Asset = asset!("/assets/worlds/world4.png");
+const W5: Asset = asset!("/assets/worlds/world5.png");
+const W6: Asset = asset!("/assets/worlds/world6.png");
+const W7: Asset = asset!("/assets/worlds/world7.png");
+const W8: Asset = asset!("/assets/worlds/world8.png");
+const W9: Asset = asset!("/assets/worlds/world9.png");
+
+/// Castle art for world `n` (1-9).
+fn castle(n: u32) -> Asset {
+    match n {
+        1 => W1,
+        2 => W2,
+        3 => W3,
+        4 => W4,
+        5 => W5,
+        6 => W6,
+        7 => W7,
+        8 => W8,
+        _ => W9,
+    }
+}
+
+/// (top%, left%) of each world's castle along the painted path in the background
+/// image (world 1..9, top -> bottom). Tweak these to line the castles up with
+/// the path bends in `assets/background/image.png`.
+const WORLD_POS: [(f32, f32); 9] = [
+    (5.0, 44.0),
+    (16.0, 62.0),
+    (27.0, 34.0),
+    (38.0, 46.0),
+    (48.0, 63.0),
+    (59.0, 33.0),
+    (69.0, 60.0),
+    (80.0, 34.0),
+    (91.0, 48.0),
+];
+
 #[component]
 pub fn WorldMap() -> Element {
     let app = use_context::<Signal<AppState>>();
@@ -31,52 +73,50 @@ pub fn WorldMap() -> Element {
     let current_day = completed + 1;
 
     rsx! {
-        div { class: "view active",
+        div { class: "view active wm-view",
             div { class: "view-title", "World Map" }
-            div { class: "view-sub", "Your journey across the 9 worlds — Day {current_day} of 548" }
+            div { class: "view-sub", "Your quant journey — Day {current_day} of 548" }
 
-            div { class: "worldmap",
-                for w in MAP_WORLDS {
+            div { class: "worldmap-scene",
+                img { class: "wm-bg", src: BG, alt: "" }
+                for (i, w) in MAP_WORLDS.iter().enumerate() {
                     {
+                        let (top, left) = WORLD_POS[i];
                         let state = w.state(current_day);
                         let done = w.done(completed);
                         let total = w.days();
                         let pct = done * 100 / total;
-                        let (state_cls, badge) = match state {
-                            WorldState::Completed => ("wm-node done", "✓"),
-                            WorldState::Current => ("wm-node current", ""),
-                            WorldState::Locked => ("wm-node locked", "🔒"),
+                        let cls = match state {
+                            WorldState::Completed => "wm-marker done",
+                            WorldState::Current => "wm-marker current",
+                            WorldState::Locked => "wm-marker locked",
                         };
                         let locked = state == WorldState::Locked;
                         let wn = w.n;
                         rsx! {
                             div {
                                 key: "{w.n}",
-                                class: "{state_cls}",
+                                class: "{cls}",
+                                style: "top:{top}%;left:{left}%",
+                                title: "{w.n}. {w.name} - {w.desc}",
                                 onclick: move |_| {
                                     if !locked {
                                         navigator().push(Route::Chapter { world: wn });
                                     }
                                 },
-                                div {
-                                    class: "wm-dot",
-                                    style: "background:linear-gradient(135deg,{w.color}33,{w.color}11);border-color:{w.color};color:{w.color}",
-                                    span { class: "wm-emoji", "{w.emoji}" }
-                                    if !badge.is_empty() {
-                                        span { class: "wm-badge", "{badge}" }
-                                    }
+                                img { class: "wm-castle", src: castle(w.n), alt: "{w.name}" }
+                                if state == WorldState::Completed {
+                                    span { class: "wm-check", "✓" }
                                 }
-                                div { class: "wm-card", style: "border-color:{w.color}55",
+                                if locked {
+                                    span { class: "wm-lock", "🔒" }
+                                }
+                                div { class: "wm-label", style: "border-color:{w.color}",
                                     if state == WorldState::Current {
                                         span { class: "wm-here", "YOU ARE HERE" }
                                     }
-                                    div { class: "wm-name", "{w.n}. {w.name}" }
-                                    div { class: "wm-range", "Days {w.lo}-{w.hi}" }
-                                    div { class: "wm-desc", "{w.desc}" }
-                                    div { class: "wm-bar-track",
-                                        div { class: "wm-bar-fill", style: "width:{pct}%;background:{w.color}" }
-                                    }
-                                    div { class: "wm-meta", "{done}/{total} days · {pct}%" }
+                                    div { class: "wm-name", "{w.emoji} {w.name}" }
+                                    div { class: "wm-meta", "{done}/{total} · {pct}%" }
                                 }
                             }
                         }
