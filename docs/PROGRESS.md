@@ -261,3 +261,19 @@ the vertical fallback.
 **Slices 2-3 (next):** Chapter Zoom (day-nodes winding path + boss banner
 "N days to unlock"); Day Detail (title/tags/est time/progress ring/XP + TODAY'S
 PLAN checklist -> complete_day) + right-rail Recent Achievements + quote card.
+
+---
+
+## Phase 2 - Slice 2: Chapter Zoom
+
+- `worldmap.rs`: new `Chapter` component + `Route::Chapter { world }` at
+  `/map/:world`. World Map cards now link here (replacing the interim Strategy
+  link). Renders the world's days (lo..hi) as nodes with state completed /
+  current / locked (from me_summary else local current_day), day title tooltip
+  from DAYS, and a boss-project banner ("N days to unlock" / "cleared"). Day-node
+  click -> Strategy for now (Day Detail replaces it in Slice 3). Breadcrumb back
+  to the World Map.
+- `assets/main.css`: chapter day-node + boss-banner styles.
+
+Compiles web/fullstack/server + wasm; clippy clean. Slice 3 (Day Detail +
+right-rail) next.

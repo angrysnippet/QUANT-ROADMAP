@@ -36,7 +36,7 @@ use journal::Journal;
 use planner::Planner;
 use auth::Login;
 use bank::Bank;
-use worldmap::WorldMap;
+use worldmap::{Chapter, WorldMap};
 use state::use_app_state;
 
 #[derive(Debug, Clone, Routable, PartialEq)]
@@ -49,6 +49,8 @@ pub enum Route {
     #[layout(AppShell)]
         #[route("/map")]
         WorldMap {},
+        #[route("/map/:world")]
+        Chapter { world: u32 },
         #[route("/progress")]
         Progress {},
         #[route("/today")]
