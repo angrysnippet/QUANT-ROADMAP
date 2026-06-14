@@ -297,3 +297,32 @@ castle tiles (`assets/worlds/world1..9.png`, mapped to worlds 1-9 by color).
 Compiles web/fullstack/server + wasm; clippy -D warnings clean. NOTE: castle
 positions (`WORLD_POS`) are first-pass estimates and need eyeballing against the
 live render. Images total ~16 MB; downscale to WebP as a follow-up for load speed.
+
+---
+
+## Phase 2 - World Map art finishing (transparency, positions, size)
+
+Closed the two NOTEs from the previous entry, plus fixed a real bug: the
+supplied castle PNGs were RGB with an **opaque near-white background** (corners
+`(253,253,253)`), so they would have rendered as white squares on the dark map,
+not cut-outs.
+
+- `assets/worlds/world1..9.png`: re-processed from the source zip
+  (`quant_castles (1).zip`, which remains the untouched original backup).
+  Flood-filled the border-connected near-white background to transparent
+  (interior lit windows/flags are saturated, so kept), eroded 1px to remove the
+  white anti-aliased rim, and downscaled 1254px -> 640px RGBA. Result: castles
+  are true transparent cut-outs; total art **13.5 MB -> 2.75 MB** (~80% smaller),
+  crisp at the 26%-width display size. (Done via a one-off Pillow/numpy/scipy
+  script, not committed.)
+- `worldmap.rs`: refined `WORLD_POS` so each castle sits on its matching-color
+  path bend (verified by compositing castles onto the background and eyeballing;
+  notably world 3 moved onto the teal left bulge). The painted path's color
+  order (purple->teal->green->amber->blue->violet->red->green) matches the world
+  accent order.
+
+`cargo check` passes. Known cosmetic quirk: worlds 2 and 4 have a light-colored
+island-base edge in their source art that reads as a faint bright rim on the dark
+map; removing it would cut into the island, so left as-is. The background
+(`image.png`, 2.7 MB PNG) is unchanged; a WebP/JPEG re-encode is the remaining
+load-speed follow-up.
