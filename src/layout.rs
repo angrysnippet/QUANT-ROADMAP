@@ -59,6 +59,7 @@ pub fn AppShell() -> Element {
         div { class: "shell",
             nav { class: "sidebar",
                 div { class: "sidebar-section-label", "Views" }
+                NavItem { to: Route::WorldMap {}, icon: "🌍", label: "World Map" }
                 NavItem { to: Route::Progress {}, icon: "🗺", label: "Progress" }
                 NavItem { to: Route::Today {}, icon: "📋", label: "Today" }
                 NavItem { to: Route::Calendar {}, icon: "🗓", label: "Calendar" }

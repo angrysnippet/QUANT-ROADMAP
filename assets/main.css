@@ -92,6 +92,29 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit-font
 .rail-stat-value{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text)}
 @media(max-width:1100px){.rightrail{display:none}}
 @media(max-width:640px){.topbar-chips{display:none}}
+
+/* World Map (Phase 2) - 9 worlds on a glowing dashed path */
+.worldmap{position:relative;max-width:760px;margin:0 auto;padding:.5rem 0 2rem}
+.worldmap::before{content:"";position:absolute;left:31px;top:2rem;bottom:2rem;border-left:2px dashed var(--border2);box-shadow:0 0 12px rgba(168,85,247,.18)}
+.wm-node{position:relative;display:flex;align-items:center;gap:1rem;padding:.55rem 0;cursor:pointer}
+.wm-node.locked{cursor:default;opacity:.5}
+.wm-dot{position:relative;flex-shrink:0;width:64px;height:64px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;z-index:1;background:var(--surface)}
+.wm-emoji{font-size:26px;filter:saturate(1.2)}
+.wm-badge{position:absolute;right:-3px;bottom:-3px;min-width:22px;height:22px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.wm-node.done .wm-dot{box-shadow:0 0 16px rgba(132,204,22,.35)}
+.wm-node.current .wm-dot{box-shadow:0 0 22px currentColor;animation:wm-pulse 2.2s ease-in-out infinite}
+@keyframes wm-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
+.wm-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.7rem 1rem;transition:transform .12s,box-shadow .12s}
+.wm-node:not(.locked):hover .wm-card{transform:translateX(3px)}
+.wm-here{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--accent5);background:rgba(6,214,160,.1);border:1px solid rgba(6,214,160,.25);border-radius:20px;padding:.12rem .55rem;margin-bottom:.35rem}
+.wm-name{font-size:15px;font-weight:600;letter-spacing:-.2px}
+.wm-range{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.wm-desc{font-size:12px;color:var(--text2);margin:.25rem 0 .5rem}
+.wm-bar-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.wm-bar-fill{height:100%;border-radius:3px;transition:width .3s}
+.wm-meta{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:.35rem}
+@media(max-width:768px){.worldmap::before{left:23px}.wm-dot{width:48px;height:48px}.wm-emoji{font-size:20px}}
+
 .view{display:none;padding:2rem 2.5rem;max-width:1200px}
 .view.active{display:block}
 .view-title{font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:.25rem}
