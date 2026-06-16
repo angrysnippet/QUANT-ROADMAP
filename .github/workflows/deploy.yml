@@ -48,11 +48,12 @@ jobs:
 
       # AI_STUDY_PLATFORM_URL is read at compile time by `option_env!` in
       # src/planner.rs and baked into the embedded AI Planner iframe. It's the
-      # public Vercel production URL of the AI Study Platform client (not a
-      # secret). Update this value if that project's URL ever changes.
+      # public Vercel URL of the AI Study Platform client (not a secret). Use the
+      # `-drab` alias specifically: that's the exact origin registered in the
+      # Google Cloud OAuth client, so Google sign-in works on the full page.
       - name: Build web (release)
         env:
-          AI_STUDY_PLATFORM_URL: https://ai-study-platform.vercel.app
+          AI_STUDY_PLATFORM_URL: https://ai-study-platform-drab.vercel.app
         run: dx build --release
 
       - name: Assemble site (SPA fallback + disable Jekyll)
