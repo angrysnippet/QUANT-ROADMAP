@@ -46,7 +46,13 @@ jobs:
       - name: Set base path for project-site hosting
         run: sed -i '/^\[web.app\]/a base_path = "QUANT-ROADMAP"' Dioxus.toml
 
+      # AI_STUDY_PLATFORM_URL is read at compile time by `option_env!` in
+      # src/planner.rs and baked into the embedded AI Planner iframe. It's the
+      # public Vercel production URL of the AI Study Platform client (not a
+      # secret). Update this value if that project's URL ever changes.
       - name: Build web (release)
+        env:
+          AI_STUDY_PLATFORM_URL: https://ai-study-platform.vercel.app
         run: dx build --release
 
       - name: Assemble site (SPA fallback + disable Jekyll)
