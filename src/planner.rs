@@ -28,7 +28,7 @@ pub fn Planner() -> Element {
                     href: url,
                     target: "_blank",
                     rel: "noopener noreferrer",
-                    "Open full page ↗"
+                    "Sign in / open full page ↗"
                 }
             }
 
@@ -42,10 +42,12 @@ pub fn Planner() -> Element {
             }
 
             div { class: "planner-help",
-                "If the embedded planner does not load, start its client locally or use “Open full page”. "
-                "For production, build Quant Roadmap with "
-                code { "AI_STUDY_PLATFORM_URL=https://your-planner.vercel.app" }
-                "."
+                "Tip: to sign in with Google, use "
+                strong { "Sign in / open full page ↗" }
+                " — Google blocks its sign-in inside embedded frames. Right here in the "
+                "embed you can "
+                strong { "Continue as guest" }
+                " and start planning straight away."
             }
         }
     }
